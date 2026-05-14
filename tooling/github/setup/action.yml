@@ -28,10 +28,6 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pnpm-
 
-    - name: Install global dependencies
-      shell: bash
-      run: pnpm add -g turbo
-
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile
