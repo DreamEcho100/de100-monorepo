@@ -36,7 +36,7 @@ jobs:
         run: pnpm lint:ws
 
       - name: Biome check
-        run: pnpm format-and-lint
+        run: pnpm format-and-lint:check
 
   format:
     runs-on: ubuntu-latest
