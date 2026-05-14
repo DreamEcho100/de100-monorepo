@@ -12,8 +12,10 @@ runs:
     - name: Enable Corepack
       shell: bash
       run: |
+        npm install -g corepack@latest
         corepack enable
         corepack prepare --activate
+        pnpm --version
 
     - name: Resolve pnpm store path
       id: pnpm-store
@@ -31,6 +33,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile
+
 
 # # OLD
 # name: "Setup and install"
