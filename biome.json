@@ -1,0 +1,7 @@
+{
+  "root": false,
+  "extends": ["./tooling/biome/base.json"],
+  "files": {
+    "includes": ["!dist", "!**/_ignore"]
+  }
+}
