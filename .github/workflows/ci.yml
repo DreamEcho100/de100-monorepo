@@ -38,17 +38,6 @@ jobs:
       - name: Biome check
         run: pnpm format-and-lint:check
 
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup
-        uses: ./tooling/github/setup
-
-      - name: Format
-        run: pnpm format:check
-
   typecheck:
     runs-on: ubuntu-latest
     steps:
