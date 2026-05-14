@@ -1,5 +1,5 @@
 name: "Setup and install"
-description: "Node (from .nvmrc) + pnpm (via Corepack) + cached install"
+description: "Node (from .nvmrc) + pnpm + cached install"
 
 runs:
   using: composite
@@ -8,13 +8,12 @@ runs:
       uses: actions/setup-node@v5
       with:
         node-version-file: ".nvmrc"
+        package-manager-cache: false
 
-    - name: Enable Corepack
+    - name: Install pnpm
       shell: bash
       run: |
-        npm install -g corepack@latest
-        corepack enable
-        corepack prepare --activate
+        npm install -g pnpm@10.19.0
         pnpm --version
 
     - name: Resolve pnpm store path
@@ -33,7 +32,6 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile
-
 
 # # OLD
 # name: "Setup and install"
