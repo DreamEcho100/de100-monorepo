@@ -1,30 +1,30 @@
 {
-  "name": "@de100/tailwind-config",
-  "private": true,
-  "type": "module",
-  "exports": {
-    "./theme": "./theme.css",
-    "./postcss-config": "./postcss-config.js"
-  },
-  "license": "MIT",
-  "scripts": {
-    "clean": "git clean -xdf .cache .turbo node_modules",
-    "format:check": "biome format --css-parse-tailwind-directives=true .",
-    "format:fix": "biome format --css-parse-tailwind-directives=true --write .",
-    "lint:check": "biome lint --css-parse-tailwind-directives=true .",
-    "lint:fix": "biome lint --css-parse-tailwind-directives=true  --write .",
-    "type:check": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@tailwindcss/postcss": "catalog:",
-    "postcss": "^8.5.6",
-    "tailwindcss": "catalog:"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "catalog:",
-    "@de100/biome-config": "workspace:*",
-    "@de100/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "typescript": "catalog:"
-  }
+	"name": "@de100/tailwind-config",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./theme": "./theme.css",
+		"./postcss-config": "./postcss-config.js"
+	},
+	"license": "MIT",
+	"scripts": {
+		"clean": "git clean -xdf .cache .turbo node_modules",
+		"format:check": "biome format --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --css-parse-tailwind-directives=true  --write .",
+		"type:check": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@tailwindcss/postcss": "catalog:",
+		"postcss": "^8.5.6",
+		"tailwindcss": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@de100/biome-config": "workspace:*",
+		"@de100/tsconfig": "workspace:*",
+		"@types/node": "catalog:",
+		"typescript": "catalog:"
+	}
 }

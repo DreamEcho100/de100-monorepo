@@ -1,36 +1,36 @@
 {
-  "name": "@de100/api-proto",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./src/index.ts"
-    }
-  },
-  "license": "MIT",
-  "scripts": {
-    "build": "tsc",
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsc",
-    "format:check": "biome format --css-parse-tailwind-directives=true .",
-    "format:fix": "biome format --css-parse-tailwind-directives=true --write .",
-    "lint:check": "biome lint --css-parse-tailwind-directives=true .",
-    "lint:fix": "biome lint --css-parse-tailwind-directives=true  --write .",
-    "type:check": "tsc --noEmit --emitDeclarationOnly false"
-  },
-  "dependencies": {
-    "@de100/auth-proto": "workspace:*",
-    "@de100/db-proto": "workspace:*",
-    "@de100/validators-proto": "workspace:*",
-    "@trpc/server": "catalog:",
-    "superjson": "2.2.3",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "catalog:",
-    "@de100/biome-config": "workspace:*",
-    "@de100/tsconfig": "workspace:*",
-    "typescript": "catalog:"
-  }
+	"name": "@de100/api-proto",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"license": "MIT",
+	"scripts": {
+		"build": "tsc",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"format:check": "biome format --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --css-parse-tailwind-directives=true  --write .",
+		"type:check": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@de100/auth-proto": "workspace:*",
+		"@de100/db-proto": "workspace:*",
+		"@de100/validators-proto": "workspace:*",
+		"@trpc/server": "catalog:",
+		"superjson": "2.2.3",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@de100/biome-config": "workspace:*",
+		"@de100/tsconfig": "workspace:*",
+		"typescript": "catalog:"
+	}
 }

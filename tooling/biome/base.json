@@ -9,6 +9,8 @@
     "ignoreUnknown": false,
     "includes": [
       "**",
+      "*.json",
+      "!*.hbs",
       "!**/.next",
       "!**/dist",
       "!**/.turbo",
