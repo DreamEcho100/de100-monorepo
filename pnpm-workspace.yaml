@@ -37,17 +37,6 @@ catalogs:
 
 linkWorkspacePackages: true
 
-allowBuilds:
-  - "@parcel/watcher"
-  - "@prisma/client"
-  - "@prisma/engines"
-  - "@tailwindcss/oxide"
-  - better-sqlite3
-  - bufferutil
-  - esbuild
-  - prisma
-  - sharp
-
 overrides:
   "@types/minimatch": 5.1.2
   lightningcss: 1.30.1

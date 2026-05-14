@@ -6,6 +6,19 @@
 		"pnpm": "^11.1.2"
 	},
 	"packageManager": "pnpm@11.1.2",
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@parcel/watcher",
+			"@prisma/client",
+			"@prisma/engines",
+			"@tailwindcss/oxide",
+			"better-sqlite3",
+			"bufferutil",
+			"esbuild",
+			"prisma",
+			"sharp"
+		]
+	},
 	"scripts": {
 		"build": "turbo run build",
 		"clean": "git clean -xdf node_modules",
