@@ -19,7 +19,8 @@ env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
 jobs:
-  lint:
+  check:
+    name: Format & Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -31,8 +32,11 @@ jobs:
         shell: bash
         run: cp .env.example .env
 
-      - name: Lint
-        run: pnpm lint:check && pnpm lint:ws
+      - name: Workspace lint (sherif)
+        run: pnpm lint:ws
+
+      - name: Biome check
+        run: pnpm format-and-lint
 
   format:
     runs-on: ubuntu-latest

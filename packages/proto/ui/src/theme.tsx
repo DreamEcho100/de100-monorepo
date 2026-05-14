@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { DesktopIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import * as React from "react";
 import * as z from "zod/v4";
 
 import { Button } from "./button";
@@ -135,7 +135,7 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
 			}}
 		>
 			<script
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> This script is necessary to set the initial theme class before React hydration. It does not contain any user-generated content, so it is safe from XSS vulnerabilities. --- IGNORE ---
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> This script is necessary to set the initial theme class on the document before React hydration. --- IGNORE ---
 				dangerouslySetInnerHTML={{ __html: themeDetectorScript }}
 				suppressHydrationWarning
 			/>

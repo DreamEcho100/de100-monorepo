@@ -1,12 +1,11 @@
 "use client";
 
-import type { VariantProps } from "class-variance-authority";
-import { useMemo } from "react";
-import { cva } from "class-variance-authority";
-
 import { cn } from "@de100/ui-proto";
 import { Label } from "@de100/ui-proto/label";
 import { Separator } from "@de100/ui-proto/separator";
+import type { VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
+import { useMemo } from "react";
 
 export function FieldSet({
 	className,

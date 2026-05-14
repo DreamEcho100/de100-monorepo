@@ -1,24 +1,39 @@
 {
-  "name": "example-with-tailwindcss",
-  "type": "module",
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "start": "vite start",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@solidjs/router": "^0.15.0",
-    "@solidjs/start": "2.0.0-alpha.2",
-    "@solidjs/vite-plugin-nitro-2": "^0.1.0",
-    "solid-js": "^1.9.5",
-    "vite": "^7.0.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "catalog:",
-    "tailwindcss": "catalog:"
-  },
-  "engines": {
-    "node": ">=22"
-  }
+	"name": "example-with-tailwindcss",
+	"type": "module",
+	"scripts": {
+		"dev": "pnpm with-env vite dev",
+		"build": "pnpm with-env vite build",
+		"start": "pnpm with-env vite start",
+		"preview": "pnpm with-env vite preview",
+		"clean": "git clean -xdf .cache .next .turbo node_modules",
+		"format-and-lint:check": "biome check --css-parse-tailwind-directives=true .",
+		"format-and-lint:fix": "biome check --css-parse-tailwind-directives=true  --write .",
+		"format:check": "biome format --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --css-parse-tailwind-directives=true  --write .",
+		"type:check": "tsc --noEmit",
+		"with-env": "dotenv -e ../../.env --"
+	},
+	"dependencies": {
+		"@solidjs/router": "^0.15.0",
+		"@solidjs/start": "2.0.0-alpha.2",
+		"@solidjs/vite-plugin-nitro-2": "^0.1.0",
+		"solid-js": "^1.9.5",
+		"vite": "^7.0.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@de100/biome-config": "workspace:*",
+		"@de100/tailwind-config": "workspace:*",
+		"@de100/tsconfig": "workspace:*",
+		"@tailwindcss/vite": "catalog:",
+		"@types/node": "catalog:",
+		"tailwindcss": "catalog:",
+		"typescript": "catalog:"
+	},
+	"engines": {
+		"node": ">=22"
+	}
 }

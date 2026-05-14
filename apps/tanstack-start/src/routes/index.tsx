@@ -1,12 +1,3 @@
-import { Suspense } from "react";
-import { useForm } from "@tanstack/react-form";
-import {
-	useMutation,
-	useQueryClient,
-	useSuspenseQuery,
-} from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-
 import type { RouterOutputs } from "@de100/api-proto";
 import { CreatePostSchema } from "@de100/db-proto/schema";
 import { cn } from "@de100/ui-proto";
@@ -20,6 +11,14 @@ import {
 } from "@de100/ui-proto/field";
 import { Input } from "@de100/ui-proto/input";
 import { toast } from "@de100/ui-proto/toast";
+import { useForm } from "@tanstack/react-form";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { Suspense } from "react";
 
 import { AuthShowcase } from "~/component/auth-showcase";
 import { useTRPC } from "~/lib/trpc";

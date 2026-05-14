@@ -1,7 +1,6 @@
+import { Button } from "@de100/ui-proto/button";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-
-import { Button } from "@de100/ui-proto/button";
 
 import { auth, getSession } from "~/auth/server";
 

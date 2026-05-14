@@ -1,8 +1,7 @@
+import { authEnv } from "@de100/auth-proto/env";
 import { createEnv } from "@t3-oss/env-nextjs";
 import { vercel } from "@t3-oss/env-nextjs/presets-zod";
 import { z } from "zod/v4";
-
-import { authEnv } from "@de100/auth-proto/env";
 
 export const env = createEnv({
 	extends: [authEnv(), vercel()],

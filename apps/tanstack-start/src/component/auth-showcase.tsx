@@ -1,6 +1,5 @@
-import { useNavigate } from "@tanstack/react-router";
-
 import { Button } from "@de100/ui-proto/button";
+import { useNavigate } from "@tanstack/react-router";
 
 import { authClient } from "~/auth/client";
 

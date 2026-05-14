@@ -1,7 +1,6 @@
+import { appRouter, createTRPCContext } from "@de100/api-proto";
 import { createFileRoute } from "@tanstack/react-router";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-
-import { appRouter, createTRPCContext } from "@de100/api-proto";
 
 import { auth } from "~/auth/server";
 

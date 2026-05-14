@@ -1,0 +1,17 @@
+{
+	"root": false,
+	"extends": ["@de100/biome-config/base.json"],
+	"files": {
+		"includes": ["!.next"]
+	},
+	"linter": {
+		"domains": {
+			"solid": "recommended"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	}
+}
