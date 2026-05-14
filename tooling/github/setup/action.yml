@@ -1,5 +1,5 @@
 name: "Setup and install"
-description: "Node (from .nvmrc) + pnpm + cached install"
+description: "Node (from .nvmrc) + pnpm (version from package.json#packageManager) + cached install"
 
 runs:
   using: composite
@@ -10,16 +10,37 @@ runs:
         node-version-file: ".nvmrc"
         package-manager-cache: false
 
-    - name: Install pnpm
+    - name: Install pnpm (version from package.json#packageManager)
       shell: bash
       run: |
-        npm install -g pnpm@10.19.0
-        pnpm --version
+        set -euo pipefail
+        PM=$(node -p "require('./package.json').packageManager || ''")
+        if [[ -z "$PM" || "$PM" != pnpm@* ]]; then
+          echo "::error::package.json#packageManager must be set to pnpm@<version> (got: '$PM')"
+          exit 1
+        fi
+        echo "Installing $PM"
+        npm install -g "$PM"
+        INSTALLED=$(pnpm --version)
+        EXPECTED="${PM#pnpm@}"
+        if [[ "$INSTALLED" != "$EXPECTED" ]]; then
+          echo "::error::pnpm version mismatch: expected '$EXPECTED', got '$INSTALLED'"
+          exit 1
+        fi
+        echo "pnpm $INSTALLED ready"
 
     - name: Resolve pnpm store path
       id: pnpm-store
       shell: bash
-      run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      run: |
+        set -euo pipefail
+        STORE_PATH=$(pnpm store path --silent)
+        if [[ -z "$STORE_PATH" ]]; then
+          echo "::error::Failed to resolve pnpm store path"
+          exit 1
+        fi
+        echo "path=$STORE_PATH" >> "$GITHUB_OUTPUT"
+        echo "pnpm store: $STORE_PATH"
 
     - name: Cache pnpm store
       uses: actions/cache@v5
@@ -31,7 +52,13 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      run: pnpm install --frozen-lockfile
+      run: |
+        set -euo pipefail
+        if [[ ! -f pnpm-lock.yaml ]]; then
+          echo "::error::pnpm-lock.yaml not found at repo root"
+          exit 1
+        fi
+        pnpm install --frozen-lockfile
 
 # # OLD
 # name: "Setup and install"
