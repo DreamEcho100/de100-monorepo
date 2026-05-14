@@ -20,7 +20,7 @@
     "lint:check": "turbo run lint:check --continue --",
     "lint:fix": "turbo run lint:fix --continue --",
     "lint:ws": "pnpm dlx sherif@latest",
-    "types:check": "turbo run types:check --continue --",
+    "type:check": "turbo run type:check --continue --",
     "postinstall": "pnpm lint:ws",
     "ui-add": "turbo run ui-add",
     "android": "expo run:android",

@@ -30,7 +30,7 @@
       "outputs": [".cache/.lintfixcache"],
       "outputLogs": "new-only"
     },
-    "types:check": {
+    "type:check": {
       "dependsOn": ["^topo", "^build"],
       "outputs": [".cache/tsbuildinfo.json"]
     },

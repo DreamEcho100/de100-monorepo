@@ -1,35 +1,35 @@
 {
-	"name": "@de100/auth-proto",
-	"private": true,
-	"type": "module",
-	"exports": {
-		".": "./src/index.ts",
-		"./middleware": "./src/middleware.ts",
-		"./client": "./src/client.ts",
-		"./env": "./env.ts"
-	},
-	"license": "MIT",
-	"scripts": {
-		"clean": "git clean -xdf .cache .turbo dist node_modules",
-		"generate": "dotenv -e ../../.env -- pnpx @better-auth/cli generate --config script/auth-cli.ts --output ../db/src/auth-schema.ts",
-		"format:check": "biome format .",
-		"format:fix": "biome format --css-parse-tailwind-directives=true --write .",
-		"lint:check": "biome lint --css-parse-tailwind-directives=true .",
-		"lint:fix": "biome lint --write .",
-		"types:check": "tsc --noEmit"
-	},
-	"dependencies": {
-		"@better-auth/expo": "catalog:",
-		"@de100/db-proto": "workspace:*",
-		"@t3-oss/env-core": "^0.13.8",
-		"better-auth": "catalog:",
-		"zod": "catalog:"
-	},
-	"devDependencies": {
-		"@better-auth/cli": "catalog:",
-		"@biomejs/biome": "catalog:",
-		"@de100/biome-config": "workspace:*",
-		"@de100/tsconfig": "workspace:*",
-		"typescript": "catalog:"
-	}
+  "name": "@de100/auth-proto",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./middleware": "./src/middleware.ts",
+    "./client": "./src/client.ts",
+    "./env": "./env.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "generate": "dotenv -e ../../.env -- pnpx @better-auth/cli generate --config script/auth-cli.ts --output ../db/src/auth-schema.ts",
+    "format:check": "biome format .",
+    "format:fix": "biome format --css-parse-tailwind-directives=true --write .",
+    "lint:check": "biome lint --css-parse-tailwind-directives=true .",
+    "lint:fix": "biome lint --write .",
+    "type:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@better-auth/expo": "catalog:",
+    "@de100/db-proto": "workspace:*",
+    "@t3-oss/env-core": "^0.13.8",
+    "better-auth": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "catalog:",
+    "@biomejs/biome": "catalog:",
+    "@de100/biome-config": "workspace:*",
+    "@de100/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
 }
