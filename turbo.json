@@ -15,27 +15,21 @@
 			"persistent": false
 		},
 		"format:check": {
-			"outputs": [".cache/.formatcheckcache"],
 			"outputLogs": "new-only"
 		},
 		"format:fix": {
-			"outputs": [".cache/.formatfixcache"],
 			"outputLogs": "new-only"
 		},
 		"lint:check": {
-			"outputs": [".cache/.lintcheckcache"],
 			"outputLogs": "new-only"
 		},
 		"lint:fix": {
-			"outputs": [".cache/.lintfixcache"],
 			"outputLogs": "new-only"
 		},
 		"format-and-lint:check": {
-			"outputs": [".cache/.format-and-lintcheckcache"],
 			"outputLogs": "new-only"
 		},
 		"format-and-lint:fix": {
-			"outputs": [".cache/.lintfixcache"],
 			"outputLogs": "new-only"
 		},
 		"type:check": {

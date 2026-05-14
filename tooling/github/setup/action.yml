@@ -1,15 +1,15 @@
 name: "Setup and install"
-description: "Checkout-aware setup: Node (from .nvmrc) + pnpm (from packageManager) + cached install"
+description: "Node (from .nvmrc) + pnpm (via Corepack) + cached install"
 
 runs:
   using: composite
   steps:
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version-file: ".nvmrc"
 
-    - name: Enable Corepack (provides pnpm from package.json#packageManager)
+    - name: Enable Corepack
       shell: bash
       run: |
         corepack enable
@@ -21,7 +21,7 @@ runs:
       run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
     - name: Cache pnpm store
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.pnpm-store.outputs.path }}
         key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
