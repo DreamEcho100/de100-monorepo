@@ -5,6 +5,17 @@ packages:
   - packages/lms/*
   - tooling/*
 
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@tailwindcss/oxide'
+  - better-sqlite3
+  - bufferutil
+  - esbuild
+  - prisma
+  - sharp
+
 catalog:
   '@better-auth/cli': 1.4.0-beta.9
   '@better-auth/expo': 1.4.0-beta.9
