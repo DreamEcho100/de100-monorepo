@@ -4,12 +4,7 @@ import type { AppRouter } from "@de100/api-proto";
 import { ThemeProvider, ThemeToggle } from "@de100/ui-proto/theme";
 import { Toaster } from "@de100/ui-proto/toast";
 import type { QueryClient } from "@tanstack/react-query";
-import {
-	createRootRouteWithContext,
-	HeadContent,
-	Outlet,
-	Scripts,
-} from "@tanstack/react-router";
+import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import type * as React from "react";
@@ -41,7 +36,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<head>
 					<HeadContent />
 				</head>
-				<body className="bg-background text-foreground min-h-screen font-sans antialiased">
+				<body className="min-h-screen bg-background font-sans text-foreground antialiased">
 					{children}
 					<div className="absolute right-4 bottom-12">
 						<ThemeToggle />

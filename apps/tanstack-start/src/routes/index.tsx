@@ -2,21 +2,11 @@ import type { RouterOutputs } from "@de100/api-proto";
 import { CreatePostSchema } from "@de100/db-proto/schema";
 import { cn } from "@de100/ui-proto";
 import { Button } from "@de100/ui-proto/button";
-import {
-	Field,
-	FieldContent,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-} from "@de100/ui-proto/field";
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@de100/ui-proto/field";
 import { Input } from "@de100/ui-proto/input";
 import { toast } from "@de100/ui-proto/toast";
 import { useForm } from "@tanstack/react-form";
-import {
-	useMutation,
-	useQueryClient,
-	useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
@@ -35,7 +25,7 @@ function RouteComponent() {
 	return (
 		<main className="container h-screen py-16">
 			<div className="flex flex-col items-center justify-center gap-4">
-				<h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
+				<h1 className="font-extrabold text-5xl tracking-tight sm:text-[5rem]">
 					Create <span className="text-primary">T3</span> Turbo
 				</h1>
 				<AuthShowcase />
@@ -99,11 +89,9 @@ function CreatePostForm() {
 			}}
 		>
 			<FieldGroup>
-				<form.Field
-					name="title"
-					children={(field) => {
-						const isInvalid =
-							field.state.meta.isTouched && !field.state.meta.isValid;
+				<form.Field name="title">
+					{(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
 								<FieldContent>
@@ -122,12 +110,10 @@ function CreatePostForm() {
 							</Field>
 						);
 					}}
-				/>
-				<form.Field
-					name="content"
-					children={(field) => {
-						const isInvalid =
-							field.state.meta.isTouched && !field.state.meta.isValid;
+				</form.Field>
+				<form.Field name="content">
+					{(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
 								<FieldContent>
@@ -146,7 +132,7 @@ function CreatePostForm() {
 							</Field>
 						);
 					}}
-				/>
+				</form.Field>
 			</FieldGroup>
 			<Button type="submit">Create</Button>
 		</form>
@@ -165,7 +151,7 @@ function PostList() {
 				<PostCardSkeleton pulse={false} />
 
 				<div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10">
-					<p className="text-2xl font-bold text-white">No posts yet</p>
+					<p className="font-bold text-2xl text-white">No posts yet</p>
 				</div>
 			</div>
 		);
@@ -199,15 +185,15 @@ function PostCard(props: { post: RouterOutputs["post"]["all"][number] }) {
 	);
 
 	return (
-		<div className="bg-muted flex flex-row rounded-lg p-4">
+		<div className="flex flex-row rounded-lg bg-muted p-4">
 			<div className="grow">
-				<h2 className="text-primary text-2xl font-bold">{props.post.title}</h2>
+				<h2 className="font-bold text-2xl text-primary">{props.post.title}</h2>
 				<p className="mt-2 text-sm">{props.post.content}</p>
 			</div>
 			<div>
 				<Button
 					variant="ghost"
-					className="text-primary cursor-pointer text-sm font-bold uppercase hover:bg-transparent hover:text-white"
+					className="cursor-pointer font-bold text-primary text-sm uppercase hover:bg-transparent hover:text-white"
 					onClick={() => deletePost.mutate(props.post.id)}
 				>
 					Delete
@@ -220,22 +206,14 @@ function PostCard(props: { post: RouterOutputs["post"]["all"][number] }) {
 function PostCardSkeleton(props: { pulse?: boolean }) {
 	const { pulse = true } = props;
 	return (
-		<div className="bg-muted flex flex-row rounded-lg p-4">
+		<div className="flex flex-row rounded-lg bg-muted p-4">
 			<div className="grow">
 				<h2
-					className={cn(
-						"bg-primary w-1/4 rounded-sm text-2xl font-bold",
-						pulse && "animate-pulse",
-					)}
+					className={cn("w-1/4 rounded-sm bg-primary font-bold text-2xl", pulse && "animate-pulse")}
 				>
 					&nbsp;
 				</h2>
-				<p
-					className={cn(
-						"mt-2 w-1/3 rounded-sm bg-current text-sm",
-						pulse && "animate-pulse",
-					)}
-				>
+				<p className={cn("mt-2 w-1/3 rounded-sm bg-current text-sm", pulse && "animate-pulse")}>
 					&nbsp;
 				</p>
 			</div>

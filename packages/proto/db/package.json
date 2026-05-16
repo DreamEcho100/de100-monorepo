@@ -23,13 +23,13 @@
 		"dev": "tsc",
 		"push": "pnpm with-env drizzle-kit push",
 		"studio": "pnpm with-env drizzle-kit studio",
-		"format-and-lint:check": "biome check --css-parse-tailwind-directives=true .",
-		"format-and-lint:fix": "biome check --css-parse-tailwind-directives=true  --write .",
-		"format:check": "biome format --css-parse-tailwind-directives=true .",
-		"format:fix": "biome format --css-parse-tailwind-directives=true --write .",
-		"lint:check": "biome lint --css-parse-tailwind-directives=true .",
-		"lint:fix": "biome lint --css-parse-tailwind-directives=true  --write .",
-		"type:check": "tsc --noEmit --emitDeclarationOnly false",
+		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
+		"format:check": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
+		"type:check": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false",
 		"with-env": "dotenv -e ../../.env --"
 	},
 	"dependencies": {
@@ -42,7 +42,7 @@
 		"@biomejs/biome": "catalog:",
 		"@de100/biome-config": "workspace:*",
 		"@de100/tsconfig": "workspace:*",
-		"drizzle-kit": "^0.31.5",
+		"drizzle-kit": "catalog:",
 		"typescript": "catalog:"
 	}
 }

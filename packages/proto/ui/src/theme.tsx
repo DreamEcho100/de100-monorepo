@@ -40,9 +40,7 @@ const setStoredThemeMode = (theme: ThemeMode) => {
 
 const getSystemTheme = () => {
 	if (typeof window === "undefined") return "light";
-	return window.matchMedia("(prefers-color-scheme: dark)").matches
-		? "dark"
-		: "light";
+	return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 };
 
 const updateThemeClass = (themeMode: ThemeMode) => {
@@ -65,9 +63,7 @@ const setupPreferredListener = () => {
 
 const getNextTheme = (current: ThemeMode): ThemeMode => {
 	const themes: ThemeMode[] =
-		getSystemTheme() === "dark"
-			? ["auto", "light", "dark"]
-			: ["auto", "light", "dark"];
+		getSystemTheme() === "dark" ? ["auto", "light", "dark"] : ["auto", "light", "dark"];
 	// biome-ignore lint/style/noNonNullAssertion: <explanation> The non-null assertion is safe here because the themes array is guaranteed to contain all ThemeMode values. --- IGNORE ---
 	return themes[(themes.indexOf(current) + 1) % themes.length]!;
 };
@@ -83,8 +79,7 @@ export const themeDetectorScript = (() => {
 		const validTheme = isValidTheme(storedTheme) ? storedTheme : "auto";
 
 		if (validTheme === "auto") {
-			const autoTheme = window.matchMedia("(prefers-color-scheme: dark)")
-				.matches
+			const autoTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
 				? "dark"
 				: "light";
 			document.documentElement.classList.add(autoTheme, "auto");
@@ -101,9 +96,7 @@ interface ThemeContextProps {
 	setTheme: (theme: ThemeMode) => void;
 	toggleMode: () => void;
 }
-const ThemeContext = React.createContext<ThemeContextProps | undefined>(
-	undefined,
-);
+const ThemeContext = React.createContext<ThemeContextProps | undefined>(undefined);
 
 export function ThemeProvider({ children }: React.PropsWithChildren) {
 	const [themeMode, setThemeMode] = React.useState(getStoredThemeMode);
@@ -170,15 +163,9 @@ export function ThemeToggle() {
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => setTheme("light")}>
-					Light
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("dark")}>
-					Dark
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("auto")}>
-					System
-				</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => setTheme("auto")}>System</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

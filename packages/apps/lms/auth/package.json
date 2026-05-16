@@ -1,0 +1,39 @@
+{
+	"name": "@de100/apps-lms-auth",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {
+		"test": "vitest run --config ../../vitest.config.ts",
+		"test:watch": "vitest --config ../../vitest.config.ts",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
+		"format:check": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
+		"type:check": "tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@de100/apps-lms-db": "workspace:*",
+		"@de100/apps-lms-env": "workspace:*",
+		"@de100/biome-config": "workspace:*",
+		"@de100/tsconfig": "workspace:*",
+		"better-auth": "catalog:",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@de100/apps-lms-config": "workspace:*",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

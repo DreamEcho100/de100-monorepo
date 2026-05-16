@@ -11,6 +11,9 @@
 	"[javascriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
 	"[json]": { "editor.defaultFormatter": "biomejs.biome" },
 	"[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
+	"[css]": { "editor.defaultFormatter": "biomejs.biome" },
+	"biome.configurationPath": "./biome.json",
+	"biome.requireConfiguration": true ,
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},
@@ -32,5 +35,6 @@
 	},
 	"[yaml]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	}
+	},
+	
 }

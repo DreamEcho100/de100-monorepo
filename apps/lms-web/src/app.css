@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Extending the styles from "@de100/ui-solidjs/styles/base.css" */
+@import "@de100/ui-solidjs/styles/base.css";
 
 :root {
 	--background-rgb: 214, 219, 220;

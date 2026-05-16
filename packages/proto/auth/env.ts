@@ -7,13 +7,10 @@ export function authEnv() {
 			AUTH_DISCORD_ID: z.string().min(1),
 			AUTH_DISCORD_SECRET: z.string().min(1),
 			AUTH_SECRET:
-				process.env.NODE_ENV === "production"
-					? z.string().min(1)
-					: z.string().min(1).optional(),
+				process.env.NODE_ENV === "production" ? z.string().min(1) : z.string().min(1).optional(),
 			NODE_ENV: z.enum(["development", "production"]).optional(),
 		},
 		runtimeEnv: process.env,
-		skipValidation:
-			!!process.env.CI || process.env.npm_lifecycle_event === "lint",
+		skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
 	});
 }

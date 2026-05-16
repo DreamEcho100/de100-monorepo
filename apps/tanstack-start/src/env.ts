@@ -7,9 +7,7 @@ export const env = createEnv({
 	clientPrefix: "VITE_",
 	extends: [authEnv(), vercel()],
 	shared: {
-		NODE_ENV: z
-			.enum(["development", "production", "test"])
-			.default("development"),
+		NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 	},
 	/**
 	 * Specify your server-side environment variables schema here.
@@ -30,6 +28,5 @@ export const env = createEnv({
 	 * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
 	 */
 	runtimeEnv: process.env,
-	skipValidation:
-		!!process.env.CI || process.env.npm_lifecycle_event === "lint",
+	skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
 });

@@ -1,0 +1,148 @@
+import type {
+	CloseProps,
+	ContentProps,
+	DescriptionProps,
+	DynamicProps,
+	LabelProps,
+	OverlayProps,
+	RootProps,
+	TriggerProps,
+} from "@corvu/drawer";
+import {
+	Close,
+	Content,
+	Description,
+	Label,
+	Overlay,
+	Portal,
+	Root,
+	Trigger,
+	useContext,
+} from "@corvu/drawer";
+import type { ComponentProps, ValidComponent } from "solid-js";
+import { splitProps } from "solid-js";
+
+import { cn } from "@/libs/utils";
+
+type DrawerRootProps<T extends ValidComponent = "div"> = DynamicProps<T, RootProps>;
+
+const DrawerRoot = <T extends ValidComponent = "div">(props: DrawerRootProps<T>) => (
+	<Root data-slot="drawer" {...(props as RootProps)} />
+);
+
+type DrawerTriggerProps<T extends ValidComponent = "button"> = DynamicProps<T, TriggerProps>;
+
+const DrawerTrigger = <T extends ValidComponent = "button">(props: DrawerTriggerProps<T>) => (
+	<Trigger data-slot="drawer-trigger" {...(props as TriggerProps)} />
+);
+
+type DrawerCloseProps<T extends ValidComponent = "button"> = DynamicProps<T, CloseProps>;
+
+const DrawerClose = <T extends ValidComponent = "button">(props: DrawerCloseProps<T>) => (
+	<Close data-slot="drawer-close" {...(props as CloseProps)} />
+);
+
+type DrawerOverlayProps<T extends ValidComponent = "div"> = DynamicProps<T, OverlayProps> &
+	Pick<ComponentProps<T>, "class">;
+
+const DrawerOverlay = <T extends ValidComponent = "div">(props: DrawerOverlayProps<T>) => {
+	const [local, others] = splitProps(props as DrawerOverlayProps, ["class"]);
+	const context = useContext();
+	return (
+		<Overlay
+			class={cn("fixed inset-0 z-50 z-drawer-overlay", local.class)}
+			data-slot="drawer-overlay"
+			{...others}
+			style={{
+				"background-color": `rgb(0 0 0 / ${0.1 * context.openPercentage()})`,
+				"backdrop-filter": `blur(${4 * context.openPercentage()}px)`,
+			}}
+		/>
+	);
+};
+
+type DrawerContentProps<T extends ValidComponent = "div"> = DynamicProps<T, ContentProps> &
+	Pick<ComponentProps<T>, "class" | "children">;
+
+const DrawerContent = <T extends ValidComponent = "div">(props: DrawerContentProps<T>) => {
+	const [local, others] = splitProps(props as DrawerContentProps, ["class", "children"]);
+	return (
+		<Portal data-slot="drawer-portal">
+			<DrawerOverlay />
+			<Content
+				class={cn("group/drawer-content fixed z-50 z-drawer-content", local.class)}
+				data-slot="drawer-content"
+				{...others}
+			>
+				<div class="z-drawer-handle mx-auto hidden shrink-0 bg-muted group-data-[side=bottom]/drawer-content:block" />
+				{local.children}
+			</Content>
+		</Portal>
+	);
+};
+
+type DrawerHeaderProps = ComponentProps<"div">;
+
+const DrawerHeader = (props: DrawerHeaderProps) => {
+	const [local, others] = splitProps(props, ["class"]);
+	return (
+		<div
+			class={cn("z-drawer-header flex flex-col", local.class)}
+			data-slot="drawer-header"
+			{...others}
+		/>
+	);
+};
+
+type DrawerFooterProps = ComponentProps<"div">;
+
+const DrawerFooter = (props: DrawerFooterProps) => {
+	const [local, others] = splitProps(props, ["class"]);
+	return (
+		<div
+			class={cn("z-drawer-footer mt-auto flex flex-col", local.class)}
+			data-slot="drawer-footer"
+			{...others}
+		/>
+	);
+};
+
+type DrawerLabelProps<T extends ValidComponent = "h2"> = DynamicProps<T, LabelProps> &
+	Pick<ComponentProps<T>, "class">;
+
+const DrawerLabel = <T extends ValidComponent = "h2">(props: DrawerLabelProps<T>) => {
+	const [local, others] = splitProps(props as DrawerLabelProps, ["class"]);
+	return (
+		<Label
+			class={cn("z-drawer-title z-font-heading", local.class)}
+			data-slot="drawer-title"
+			{...others}
+		/>
+	);
+};
+
+type DrawerDescriptionProps<T extends ValidComponent = "p"> = DynamicProps<T, DescriptionProps> &
+	Pick<ComponentProps<T>, "class">;
+
+const DrawerDescription = <T extends ValidComponent = "p">(props: DrawerDescriptionProps<T>) => {
+	const [local, others] = splitProps(props as DrawerDescriptionProps, ["class"]);
+	return (
+		<Description
+			class={cn("z-drawer-description", local.class)}
+			data-slot="drawer-description"
+			{...others}
+		/>
+	);
+};
+
+export {
+	DrawerClose,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerLabel as DrawerTitle,
+	DrawerOverlay,
+	DrawerRoot as Drawer,
+	DrawerTrigger,
+};

@@ -5,9 +5,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { oAuthProxy } from "better-auth/plugins";
 
-export function initAuth<
-	TExtraPlugins extends BetterAuthPlugin[] = [],
->(options: {
+export function initAuth<TExtraPlugins extends BetterAuthPlugin[] = []>(options: {
 	baseUrl: string;
 	productionUrl: string;
 	secret: string | undefined;
@@ -28,7 +26,7 @@ export function initAuth<
 			}),
 			expo(),
 			...(options.extraPlugins ?? []),
-		],
+		] as BetterAuthPlugin[],
 		socialProviders: {
 			discord: {
 				clientId: options.discordClientId,

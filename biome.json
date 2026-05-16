@@ -1,7 +1,7 @@
 {
-  "root": false,
-  "extends": ["./tooling/biome/base.json"],
-  "files": {
-    "includes": ["!dist", "!**/_ignore"]
-  }
+	"root": false,
+	"extends": ["@de100/biome-config/base.json"],
+	"files": {
+		"includes": ["!dist", "!**/_ignore"]
+	}
 }
