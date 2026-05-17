@@ -3,7 +3,6 @@ packages:
   - packages/*
   - packages/apps/*
   - packages/apps/lms/*
-  - packages/proto/*
   - packages/ui/*
   - tooling/*
 
@@ -17,7 +16,12 @@ catalog:
   "@solidjs/router": ^0.15.4
   "@solidjs/start": 2.0.0-alpha.2
   "@solidjs/vite-plugin-nitro-2": ^0.2.0
+  "@solidjs/meta": ^0.29.4
   "solid-js": ^1.9.13
+  "@tanstack/solid-form": ^1.32.0
+  "@tanstack/form-devtools": ^0.2.27
+  "@tanstack/solid-query": ^5.100.10
+  "@tanstack/solid-query-devtools": ^5.100.10
   "lucide-solid": ^1.16.0
   tailwindcss: ^4.1.17
   "tailwind-merge": ^3.6.0
@@ -25,10 +29,12 @@ catalog:
   typescript: ^5.9.3
   vite: 7.3.3
   vitest: ^3.2.4
-  "@orpc/client": ^1.13.14
-  "@orpc/openapi": ^1.13.14
-  "@orpc/server": ^1.13.14
-  "@orpc/zod": ^1.13.14
+  "@orpc/client": ^1.14.3
+  "@orpc/openapi": ^1.14.3
+  "@orpc/server": ^1.14.3
+  "@orpc/zod": ^1.14.3
+  "@orpc/tanstack-query": ^1.14.3
+  "@orpc/solid-query": ^1.14.3
   "dotenv-cli": ^11.0.0
   dotenv: ^17.4.2
   alchemy: ^0.91.2
@@ -36,22 +42,11 @@ catalog:
   drizzle-orm: ^0.45.1
   "drizzle-kit": ^0.31.8
   "@t3-oss/env-core": ^0.13.11
-  "@tanstack/react-form": ^1.23.8
-  "@tanstack/react-query": ^5.90.8
   "@trpc/client": ^11.7.1
   "@trpc/server": ^11.7.1
-  "@trpc/tanstack-react-query": ^11.7.1
   "@types/node": ^22.18.12
-  "@vitejs/plugin-react": 5.1.0
   ultracite: 7.7.0
   zod: ^4.1.13
-
-catalogs:
-  react19:
-    "@types/react": ~19.1.0
-    "@types/react-dom": ~19.1.0
-    react: 19.1.4
-    react-dom: 19.1.4
 
 linkWorkspacePackages: true
 

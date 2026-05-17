@@ -17,7 +17,8 @@
 		"isolatedModules": true,
 		"paths": {
 			"~/*": ["./src/*"]
-		}
+		},
+		"allowImportingTsExtensions": true
 	},
 	"include": ["."],
 	"exclude": ["node_modules"]
