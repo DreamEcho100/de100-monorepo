@@ -2,7 +2,7 @@ import { CircleCheck, Info, LoaderCircle, OctagonX, TriangleAlert } from "lucide
 import type { Component, ComponentProps, JSX } from "solid-js";
 import { Toaster as Sonner } from "solid-sonner";
 
-import { useColorMode } from "@/libs/hooks/color-mode";
+import { useColorMode } from "#libs/hooks/color-mode";
 
 type ToasterProps = ComponentProps<typeof Sonner>;
 

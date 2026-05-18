@@ -3,11 +3,11 @@ import { cva } from "class-variance-authority";
 import type { ComponentProps, JSX } from "solid-js";
 import { splitProps } from "solid-js";
 
-import type { ButtonProps } from "@/components/button";
-import { Button } from "@/components/button";
-import { Input } from "@/components/input";
-import { Textarea } from "@/components/textarea";
-import { cn } from "@/libs/utils";
+import type { ButtonProps } from "#components/button";
+import { Button } from "#components/button";
+import { Input } from "#components/input";
+import { Textarea } from "#components/textarea";
+import { cn } from "#libs/utils";
 
 type InputGroupProps = ComponentProps<"div">;
 

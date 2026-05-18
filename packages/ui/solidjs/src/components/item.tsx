@@ -4,9 +4,9 @@ import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 import { Dynamic } from "solid-js/web";
 
-import type { SeparatorProps } from "@/components/separator";
-import { Separator } from "@/components/separator";
-import { cn } from "@/libs/utils";
+import type { SeparatorProps } from "#components/separator";
+import { Separator } from "#components/separator";
+import { cn } from "#libs/utils";
 
 type ItemGroupProps = ComponentProps<"div">;
 

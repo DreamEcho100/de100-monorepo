@@ -5,8 +5,8 @@ import type { VariantProps } from "class-variance-authority";
 import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { createContext, mergeProps, splitProps, useContext } from "solid-js";
 
-import { toggleVariants } from "@/components/toggle";
-import { cn } from "@/libs/utils";
+import { toggleVariants } from "#components/toggle";
+import { cn } from "#libs/utils";
 
 type ToggleGroupContextValue = VariantProps<typeof toggleVariants> & {
 	spacing?: number;

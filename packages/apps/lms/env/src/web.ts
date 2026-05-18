@@ -12,9 +12,9 @@ declare global {
 }
 
 export const env = createEnv({
-	clientPrefix: "VITE_",
+	clientPrefix: "VITE_APP_LMS_",
 	client: {
-		VITE_SERVER_URL: z.url().optional(),
+		VITE_APP_LMS_SERVER_URL: z.url().optional(),
 	},
 	runtimeEnv: import.meta.env,
 	emptyStringAsUndefined: true,

@@ -9,7 +9,7 @@ import {
 	useContext,
 } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type ScrollAreaContextValue = {
 	viewportRef: Accessor<HTMLDivElement | undefined>;

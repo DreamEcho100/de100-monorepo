@@ -12,9 +12,9 @@ import {
 	useContext,
 } from "solid-js";
 
-import type { ButtonProps } from "@/components/button";
-import { Button } from "@/components/button";
-import { cn } from "@/libs/utils";
+import type { ButtonProps } from "#components/button";
+import { Button } from "#components/button";
+import { cn } from "#libs/utils";
 
 type CarouselApi = EmblaCarouselType | undefined;
 type CarouselOptions = EmblaOptionsType;

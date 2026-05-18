@@ -1,6 +1,6 @@
 export interface TrustedOriginsEnvironment {
-	BETTER_AUTH_URL: string;
-	CORS_ORIGIN: string;
+	APP_LMS_BETTER_AUTH_URL: string;
+	APP_LMS_CORS_ORIGIN: string;
 	NODE_ENV: string;
 }
 
@@ -20,7 +20,10 @@ export function isLocalDevelopmentOrigin(origin: string) {
 }
 
 export function getTrustedOrigins(env: TrustedOriginsEnvironment, request?: OriginRequest) {
-	const trustedOrigins = new Set<string>([env.CORS_ORIGIN, new URL(env.BETTER_AUTH_URL).origin]);
+	const trustedOrigins = new Set<string>([
+		env.APP_LMS_CORS_ORIGIN,
+		new URL(env.APP_LMS_BETTER_AUTH_URL).origin,
+	]);
 
 	if (env.NODE_ENV === "development") {
 		const requestOrigin = request?.headers.get("origin");

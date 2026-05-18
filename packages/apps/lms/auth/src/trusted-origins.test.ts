@@ -4,8 +4,8 @@ import type { TrustedOriginsEnvironment } from "./trusted-origins";
 import { getTrustedOrigins, isLocalDevelopmentOrigin } from "./trusted-origins";
 
 const baseEnv: TrustedOriginsEnvironment = {
-	BETTER_AUTH_URL: "https://auth.budget-tracker.test/login",
-	CORS_ORIGIN: "https://app.budget-tracker.test",
+	APP_LMS_BETTER_AUTH_URL: "https://auth.budget-tracker.test/login",
+	APP_LMS_CORS_ORIGIN: "https://app.budget-tracker.test",
 	NODE_ENV: "production",
 };
 

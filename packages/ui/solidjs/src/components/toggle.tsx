@@ -6,7 +6,7 @@ import { cva } from "class-variance-authority";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 const toggleVariants = cva(
 	"group/toggle z-toggle inline-flex items-center justify-center whitespace-nowrap outline-none hover:bg-muted focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",

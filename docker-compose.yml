@@ -1,0 +1,37 @@
+services:
+  lms-postgres:
+    image: postgres:16-alpine
+    container_name: de100-lms-postgres
+    environment:
+      POSTGRES_DB: de100_lms
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d de100_lms"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - lms-postgres-data:/var/lib/postgresql/data
+
+  lms-redis:
+    image: redis:7-alpine
+    container_name: de100-lms-redis
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - lms-redis-data:/data
+
+volumes:
+  lms-postgres-data:
+  lms-redis-data:

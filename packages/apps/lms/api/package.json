@@ -25,15 +25,14 @@
 		"@de100/apps-lms-auth": "workspace:*",
 		"@de100/apps-lms-db": "workspace:*",
 		"@de100/apps-lms-env": "workspace:*",
+		"@de100/apps-lms-validators": "workspace:*",
 		"@orpc/client": "catalog:",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
-		"@orpc/zod": "catalog:",
 		"@types/pg": "^8.16.0",
 		"dotenv": "catalog:",
 		"drizzle-orm": "catalog:",
-		"vitest": "catalog:",
-		"zod": "catalog:"
+		"vitest": "catalog:"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",

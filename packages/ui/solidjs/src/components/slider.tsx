@@ -9,7 +9,7 @@ import { Slider as SliderPrimitive, useSliderContext } from "@kobalte/core/slide
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { createMemo, For, mergeProps, splitProps, untrack } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type SliderProps<T extends ValidComponent = "div"> = PolymorphicProps<T, SliderRootProps<T>> &
 	Pick<ComponentProps<T>, "class">;

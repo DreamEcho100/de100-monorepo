@@ -3,8 +3,8 @@ import { cva } from "class-variance-authority";
 import type { ComponentProps } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import { Separator } from "@/components/separator";
-import { cn } from "@/libs/utils";
+import { Separator } from "#components/separator";
+import { cn } from "#libs/utils";
 
 const buttonGroupVariants = cva(
 	"z-button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",

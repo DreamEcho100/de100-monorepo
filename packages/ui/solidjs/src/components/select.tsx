@@ -12,7 +12,7 @@ import { Check, ChevronsUpDown } from "lucide-solid";
 import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type SelectProps<O, OptGroup = never, T extends ValidComponent = "div"> = PolymorphicProps<
 	T,

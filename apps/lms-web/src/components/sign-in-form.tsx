@@ -1,3 +1,5 @@
+import { useI18n } from "@de100/apps-lms-i18n";
+import { signInFormValidator } from "@de100/apps-lms-validators/client";
 import {
 	Button,
 	Card,
@@ -11,16 +13,18 @@ import {
 	FieldError,
 	FieldLabel,
 	Input,
-} from "@budget-tracker_/ui";
+} from "@de100/ui-solidjs";
 import { useNavigate } from "@solidjs/router";
 import { createForm } from "@tanstack/solid-form";
 import { createSignal, Show } from "solid-js";
-import z from "zod";
 
-import { authClient } from "~/lib/auth-client";
+import { authClient } from "~/libs/apis/auth-client";
+
+import { createLocalizedPath } from "../../i18n/routing";
 
 export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 	const navigate = useNavigate();
+	const { locale, t } = useI18n();
 	const [submitError, setSubmitError] = createSignal<string | null>(null);
 
 	const form = createForm(() => ({
@@ -40,32 +44,33 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 						setSubmitError(error.error.message);
 					},
 					onSuccess: () => {
-						navigate("/dashboard");
+						navigate(createLocalizedPath(locale(), "/dashboard"));
 					},
-				}
+				},
 			);
 		},
 		validators: {
-			onSubmit: z.object({
-				email: z.email("Invalid email address"),
-				password: z.string().min(8, "Password must be at least 8 characters"),
-			}),
+			onSubmit: signInFormValidator,
 		},
 	}));
 
 	return (
-		<Card class="auth-card">
-			<CardHeader class="auth-card-header">
-				<p class="eyebrow">Authentication</p>
-				<CardTitle class="auth-title">Welcome back</CardTitle>
-				<CardDescription class="auth-description">
-					Sign in to review budgets, transactions, and recent account activity.
+		<Card class="w-full border-border/70 bg-card/95 shadow-black/5 shadow-sm">
+			<CardHeader class="grid gap-3">
+				<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+					{t("auth.signIn.eyebrow")}
+				</p>
+				<CardTitle class="text-balance font-semibold text-3xl text-foreground tracking-tight">
+					{t("auth.signIn.title")}
+				</CardTitle>
+				<CardDescription class="text-muted-foreground text-sm leading-6">
+					{t("auth.signIn.description")}
 				</CardDescription>
 			</CardHeader>
 
 			<CardContent>
 				<form
-					class="auth-form"
+					class="grid gap-4"
 					onSubmit={(event) => {
 						event.preventDefault();
 						event.stopPropagation();
@@ -77,25 +82,21 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 							const errorId = `${field().name}-error`;
 
 							return (
-								<Field class="field">
-									<FieldLabel for={field().name}>Email</FieldLabel>
+								<Field class="grid gap-4">
+									<FieldLabel for={field().name}>{t("auth.signIn.emailLabel")}</FieldLabel>
 									<FieldContent>
 										<Input
-											aria-describedby={
-												field().state.meta.errors[0] ? errorId : undefined
-											}
+											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
 											aria-invalid={field().state.meta.errors.length > 0}
 											id={field().name}
 											name={field().name}
 											onBlur={field().handleBlur}
-											onInput={(event) =>
-												field().handleChange(event.currentTarget.value)
-											}
+											onInput={(event) => field().handleChange(event.currentTarget.value)}
 											type="email"
 											value={field().state.value}
 										/>
 										<FieldError
-											class="helper-error"
+											class="text-destructive text-sm"
 											errors={field().state.meta.errors}
 											id={errorId}
 										/>
@@ -110,25 +111,21 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 							const errorId = `${field().name}-error`;
 
 							return (
-								<Field class="field">
-									<FieldLabel for={field().name}>Password</FieldLabel>
+								<Field class="grid gap-4">
+									<FieldLabel for={field().name}>{t("auth.signIn.passwordLabel")}</FieldLabel>
 									<FieldContent>
 										<Input
-											aria-describedby={
-												field().state.meta.errors[0] ? errorId : undefined
-											}
+											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
 											aria-invalid={field().state.meta.errors.length > 0}
 											id={field().name}
 											name={field().name}
 											onBlur={field().handleBlur}
-											onInput={(event) =>
-												field().handleChange(event.currentTarget.value)
-											}
+											onInput={(event) => field().handleChange(event.currentTarget.value)}
 											type="password"
 											value={field().state.value}
 										/>
 										<FieldError
-											class="helper-error"
+											class="text-destructive text-sm"
 											errors={field().state.meta.errors}
 											id={errorId}
 										/>
@@ -139,9 +136,7 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 					</form.Field>
 
 					<Show when={submitError()}>
-						{(message) => (
-							<FieldError class="helper-error">{message()}</FieldError>
-						)}
+						{(message) => <FieldError class="text-destructive text-sm">{message()}</FieldError>}
 					</Show>
 
 					<form.Subscribe>
@@ -151,21 +146,16 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 								disabled={!state().canSubmit || state().isSubmitting}
 								type="submit"
 							>
-								{state().isSubmitting ? "Signing in..." : "Sign In"}
+								{state().isSubmitting ? t("auth.signIn.submitting") : t("auth.signIn.submit")}
 							</Button>
 						)}
 					</form.Subscribe>
 				</form>
 			</CardContent>
 
-			<CardFooter class="auth-card-footer">
-				<Button
-					class="switch-auth"
-					onClick={props.onSwitchToSignUp}
-					type="button"
-					variant="link"
-				>
-					Need an account? Sign up
+			<CardFooter class="pt-2">
+				<Button class="px-0 text-sm" onClick={props.onSwitchToSignUp} type="button" variant="link">
+					{t("auth.signIn.switchPrompt")}
 				</Button>
 			</CardFooter>
 		</Card>

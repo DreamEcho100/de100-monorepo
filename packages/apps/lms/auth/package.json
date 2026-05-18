@@ -22,6 +22,7 @@
 		"type:check": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
+		"@de100/apps-lms-cache": "workspace:*",
 		"@de100/apps-lms-db": "workspace:*",
 		"@de100/apps-lms-env": "workspace:*",
 		"@de100/biome-config": "workspace:*",

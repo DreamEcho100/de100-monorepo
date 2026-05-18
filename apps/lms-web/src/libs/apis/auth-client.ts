@@ -1,6 +1,10 @@
-import { env } from "@de100/apps-lms-env/web";
 import { createAuthClient } from "better-auth/solid";
 
-export const authClient = createAuthClient(
-	env.VITE_SERVER_URL ? { baseURL: env.VITE_SERVER_URL } : {},
-);
+import { resolveApiRequestInput } from "~/libs/apis/request-url";
+
+export const authClient = createAuthClient({
+	fetchOptions: {
+		customFetchImpl: (input: string | URL | Request, init?: RequestInit) =>
+			fetch(resolveApiRequestInput(input), init),
+	},
+});

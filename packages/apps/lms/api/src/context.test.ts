@@ -31,6 +31,7 @@ describe("createContext", () => {
 
 		await expect(createContext({ headers })).resolves.toEqual({
 			auth: null,
+			request: null,
 			session,
 		});
 		expect(getSession).toHaveBeenCalledWith({ headers });

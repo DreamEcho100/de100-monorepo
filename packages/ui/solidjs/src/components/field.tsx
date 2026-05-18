@@ -3,10 +3,9 @@ import { cva } from "class-variance-authority";
 import type { ComponentProps, JSX } from "solid-js";
 import { createMemo, For, Show, splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
-
 import { Label } from "./label";
 import { Separator } from "./separator";
+import { cn } from "#libs/utils";
 
 type FieldSetProps = ComponentProps<"fieldset"> & {
 	class?: string | undefined;

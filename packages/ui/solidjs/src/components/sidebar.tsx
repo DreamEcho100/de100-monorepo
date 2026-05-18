@@ -18,15 +18,15 @@ import {
 	useContext,
 } from "solid-js";
 
-import type { ButtonProps } from "@/components/button";
-import { Button } from "@/components/button";
-import { Input } from "@/components/input";
-import { Separator } from "@/components/separator";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/sheet";
-import { Skeleton } from "@/components/skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/tooltip";
-import { useIsMobile } from "@/libs/hooks/is-mobile";
-import { cn } from "@/libs/utils";
+import type { ButtonProps } from "#components/button";
+import { Button } from "#components/button";
+import { Input } from "#components/input";
+import { Separator } from "#components/separator";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "#components/sheet";
+import { Skeleton } from "#components/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "#components/tooltip";
+import { useIsMobile } from "#libs/hooks/is-mobile";
+import { cn } from "#libs/utils";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

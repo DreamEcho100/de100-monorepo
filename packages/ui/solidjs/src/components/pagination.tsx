@@ -2,9 +2,9 @@ import { ChevronLeft, ChevronRight, Ellipsis } from "lucide-solid";
 import type { ComponentProps } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import type { ButtonProps } from "@/components/button";
-import { Button } from "@/components/button";
-import { cn } from "@/libs/utils";
+import type { ButtonProps } from "#components/button";
+import { Button } from "#components/button";
+import { cn } from "#libs/utils";
 
 type PaginationProps = ComponentProps<"nav">;
 

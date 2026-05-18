@@ -4,7 +4,7 @@
 }
 
 .z-accordion-trigger {
-	@apply focus-visible:ring-ring/50 focus-visible:border-ring focus-visible:after:border-ring **:data-[slot=accordion-trigger-icon]:text-muted-foreground rounded-md py-4 text-left text-sm font-medium hover:underline focus-visible:ring-[3px] **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4;
+	@apply focus-visible:ring-ring/50 focus-visible:border-ring focus-visible:after:border-ring **:data-[slot=accordion-trigger-icon]:text-muted-foreground rounded-md py-4 text-left text-sm font-medium hover:underline focus-visible:ring-[var(--focus-ring-width)] **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4;
 }
 
 .z-accordion-content {
@@ -142,7 +142,7 @@
 
 /* MARK: Button */
 .z-button {
-	@apply focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-[3px] aria-invalid:ring-[3px] [&_svg:not([class*='size-'])]:size-4;
+	@apply focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-[var(--focus-ring-width)] aria-invalid:ring-[var(--focus-ring-width)] [&_svg:not([class*='size-'])]:size-4;
 }
 
 .z-button-variant-default {
@@ -170,11 +170,11 @@
 }
 
 .z-button-size-xs {
-	@apply h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3;
+	@apply h-6 gap-1 rounded-[min(var(--radius-md),var(--control-radius-xs))] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3;
 }
 
 .z-button-size-sm {
-	@apply h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5;
+	@apply h-8 gap-1 rounded-[min(var(--radius-md),var(--control-radius-sm))] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5;
 }
 
 .z-button-size-default {
@@ -186,11 +186,11 @@
 }
 
 .z-button-size-icon-xs {
-	@apply size-6 rounded-[min(var(--radius-md),8px)] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3;
+	@apply size-6 rounded-[min(var(--radius-md),var(--control-radius-xs))] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3;
 }
 
 .z-button-size-icon-sm {
-	@apply size-8 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-md;
+	@apply size-8 rounded-[min(var(--radius-md),var(--control-radius-sm))] in-data-[slot=button-group]:rounded-md;
 }
 
 .z-button-size-icon {
@@ -228,7 +228,7 @@
 }
 
 .z-calendar-dropdown-root {
-	@apply has-focus:border-ring border-input has-focus:ring-ring/50 border shadow-xs has-focus:ring-[3px];
+	@apply has-focus:border-ring border-input has-focus:ring-ring/50 border shadow-xs has-focus:ring-[var(--focus-ring-width)];
 }
 
 .z-calendar-caption-label {
@@ -276,7 +276,7 @@
 
 /* MARK: Checkbox */
 .z-checkbox {
-	@apply border-input dark:bg-input/30 data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary data-checked:border-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[4px] border shadow-xs transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-[3px] aria-invalid:ring-[3px];
+	@apply border-input dark:bg-input/30 data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary data-checked:border-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[var(--control-radius-2xs)] border shadow-xs transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-[var(--focus-ring-width)] aria-invalid:ring-[var(--focus-ring-width)];
 }
 
 .z-checkbox-indicator {
@@ -325,7 +325,7 @@
 }
 
 .z-combobox-chips {
-	@apply dark:bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border bg-transparent bg-clip-padding px-2.5 py-1.5 text-sm shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] has-aria-invalid:ring-[3px] has-data-[slot=combobox-chip]:px-1.5;
+	@apply dark:bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border bg-transparent bg-clip-padding px-2.5 py-1.5 text-sm shadow-xs transition-[color,box-shadow] focus-within:ring-[var(--focus-ring-width)] has-aria-invalid:ring-[var(--focus-ring-width)] has-data-[slot=combobox-chip]:px-1.5;
 }
 
 .z-combobox-chip {
@@ -469,7 +469,7 @@
 }
 
 .z-drawer-handle {
-	@apply bg-muted mx-auto mt-4 hidden h-1.5 w-[100px] shrink-0 rounded-full group-data-[side=bottom]/drawer-content:block;
+	@apply bg-muted mx-auto mt-4 hidden h-1.5 w-[var(--drawer-handle-width)] shrink-0 rounded-full group-data-[side=bottom]/drawer-content:block;
 }
 
 .z-drawer-header {
@@ -526,7 +526,7 @@
 }
 
 .z-dropdown-menu-sub-content {
-	@apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-[96px] rounded-md p-1 shadow-lg ring-1 duration-100;
+	@apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-[var(--menu-min-width)] rounded-md p-1 shadow-lg ring-1 duration-100;
 }
 
 .z-dropdown-menu-subcontent {
@@ -618,7 +618,7 @@
 
 /* MARK: Input */
 .z-input {
-	@apply dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] file:h-7 file:text-sm file:font-medium focus-visible:ring-[3px] aria-invalid:ring-[3px] md:text-sm;
+	@apply dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] file:h-7 file:text-sm file:font-medium focus-visible:ring-[var(--focus-ring-width)] aria-invalid:ring-[var(--focus-ring-width)] md:text-sm;
 }
 
 /* MARK: Input OTP */
@@ -627,11 +627,11 @@
 }
 
 .z-input-otp-group {
-	@apply has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive rounded-md has-aria-invalid:ring-[3px];
+	@apply has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive rounded-md has-aria-invalid:ring-[var(--focus-ring-width)];
 }
 
 .z-input-otp-slot {
-	@apply dark:bg-input/30 border-input data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive size-9 border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:ring-[3px];
+	@apply dark:bg-input/30 border-input data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive size-9 border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:ring-[var(--focus-ring-width)];
 }
 
 .z-input-otp-caret-line {
@@ -796,7 +796,7 @@
 }
 
 .z-navigation-menu-trigger {
-	@apply bg-background hover:bg-muted focus:bg-muted data-expanded:hover:bg-muted data-expanded:focus:bg-muted data-expanded:bg-muted/50 focus-visible:ring-ring/50 rounded-md px-4 py-2 text-sm font-medium transition-all focus-visible:ring-[3px] focus-visible:outline-1 disabled:opacity-50;
+	@apply bg-background hover:bg-muted focus:bg-muted data-expanded:hover:bg-muted data-expanded:focus:bg-muted data-expanded:bg-muted/50 focus-visible:ring-ring/50 rounded-md px-4 py-2 text-sm font-medium transition-all focus-visible:ring-[var(--focus-ring-width)] focus-visible:outline-1 disabled:opacity-50;
 }
 
 .z-navigation-menu-trigger-icon {
@@ -812,7 +812,7 @@
 }
 
 .z-navigation-menu-link {
-	@apply data-[active=true]:focus:bg-muted data-[active=true]:hover:bg-muted data-[active=true]:bg-muted/50 focus-visible:ring-ring/50 hover:bg-muted focus:bg-muted flex items-center gap-1.5 rounded-sm p-2 text-sm transition-all outline-none focus-visible:ring-[3px] focus-visible:outline-1 [&_svg:not([class*='size-'])]:size-4;
+	@apply data-[active=true]:focus:bg-muted data-[active=true]:hover:bg-muted data-[active=true]:bg-muted/50 focus-visible:ring-ring/50 hover:bg-muted focus:bg-muted flex items-center gap-1.5 rounded-sm p-2 text-sm transition-all outline-none focus-visible:ring-[var(--focus-ring-width)] focus-visible:outline-1 [&_svg:not([class*='size-'])]:size-4;
 }
 
 .z-navigation-menu-indicator {
@@ -824,7 +824,7 @@
 }
 
 .z-navigation-menu-positioner {
-	@apply transition-[top,left,right,bottom] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:before:top-[-10px] data-[side=bottom]:before:right-0 data-[side=bottom]:before:left-0;
+	@apply transition-[top,left,right,bottom] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:before:-top-[var(--floating-arrow-offset)] data-[side=bottom]:before:right-0 data-[side=bottom]:before:left-0;
 }
 
 .z-navigation-menu-popup {
@@ -833,7 +833,7 @@
 
 /* MARK: Native Select */
 .z-native-select {
-	@apply border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 w-full min-w-0 appearance-none rounded-md border bg-transparent py-1 pr-8 pl-2.5 text-sm shadow-xs transition-[color,box-shadow] select-none focus-visible:ring-[3px] aria-invalid:ring-[3px] data-[size=sm]:h-8;
+	@apply border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 w-full min-w-0 appearance-none rounded-md border bg-transparent py-1 pr-8 pl-2.5 text-sm shadow-xs transition-[color,box-shadow] select-none focus-visible:ring-[var(--focus-ring-width)] aria-invalid:ring-[var(--focus-ring-width)] data-[size=sm]:h-8;
 }
 
 .z-native-select-icon {
@@ -901,7 +901,7 @@
 }
 
 .z-radio-group-item {
-	@apply border-input text-primary dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 flex size-4 rounded-full shadow-xs focus-visible:ring-[3px] aria-invalid:ring-[3px];
+	@apply border-input text-primary dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 flex size-4 rounded-full shadow-xs focus-visible:ring-[var(--focus-ring-width)] aria-invalid:ring-[var(--focus-ring-width)];
 }
 
 .z-radio-group-indicator {
@@ -928,7 +928,7 @@
 
 /* MARK: Select */
 .z-select-trigger {
-	@apply border-input data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 gap-1.5 rounded-md border bg-transparent py-2 pr-2 pl-2.5 text-sm shadow-xs transition-[color,box-shadow] focus-visible:ring-[3px] aria-invalid:ring-[3px] data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-4;
+	@apply border-input data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 gap-1.5 rounded-md border bg-transparent py-2 pr-2 pl-2.5 text-sm shadow-xs transition-[color,box-shadow] focus-visible:ring-[var(--focus-ring-width)] aria-invalid:ring-[var(--focus-ring-width)] data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-4;
 }
 
 .z-select-value {
@@ -1155,11 +1155,11 @@
 
 /* MARK: Switch */
 .z-switch {
-	@apply data-checked:bg-primary bg-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 dark:data-unchecked:bg-input/80 shrink-0 rounded-full border border-transparent shadow-xs focus-visible:ring-[3px] aria-invalid:ring-[3px] data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px];
+	@apply data-checked:bg-primary bg-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 dark:data-unchecked:bg-input/80 shrink-0 rounded-full border border-transparent shadow-xs focus-visible:ring-[var(--focus-ring-width)] aria-invalid:ring-[var(--focus-ring-width)] data-[size=default]:h-[var(--switch-track-default-height)] data-[size=default]:w-[var(--switch-track-default-width)] data-[size=sm]:h-[var(--switch-track-sm-height)] data-[size=sm]:w-[var(--switch-track-sm-width)];
 }
 
 .z-switch-thumb {
-	@apply bg-background dark:bg-foreground dark:data-checked:bg-primary-foreground rounded-full group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=default]/switch:translate-x-0 group-data-[size=sm]/switch:translate-x-0;
+	@apply bg-background dark:bg-foreground dark:data-checked:bg-primary-foreground rounded-full group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-var(--switch-thumb-inset))] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-var(--switch-thumb-inset))] group-data-[size=default]/switch:translate-x-0 group-data-[size=sm]/switch:translate-x-0;
 }
 
 /* MARK: Table */
@@ -1205,7 +1205,7 @@
 }
 
 .z-tabs-list {
-	@apply rounded-lg p-[3px] group-data-[orientation=horizontal]/tabs:h-9 data-[variant=line]:rounded-none;
+	@apply rounded-lg p-[var(--tabs-list-padding)] group-data-[orientation=horizontal]/tabs:h-9 data-[variant=line]:rounded-none;
 }
 
 .z-tabs-trigger {
@@ -1218,7 +1218,7 @@
 
 /* MARK: Textarea */
 .z-textarea {
-	@apply border-input dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border bg-transparent px-2.5 py-2 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-[3px] aria-invalid:ring-[3px] md:text-sm;
+	@apply border-input dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border bg-transparent px-2.5 py-2 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-[var(--focus-ring-width)] aria-invalid:ring-[var(--focus-ring-width)] md:text-sm;
 }
 
 /* MARK: Toggle */
@@ -1261,16 +1261,16 @@
 }
 
 .z-tooltip-arrow {
-	@apply size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-[2px];
+	@apply size-2.5 translate-y-[calc(-50%-var(--tooltip-arrow-offset))] rotate-45 rounded-[var(--tooltip-arrow-radius)];
 }
 
 /* MARK: Input Group */
 .z-input-group {
-	@apply border-input dark:bg-input/30 has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[[data-slot][aria-invalid=true]]:border-destructive dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 h-9 rounded-md border shadow-xs transition-[color,box-shadow] has-[[data-slot=input-group-control]:focus-visible]:ring-[3px] has-[[data-slot][aria-invalid=true]]:ring-[3px] has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0;
+	@apply border-input dark:bg-input/30 has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[[data-slot][aria-invalid=true]]:border-destructive dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 h-9 rounded-md border shadow-xs transition-[color,box-shadow] has-[[data-slot=input-group-control]:focus-visible]:ring-[var(--focus-ring-width)] has-[[data-slot][aria-invalid=true]]:ring-[var(--focus-ring-width)] has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0;
 }
 
 .z-input-group-addon {
-	@apply text-muted-foreground h-auto gap-2 py-1.5 text-sm font-medium group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4;
+	@apply text-muted-foreground h-auto gap-2 py-1.5 text-sm font-medium group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[var(--radius-2xs)] [&>svg:not([class*='size-'])]:size-4;
 }
 
 .z-input-group-addon-align-inline-start {
@@ -1294,11 +1294,11 @@
 }
 
 .z-input-group-button-size-xs {
-	@apply h-6 gap-1 rounded-[calc(var(--radius)-5px)] px-1.5 [&>svg:not([class*='size-'])]:size-3.5;
+	@apply h-6 gap-1 rounded-[var(--radius-2xs)] px-1.5 [&>svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-input-group-button-size-icon-xs {
-	@apply size-6 rounded-[calc(var(--radius)-5px)] p-0 has-[>svg]:p-0;
+	@apply size-6 rounded-[var(--radius-2xs)] p-0 has-[>svg]:p-0;
 }
 
 .z-input-group-button-size-icon-sm {

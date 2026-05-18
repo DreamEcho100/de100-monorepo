@@ -36,7 +36,7 @@ import { Check, ChevronRight } from "lucide-solid";
 import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type ContextMenuProps<T extends ValidComponent = "div"> = PolymorphicProps<
 	T,

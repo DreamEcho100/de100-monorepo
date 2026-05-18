@@ -3,7 +3,7 @@ import { Minus } from "lucide-solid";
 import type { ComponentProps } from "solid-js";
 import { Show, splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type InputOTPProps = OtpFieldRootProps &
 	ComponentProps<"div"> &

@@ -4,9 +4,9 @@ import { ChevronLeft, ChevronRight } from "lucide-solid";
 import type { ComponentProps, JSX } from "solid-js";
 import { Index, mergeProps, Show, splitProps } from "solid-js";
 
-import { Button, buttonVariants } from "@/components/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/select";
-import { cn } from "@/libs/utils";
+import { Button, buttonVariants } from "#components/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#components/select";
+import { cn } from "#libs/utils";
 
 type CalendarSingleValue = Date | null;
 type CalendarMultipleValue = Date[];

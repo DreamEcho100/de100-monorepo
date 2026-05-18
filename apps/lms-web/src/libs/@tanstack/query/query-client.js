@@ -16,7 +16,6 @@ export function createQueryClient() {
 					// 	return queryClient;
 					// },
 				},
-				experimental_prefetchInRender: true,
 			},
 			mutations: {
 				// retry: false,
@@ -41,7 +40,7 @@ export const getQueryClient = () => {
 	}
 
 	// Browser: use singleton pattern to keep the same query client
-	// biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
+	// biome-ignore lint/suspicious/noAssignInExpressions: singleton initialization is intentional here.
 	return (clientQueryClientSingleton ??= createQueryClient());
 };
 

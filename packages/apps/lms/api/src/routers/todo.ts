@@ -1,39 +1,122 @@
 import { todo } from "@de100/apps-lms-db/schema/todo";
-import { eq } from "drizzle-orm";
-import z from "zod";
+import {
+	createTodoInputSchema,
+	deleteTodoInputSchema,
+	todoListOutputSchema,
+	todoRecordOutputSchema,
+	toggleTodoInputSchema,
+} from "@de100/apps-lms-validators/server";
+import { ORPCError } from "@orpc/server";
+import { and, desc, eq } from "drizzle-orm";
 
-import { publicProcedure } from "../index";
+import { protectedProcedure } from "../index";
 
 const getDb = async () => (await import("@de100/apps-lms-db")).db;
 
 export const todoRouter = {
-	getAll: publicProcedure.handler(async () => {
-		const db = await getDb();
-
-		return await db.select().from(todo);
-	}),
-
-	create: publicProcedure
-		.input(z.object({ text: z.string().min(1) }))
-		.handler(async ({ input }) => {
+	getAll: protectedProcedure
+		.output(todoListOutputSchema)
+		.route({
+			method: "GET",
+			path: "/todos",
+			summary: "List the signed-in user's todos",
+			tags: ["Todos"],
+		})
+		.handler(async ({ context }) => {
 			const db = await getDb();
 
-			return await db.insert(todo).values({
-				text: input.text,
-			});
+			return await db
+				.select()
+				.from(todo)
+				.where(eq(todo.userId, context.session.user.id))
+				.orderBy(desc(todo.id));
 		}),
 
-	toggle: publicProcedure
-		.input(z.object({ id: z.number(), completed: z.boolean() }))
-		.handler(async ({ input }) => {
+	create: protectedProcedure
+		.input(createTodoInputSchema)
+		.output(todoRecordOutputSchema)
+		.route({
+			method: "POST",
+			path: "/todos",
+			summary: "Create a todo for the signed-in user",
+			tags: ["Todos"],
+		})
+		.handler(async ({ context, input }) => {
 			const db = await getDb();
 
-			return await db.update(todo).set({ completed: input.completed }).where(eq(todo.id, input.id));
+			const [createdTodo] = await db
+				.insert(todo)
+				.values({
+					text: input.text,
+					userId: context.session.user.id,
+				})
+				.returning();
+
+			if (!createdTodo) {
+				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+					message: "Failed to create todo.",
+				});
+			}
+
+			return createdTodo;
 		}),
 
-	delete: publicProcedure.input(z.object({ id: z.number() })).handler(async ({ input }) => {
-		const db = await getDb();
+	toggle: protectedProcedure
+		.errors({
+			NOT_FOUND: {
+				message: "Todo not found.",
+			},
+		})
+		.input(toggleTodoInputSchema)
+		.output(todoRecordOutputSchema)
+		.route({
+			method: "PATCH",
+			path: "/todos/{id}",
+			summary: "Update a todo's completion state",
+			tags: ["Todos"],
+		})
+		.handler(async ({ context, input }) => {
+			const db = await getDb();
 
-		return await db.delete(todo).where(eq(todo.id, input.id));
-	}),
+			const [updatedTodo] = await db
+				.update(todo)
+				.set({ completed: input.completed })
+				.where(and(eq(todo.id, input.id), eq(todo.userId, context.session.user.id)))
+				.returning();
+
+			if (!updatedTodo) {
+				throw new ORPCError("NOT_FOUND");
+			}
+
+			return updatedTodo;
+		}),
+
+	delete: protectedProcedure
+		.errors({
+			NOT_FOUND: {
+				message: "Todo not found.",
+			},
+		})
+		.input(deleteTodoInputSchema)
+		.output(todoRecordOutputSchema)
+		.route({
+			method: "DELETE",
+			path: "/todos/{id}",
+			summary: "Delete a todo owned by the signed-in user",
+			tags: ["Todos"],
+		})
+		.handler(async ({ context, input }) => {
+			const db = await getDb();
+
+			const [deletedTodo] = await db
+				.delete(todo)
+				.where(and(eq(todo.id, input.id), eq(todo.userId, context.session.user.id)))
+				.returning();
+
+			if (!deletedTodo) {
+				throw new ORPCError("NOT_FOUND");
+			}
+
+			return deletedTodo;
+		}),
 };

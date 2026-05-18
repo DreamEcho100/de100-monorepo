@@ -6,7 +6,7 @@ import { cva } from "class-variance-authority";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 const buttonVariants = cva(
 	"group/button z-button inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap outline-none transition-all active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -48,6 +48,7 @@ const Button = <T extends ValidComponent = "button">(props: ButtonProps<T>) => {
 		<Root
 			class={cn(buttonVariants({ variant: local.variant, size: local.size }), local.class)}
 			data-slot="button"
+			type="button"
 			{...others}
 		/>
 	);

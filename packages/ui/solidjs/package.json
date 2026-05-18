@@ -10,6 +10,11 @@
 			"default": "./src/*"
 		}
 	},
+	"imports": {
+		"#components/*": "./src/components/*",
+		"#libs/*": "./src/libs/*",
+		"#*": "./src/*"
+	},
 	"license": "MIT",
 	"scripts": {
 		"clean": "git clean -xdf .cache .turbo dist node_modules",

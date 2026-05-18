@@ -10,11 +10,7 @@
 		"build": "turbo run build",
 		"clean": "git clean -xdf node_modules",
 		"clean:workspaces": "turbo run clean",
-		"auth:generate": "pnpm -F @de100/auth generate",
-		"db:push": "turbo -F @de100/db-proto push",
-		"db:studio": "turbo -F @de100/db-proto studio",
 		"dev": "turbo watch dev --continue",
-		"dev:next": "turbo watch dev -F @de100/nextjs...",
 		"format-and-lint:check": "turbo run format-and-lint:check --continue --",
 		"format-and-lint:fix": "turbo run format-and-lint:fix --continue --",
 		"format:check": "turbo run format:check --continue --",
@@ -24,9 +20,7 @@
 		"lint:ws": "pnpm dlx sherif@latest",
 		"type:check": "turbo run type:check --continue --",
 		"postinstall": "pnpm lint:ws",
-		"ui-add": "turbo run ui-add",
-		"android": "expo run:android",
-		"ios": "expo run:ios"
+		"ui-add": "turbo run ui-add"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",

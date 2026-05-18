@@ -3,7 +3,7 @@ import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 const HoverCard = (props: HoverCardPrimitive.HoverCardRootProps) => {
 	const mergedProps = mergeProps({ gutter: 4 }, props);

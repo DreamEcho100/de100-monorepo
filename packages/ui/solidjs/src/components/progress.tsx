@@ -10,7 +10,7 @@ import { Fill, Label, Root, Track, ValueLabel } from "@kobalte/core/progress";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type ProgressProps<T extends ValidComponent = "div"> = PolymorphicProps<T, ProgressRootProps<T>> &
 	Pick<ComponentProps<T>, "class" | "children">;

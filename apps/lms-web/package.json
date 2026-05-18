@@ -1,11 +1,18 @@
 {
-	"name": "example-with-tailwindcss",
+	"name": "@de100/apps-lms-web",
 	"type": "module",
 	"scripts": {
 		"dev": "pnpm with-env vite dev",
+		"dev:trace": "pnpm with-trace-env vite dev",
 		"build": "pnpm with-env vite build",
+		"build:trace": "pnpm with-trace-env vite build",
 		"start": "pnpm with-env vite start",
+		"start:trace": "pnpm with-trace-env vite start",
 		"preview": "pnpm with-env vite preview",
+		"preview:trace": "pnpm with-trace-env vite preview",
+		"db:seed": "pnpm with-env tsx ./scripts/seed.ts",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"clean": "git clean -xdf .cache .next .turbo node_modules",
 		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
@@ -14,7 +21,8 @@
 		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
 		"type:check": "tsc -p tsconfig.json --noEmit",
-		"with-env": "dotenv -e ../../.env --"
+		"with-env": "dotenv -e ../../.env.example -e ../../.env --",
+		"with-trace-env": "dotenv -e ../../.env.example -e ../../.env -e ../../.env.trace.local --"
 	},
 	"dependencies": {
 		"@de100/apps-lms-api": "workspace:*",
@@ -22,26 +30,27 @@
 		"@de100/apps-lms-config": "workspace:*",
 		"@de100/apps-lms-db": "workspace:*",
 		"@de100/apps-lms-env": "workspace:*",
+		"@de100/apps-lms-i18n": "workspace:*",
 		"@de100/apps-lms-infra": "workspace:*",
 		"@de100/apps-lms-validators": "workspace:*",
 		"@de100/ui-solidjs": "workspace:*",
 		"@orpc/client": "catalog:",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
-		"@orpc/solid-query": "catalog:",
 		"@orpc/tanstack-query": "catalog:",
 		"@orpc/zod": "catalog:",
 		"@solidjs/meta": "catalog:",
 		"@solidjs/router": "catalog:",
 		"@solidjs/start": "catalog:",
 		"@solidjs/vite-plugin-nitro-2": "catalog:",
-		"@tanstack/form-devtools": "catalog:",
+		"@tanstack/solid-form": "catalog:",
 		"@tanstack/solid-query": "catalog:",
 		"@tanstack/solid-query-devtools": "catalog:",
-		"@unpic/solid": "^1.0.0",
-    "better-auth": "catalog:",
+		"better-auth": "catalog:",
+		"drizzle-orm": "catalog:",
 		"lucide-solid": "catalog:",
 		"solid-js": "catalog:",
+		"tw-animate-css": "catalog:",
 		"vite": "catalog:"
 	},
 	"devDependencies": {
@@ -52,7 +61,9 @@
 		"@tailwindcss/vite": "catalog:",
 		"@types/node": "catalog:",
 		"tailwindcss": "catalog:",
-		"typescript": "catalog:"
+		"tsx": "^4.22.0",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	},
 	"engines": {
 		"node": ">=22"

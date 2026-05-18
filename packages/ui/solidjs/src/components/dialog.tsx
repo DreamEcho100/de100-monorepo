@@ -4,8 +4,8 @@ import { X } from "lucide-solid";
 import type { Component, ComponentProps, ValidComponent } from "solid-js";
 import { mergeProps, Show, splitProps } from "solid-js";
 
-import { Button } from "@/components/button";
-import { cn } from "@/libs/utils";
+import { Button } from "#components/button";
+import { cn } from "#libs/utils";
 
 const Dialog: Component<DialogPrimitive.DialogRootProps> = (props) => (
 	<DialogPrimitive.Root data-slot="dialog" {...props} />

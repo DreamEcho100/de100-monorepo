@@ -10,6 +10,12 @@
 		}
 	},
 	"scripts": {
+		"test": "vitest run --config ../../vitest.config.ts",
+		"test:watch": "vitest --config ../../vitest.config.ts",
+		"db:up": "docker compose -f ../../../../docker-compose.yml up -d --wait lms-postgres",
+		"db:down": "docker compose -f ../../../../docker-compose.yml down",
+		"db:logs": "docker compose -f ../../../../docker-compose.yml logs -f lms-postgres",
+		"db:reset": "docker compose -f ../../../../docker-compose.yml down -v && docker compose -f ../../../../docker-compose.yml up -d --wait lms-postgres",
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:studio": "drizzle-kit studio",
@@ -28,6 +34,7 @@
 		"@neondatabase/serverless": "^1.0.2",
 		"dotenv": "catalog:",
 		"drizzle-orm": "catalog:",
+		"postgres": "catalog:",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
@@ -36,6 +43,7 @@
 		"@de100/biome-config": "workspace:*",
 		"@de100/tsconfig": "workspace:*",
 		"drizzle-kit": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

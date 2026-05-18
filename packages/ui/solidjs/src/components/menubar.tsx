@@ -4,7 +4,7 @@ import { Check, ChevronRight } from "lucide-solid";
 import type { Component, ComponentProps, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type MenubarProps<T extends ValidComponent = "div"> = PolymorphicProps<
 	T,

@@ -3,7 +3,7 @@ import * as PopoverPrimitive from "@kobalte/core/popover";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type PopoverProps = PopoverPrimitive.PopoverRootProps;
 

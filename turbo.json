@@ -65,6 +65,7 @@
 	],
 	"globalPassThroughEnv": [
 		"NODE_ENV",
+		"DISABLE_ORPC_OUTPUT_VALIDATION",
 		"CI",
 		"VERCEL",
 		"VERCEL_ENV",

@@ -1,3 +1,17 @@
+@custom-variant supports-backdrop-filter (@supports (
+		(backdrop-filter: blur(0)) or
+		(-webkit-backdrop-filter: blur(0))
+	));
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
 :root {
 	--background: oklch(0.9875 0.0045 314.8053);
 	--foreground: oklch(0.2277 0.0105 312.0161);
@@ -42,6 +56,22 @@
 	--shadow-2xl: 0px 2px 10px 0px hsl(0 0% 0% / 0.13);
 	--tracking-normal: 0rem;
 	--spacing: 0.25rem;
+	--focus-ring-width: calc(var(--spacing) * 0.75);
+	--floating-arrow-offset: calc(var(--spacing) * 2.5);
+	--control-radius-2xs: var(--spacing);
+	--control-radius-xs: calc(var(--spacing) * 2);
+	--control-radius-sm: calc(var(--spacing) * 2.5);
+	--radius-2xs: calc(var(--radius) - calc(var(--spacing) * 1.25));
+	--drawer-handle-width: calc(var(--spacing) * 25);
+	--menu-min-width: calc(var(--spacing) * 24);
+	--switch-track-default-height: calc(var(--spacing) * 4.6);
+	--switch-track-default-width: calc(var(--spacing) * 8);
+	--switch-track-sm-height: calc(var(--spacing) * 3.5);
+	--switch-track-sm-width: calc(var(--spacing) * 6);
+	--switch-thumb-inset: calc(var(--spacing) * 0.5);
+	--tabs-list-padding: calc(var(--spacing) * 0.75);
+	--tooltip-arrow-offset: calc(var(--spacing) * 0.5);
+	--tooltip-arrow-radius: calc(var(--spacing) * 0.5);
 
 	@variant dark {
 		/* biome-ignore lint/suspicious/noDuplicateCustomProperties: <explanation> These properties are intentionally duplicated for the dark variant. */

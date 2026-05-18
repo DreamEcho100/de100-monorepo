@@ -21,7 +21,7 @@ import {
 	useContext,
 } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 // Register ECharts components - using SVG renderer for CSS variable support
 // Note: SVG is required because Canvas cannot parse CSS variables like var(--chart-1)

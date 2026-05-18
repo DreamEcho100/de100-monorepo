@@ -2,7 +2,7 @@ import { ChevronDown } from "lucide-solid";
 import type { ComponentProps } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import { cn } from "@/libs/utils";
+import { cn } from "#libs/utils";
 
 type NativeSelectProps = ComponentProps<"select"> & {
 	size?: "sm" | "default";
