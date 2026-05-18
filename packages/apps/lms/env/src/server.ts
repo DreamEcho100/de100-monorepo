@@ -9,8 +9,11 @@ import { z } from "zod";
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(moduleDir, "../../../../../");
 const candidateEnvPaths = [
+	resolve(process.cwd(), ".env.local"),
 	resolve(process.cwd(), ".env"),
+	resolve(repoRoot, ".env.local"),
 	resolve(repoRoot, ".env"),
+	resolve(repoRoot, "apps/lms-web/.env.local"),
 	resolve(repoRoot, "apps/lms-web/.env"),
 ];
 
@@ -28,14 +31,18 @@ export const env = createEnv({
 		APP_LMS_CACHE_KEY_PREFIX: z.string().min(1).default("de100:lms"),
 		APP_LMS_MEDIA_STORAGE_DRIVER: z.enum(["r2", "local"]).default("r2"),
 		APP_LMS_MEDIA_LOCAL_ROOT: z.string().min(1).default("./.local/media"),
-		MEDIA_SIGNING_SECRET: z.string().min(32).optional(),
+		APP_LMS_MEDIA_SIGNING_SECRET: z.string().min(32).optional(),
 		APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS: z.coerce.number().int().positive().default(3600),
 		REDIS_URL: z.url().optional(),
-		UPSTASH_REDIS_URL: z.url().optional(),
-		UPSTASH_REDIS_TOKEN: z.string().min(1).optional(),
+		APP_LMS_UPSTASH_REDIS_URL: z.url().optional(),
+		APP_LMS_UPSTASH_REDIS_TOKEN: z.string().min(1).optional(),
 		APP_LMS_BETTER_AUTH_SECRET: z.string().min(32),
 		APP_LMS_BETTER_AUTH_URL: z.url(),
 		APP_LMS_CORS_ORIGIN: z.url(),
+		APP_LMS_EMAIL_DRIVER: z.enum(["log", "resend"]).default("log"),
+		APP_LMS_EMAIL_FROM: z.string().min(1).default("LMS Starter <noreply@lms.local>"),
+		APP_LMS_EMAIL_REPLY_TO: z.string().min(1).optional(),
+		APP_LMS_RESEND_API_KEY: z.string().min(1).optional(),
 		NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 		DISABLE_ORPC_OUTPUT_VALIDATION: z.boolean().default(false),
 		APP_LMS_SERVER_PORT: z.coerce.number().int().positive().default(3000),

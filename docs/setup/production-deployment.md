@@ -25,6 +25,7 @@ Recommended production stack:
 - Cloudflare R2 for media storage
 - Neon for `APP_LMS_DATABASE_URL`
 - Upstash for `APP_LMS_CACHE_DRIVER=upstash`
+- Resend for `APP_LMS_EMAIL_DRIVER=resend`
 
 Supported alternatives already in the codebase:
 
@@ -40,14 +41,14 @@ Before the first deploy, make sure you have:
 2. A production database URL.
 3. A `APP_LMS_BETTER_AUTH_SECRET` with at least 32 characters.
 4. A final public origin for the deployed app.
-5. An `.env` file at the repo root or `apps/lms-web/.env` containing the production values.
+5. A local `.env.local` file at the repo root containing the production values you want Alchemy to read, or equivalent provider-managed secrets. `.env` and `apps/lms-web/.env` remain fallback paths for older workflows.
 
 ## Required production env values
 
 These values need to be present before you deploy:
 
 ```env
-ALCHEMY_PASSWORD=replace-with-a-local-password-for-alchemy-state
+APP_LMS_ALCHEMY_PASSWORD=replace-with-a-local-password-for-alchemy-state
 APP_LMS_DATABASE_URL=postgresql://user:password@your-project.region.aws.neon.tech/dbname
 APP_LMS_DATABASE_DRIVER=auto
 APP_LMS_BETTER_AUTH_SECRET=replace-with-a-32-character-secret
@@ -55,6 +56,9 @@ APP_LMS_BETTER_AUTH_URL=https://your-app-domain.example/api/auth
 APP_LMS_CORS_ORIGIN=https://your-app-domain.example
 # Leave empty for same-origin browser -> server requests.
 VITE_APP_LMS_SERVER_URL=
+APP_LMS_EMAIL_DRIVER=resend
+APP_LMS_EMAIL_FROM=LMS Starter <noreply@your-domain.example>
+APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 APP_LMS_MEDIA_STORAGE_DRIVER=r2
 APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
 ```
@@ -65,8 +69,8 @@ Add cache configuration based on your chosen driver:
 
 ```env
 APP_LMS_CACHE_DRIVER=upstash
-UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
-UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
+APP_LMS_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
+APP_LMS_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
 ```
 
 ### Redis
@@ -85,10 +89,12 @@ APP_LMS_CACHE_DRIVER=memory
 Optional media-signing override:
 
 ```env
-MEDIA_SIGNING_SECRET=replace-with-a-separate-32-character-secret
+APP_LMS_MEDIA_SIGNING_SECRET=replace-with-a-separate-32-character-secret
 ```
 
-If `MEDIA_SIGNING_SECRET` is unset, the app falls back to `APP_LMS_BETTER_AUTH_SECRET`.
+If `APP_LMS_MEDIA_SIGNING_SECRET` is unset, the app falls back to `APP_LMS_BETTER_AUTH_SECRET`.
+
+For local development, keep `APP_LMS_EMAIL_DRIVER=log` and verify the generated auth links through the local server logs before switching to Resend.
 
 ## Alchemy and Cloudflare setup
 
@@ -189,6 +195,7 @@ After a successful deploy, verify:
 4. `/api/reference/spec.json` returns JSON.
 5. Sign-in works with a real production user or a seeded/demo environment.
 6. Media upload works and the deployed app can see the injected R2 bindings.
+7. Verification and password-reset emails are delivered through Resend.
 
 ## Troubleshooting
 
@@ -201,7 +208,7 @@ pnpm --dir packages/apps/lms/infra exec alchemy configure
 pnpm --dir packages/apps/lms/infra exec alchemy login
 ```
 
-- Make sure `ALCHEMY_PASSWORD` is set locally before using Alchemy state and secret features.
+- Make sure `APP_LMS_ALCHEMY_PASSWORD` is set locally before using Alchemy state and secret features.
 
 ### Auth works locally but fails after deploy
 
@@ -228,9 +235,19 @@ Remember that seeded media is metadata-only. Real object checks should be done w
 Check the active `APP_LMS_CACHE_DRIVER` and its matching env vars:
 
 - `REDIS_URL` for `redis`
-- `UPSTASH_REDIS_URL` and `UPSTASH_REDIS_TOKEN` for `upstash`
+- `APP_LMS_UPSTASH_REDIS_URL` and `APP_LMS_UPSTASH_REDIS_TOKEN` for `upstash`
 
 If you do not want a shared cache backend yet, switch to `APP_LMS_CACHE_DRIVER=memory`.
+
+### Auth emails do not send in production
+
+Check these first:
+
+- `APP_LMS_EMAIL_DRIVER=resend`
+- `APP_LMS_EMAIL_FROM`
+- `APP_LMS_RESEND_API_KEY`
+
+For local development, switch back to `APP_LMS_EMAIL_DRIVER=log` and confirm the generated Better Auth links appear in the local server logs.
 
 ### The app deploys but database calls fail
 

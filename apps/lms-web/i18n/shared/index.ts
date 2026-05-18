@@ -4,15 +4,44 @@ export type AppLocaleCode = "en" | "ar";
 
 export const enMessages = {
 	auth: {
+		notices: {
+			passwordResetSuccess: "Your password was updated. Sign in with the new password.",
+			verificationSuccess: "Your email was verified. You can sign in normally now.",
+		},
+		forgotPassword: {
+			backToLogin: "Back to sign in",
+			description: "Request a reset link and we will send it to the email address on your account.",
+			emailLabel: "Email",
+			eyebrow: "Password recovery",
+			submit: "Send reset link",
+			submitting: "Sending reset link...",
+			success:
+				"If that account exists, a password reset link has been sent. Check the local server logs or your inbox depending on the active email driver.",
+			title: "Forgot password",
+			verifyEmailLink: "Need a verification email instead?",
+		},
+		resetPassword: {
+			backToLogin: "Back to sign in",
+			confirmPasswordLabel: "Confirm new password",
+			description: "Choose a new password for your LMS account.",
+			eyebrow: "Reset password",
+			invalidToken: "This reset link is missing a token. Request a new password reset email.",
+			passwordLabel: "New password",
+			submit: "Update password",
+			submitting: "Updating password...",
+			title: "Create a new password",
+		},
 		signIn: {
 			description: "Sign in to review budgets, transactions, and recent account activity.",
 			emailLabel: "Email",
 			eyebrow: "Authentication",
+			forgotPasswordLink: "Forgot password?",
 			passwordLabel: "Password",
 			submit: "Sign In",
 			submitting: "Signing in...",
 			switchPrompt: "Need an account? Sign up",
 			title: "Welcome back",
+			verifyEmailLink: "Need a verification email?",
 		},
 		signUp: {
 			description: "Create an account to manage budgets, categories, and spending trends.",
@@ -24,6 +53,18 @@ export const enMessages = {
 			submitting: "Creating account...",
 			switchPrompt: "Already have an account? Sign in",
 			title: "Start tracking",
+			verifyEmailLink: "Already signed up? Send a verification email",
+		},
+		verifyEmail: {
+			backToLogin: "Back to sign in",
+			description: "Send or resend a verification link for an email/password account.",
+			emailLabel: "Email",
+			eyebrow: "Email verification",
+			submit: "Send verification email",
+			submitting: "Sending verification email...",
+			success:
+				"If that account exists, a verification link has been sent. Check the local server logs or your inbox depending on the active email driver.",
+			title: "Verify your email",
 		},
 	},
 	apiReference: {
@@ -266,15 +307,45 @@ export type AppMessages = typeof enMessages;
 
 export const arMessages: AppMessages = {
 	auth: {
+		notices: {
+			passwordResetSuccess:
+				"تم تحديث كلمة المرور. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.",
+			verificationSuccess: "تم التحقق من بريدك الإلكتروني. يمكنك الآن تسجيل الدخول بشكل طبيعي.",
+		},
+		forgotPassword: {
+			backToLogin: "العودة إلى تسجيل الدخول",
+			description: "اطلب رابط إعادة التعيين وسنرسله إلى عنوان البريد المرتبط بحسابك.",
+			emailLabel: "البريد الإلكتروني",
+			eyebrow: "استعادة كلمة المرور",
+			submit: "إرسال رابط إعادة التعيين",
+			submitting: "جارٍ إرسال رابط إعادة التعيين...",
+			success:
+				"إذا كان هذا الحساب موجودًا، فقد تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من سجلات الخادم المحلية أو من بريدك الوارد حسب موفر البريد النشط.",
+			title: "نسيت كلمة المرور",
+			verifyEmailLink: "هل تحتاج إلى رسالة تحقق بدلًا من ذلك؟",
+		},
+		resetPassword: {
+			backToLogin: "العودة إلى تسجيل الدخول",
+			confirmPasswordLabel: "تأكيد كلمة المرور الجديدة",
+			description: "اختر كلمة مرور جديدة لحساب LMS الخاص بك.",
+			eyebrow: "إعادة تعيين كلمة المرور",
+			invalidToken: "رابط إعادة التعيين هذا لا يحتوي على رمز صالح. اطلب رسالة إعادة تعيين جديدة.",
+			passwordLabel: "كلمة المرور الجديدة",
+			submit: "تحديث كلمة المرور",
+			submitting: "جارٍ تحديث كلمة المرور...",
+			title: "أنشئ كلمة مرور جديدة",
+		},
 		signIn: {
 			description: "سجّل الدخول لمراجعة الميزانيات والمعاملات وآخر نشاط للحساب.",
 			emailLabel: "البريد الإلكتروني",
 			eyebrow: "المصادقة",
+			forgotPasswordLink: "هل نسيت كلمة المرور؟",
 			passwordLabel: "كلمة المرور",
 			submit: "تسجيل الدخول",
 			submitting: "جارٍ تسجيل الدخول...",
 			switchPrompt: "بحاجة إلى حساب؟ أنشئ حسابًا",
 			title: "مرحبًا بعودتك",
+			verifyEmailLink: "هل تحتاج إلى رسالة تحقق؟",
 		},
 		signUp: {
 			description: "أنشئ حسابًا لإدارة الميزانيات والفئات واتجاهات الإنفاق.",
@@ -286,6 +357,18 @@ export const arMessages: AppMessages = {
 			submitting: "جارٍ إنشاء الحساب...",
 			switchPrompt: "لديك حساب بالفعل؟ سجّل الدخول",
 			title: "ابدأ التتبع",
+			verifyEmailLink: "أنشأت حسابًا بالفعل؟ أرسل رسالة تحقق",
+		},
+		verifyEmail: {
+			backToLogin: "العودة إلى تسجيل الدخول",
+			description: "أرسل أو أعد إرسال رابط تحقق لحساب البريد الإلكتروني وكلمة المرور.",
+			emailLabel: "البريد الإلكتروني",
+			eyebrow: "التحقق من البريد الإلكتروني",
+			submit: "إرسال رسالة التحقق",
+			submitting: "جارٍ إرسال رسالة التحقق...",
+			success:
+				"إذا كان هذا الحساب موجودًا، فقد تم إرسال رابط تحقق. تحقق من سجلات الخادم المحلية أو من بريدك الوارد حسب موفر البريد النشط.",
+			title: "تحقق من بريدك الإلكتروني",
 		},
 	},
 	apiReference: {

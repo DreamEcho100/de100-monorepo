@@ -40,11 +40,11 @@ function requireRedisUrl(redisUrl: string | undefined) {
 
 function requireUpstashConfig(config: CacheClientConfig) {
 	if (!config.upstashRedisUrl) {
-		throw new Error("UPSTASH_REDIS_URL is required when APP_LMS_CACHE_DRIVER=upstash.");
+		throw new Error("APP_LMS_UPSTASH_REDIS_URL is required when APP_LMS_CACHE_DRIVER=upstash.");
 	}
 
 	if (!config.upstashRedisToken) {
-		throw new Error("UPSTASH_REDIS_TOKEN is required when APP_LMS_CACHE_DRIVER=upstash.");
+		throw new Error("APP_LMS_UPSTASH_REDIS_TOKEN is required when APP_LMS_CACHE_DRIVER=upstash.");
 	}
 
 	return {

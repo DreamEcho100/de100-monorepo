@@ -1,5 +1,5 @@
 import { useI18n } from "@de100/apps-lms-i18n";
-import { signUpFormValidator } from "@de100/apps-lms-validators/client";
+import { resetPasswordFormValidator } from "@de100/apps-lms-validators/client";
 import {
 	Button,
 	Card,
@@ -14,45 +14,51 @@ import {
 	FieldLabel,
 	Input,
 } from "@de100/ui-solidjs";
-import { A, useNavigate } from "@solidjs/router";
+import { A, useLocation, useNavigate } from "@solidjs/router";
 import { createForm } from "@tanstack/solid-form";
-import { createSignal, Show } from "solid-js";
+import { createSignal } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";
 
 import { createLocalizedPath } from "../../i18n/routing";
 
-export default function SignUpForm(props: { onSwitchToSignIn: () => void }) {
+export default function ResetPasswordForm() {
+	const location = useLocation();
 	const navigate = useNavigate();
 	const { locale, t } = useI18n();
 	const [submitError, setSubmitError] = createSignal<string | null>(null);
+	const resetToken = new URLSearchParams(location.search).get("token") ?? "";
 
 	const form = createForm(() => ({
 		defaultValues: {
-			email: "",
+			confirmPassword: "",
 			password: "",
-			name: "",
 		},
 		onSubmit: async ({ value }) => {
 			setSubmitError(null);
-			await authClient.signUp.email(
+
+			if (!resetToken) {
+				setSubmitError(t("auth.resetPassword.invalidToken"));
+				return;
+			}
+
+			await authClient.resetPassword(
 				{
-					email: value.email,
-					name: value.name,
-					password: value.password,
+					newPassword: value.password,
+					token: resetToken,
 				},
 				{
 					onError: (error) => {
 						setSubmitError(error.error.message);
 					},
 					onSuccess: () => {
-						navigate(createLocalizedPath(locale(), "/dashboard"));
+						navigate(`${createLocalizedPath(locale(), "/login")}?reset=1`, { replace: true });
 					},
 				},
 			);
 		},
 		validators: {
-			onSubmit: signUpFormValidator,
+			onSubmit: resetPasswordFormValidator,
 		},
 	}));
 
@@ -60,13 +66,13 @@ export default function SignUpForm(props: { onSwitchToSignIn: () => void }) {
 		<Card class="w-full border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 			<CardHeader class="grid gap-3">
 				<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
-					{t("auth.signUp.eyebrow")}
+					{t("auth.resetPassword.eyebrow")}
 				</p>
 				<CardTitle class="text-balance font-semibold text-3xl text-foreground tracking-tight">
-					{t("auth.signUp.title")}
+					{t("auth.resetPassword.title")}
 				</CardTitle>
 				<CardDescription class="text-muted-foreground text-sm leading-6">
-					{t("auth.signUp.description")}
+					{t("auth.resetPassword.description")}
 				</CardDescription>
 			</CardHeader>
 
@@ -79,70 +85,15 @@ export default function SignUpForm(props: { onSwitchToSignIn: () => void }) {
 						form.handleSubmit();
 					}}
 				>
-					<form.Field name="name">
-						{(field) => {
-							const errorId = `${field().name}-error`;
-
-							return (
-								<Field class="grid gap-4">
-									<FieldLabel for={field().name}>{t("auth.signUp.nameLabel")}</FieldLabel>
-									<FieldContent>
-										<Input
-											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
-											aria-invalid={field().state.meta.errors.length > 0}
-											id={field().name}
-											name={field().name}
-											onBlur={field().handleBlur}
-											onInput={(event) => field().handleChange(event.currentTarget.value)}
-											value={field().state.value}
-										/>
-										<FieldError
-											class="text-destructive text-sm"
-											errors={field().state.meta.errors}
-											id={errorId}
-										/>
-									</FieldContent>
-								</Field>
-							);
-						}}
-					</form.Field>
-
-					<form.Field name="email">
-						{(field) => {
-							const errorId = `${field().name}-error`;
-
-							return (
-								<Field class="grid gap-4">
-									<FieldLabel for={field().name}>{t("auth.signUp.emailLabel")}</FieldLabel>
-									<FieldContent>
-										<Input
-											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
-											aria-invalid={field().state.meta.errors.length > 0}
-											id={field().name}
-											name={field().name}
-											onBlur={field().handleBlur}
-											onInput={(event) => field().handleChange(event.currentTarget.value)}
-											type="email"
-											value={field().state.value}
-										/>
-										<FieldError
-											class="text-destructive text-sm"
-											errors={field().state.meta.errors}
-											id={errorId}
-										/>
-									</FieldContent>
-								</Field>
-							);
-						}}
-					</form.Field>
-
 					<form.Field name="password">
 						{(field) => {
 							const errorId = `${field().name}-error`;
 
 							return (
 								<Field class="grid gap-4">
-									<FieldLabel for={field().name}>{t("auth.signUp.passwordLabel")}</FieldLabel>
+									<FieldLabel for={field().name}>
+										{t("auth.resetPassword.passwordLabel")}
+									</FieldLabel>
 									<FieldContent>
 										<Input
 											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
@@ -165,18 +116,51 @@ export default function SignUpForm(props: { onSwitchToSignIn: () => void }) {
 						}}
 					</form.Field>
 
-					<Show when={submitError()}>
-						{(message) => <FieldError class="text-destructive text-sm">{message()}</FieldError>}
-					</Show>
+					<form.Field name="confirmPassword">
+						{(field) => {
+							const errorId = `${field().name}-error`;
+
+							return (
+								<Field class="grid gap-4">
+									<FieldLabel for={field().name}>
+										{t("auth.resetPassword.confirmPasswordLabel")}
+									</FieldLabel>
+									<FieldContent>
+										<Input
+											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
+											aria-invalid={field().state.meta.errors.length > 0}
+											id={field().name}
+											name={field().name}
+											onBlur={field().handleBlur}
+											onInput={(event) => field().handleChange(event.currentTarget.value)}
+											type="password"
+											value={field().state.value}
+										/>
+										<FieldError
+											class="text-destructive text-sm"
+											errors={field().state.meta.errors}
+											id={errorId}
+										/>
+									</FieldContent>
+								</Field>
+							);
+						}}
+					</form.Field>
+
+					{submitError() ? (
+						<FieldError class="text-destructive text-sm">{submitError()}</FieldError>
+					) : null}
 
 					<form.Subscribe>
 						{(state) => (
 							<Button
 								class="w-full"
-								disabled={!state().canSubmit || state().isSubmitting}
+								disabled={!state().canSubmit || state().isSubmitting || !resetToken}
 								type="submit"
 							>
-								{state().isSubmitting ? t("auth.signUp.submitting") : t("auth.signUp.submit")}
+								{state().isSubmitting
+									? t("auth.resetPassword.submitting")
+									: t("auth.resetPassword.submit")}
 							</Button>
 						)}
 					</form.Subscribe>
@@ -184,22 +168,12 @@ export default function SignUpForm(props: { onSwitchToSignIn: () => void }) {
 			</CardContent>
 
 			<CardFooter class="pt-2">
-				<div class="flex w-full flex-wrap items-center justify-between gap-3 text-sm">
-					<Button
-						class="px-0 text-sm"
-						onClick={props.onSwitchToSignIn}
-						type="button"
-						variant="link"
-					>
-						{t("auth.signUp.switchPrompt")}
-					</Button>
-					<A
-						class="text-primary underline-offset-4 hover:underline"
-						href={createLocalizedPath(locale(), "/verify-email")}
-					>
-						{t("auth.signUp.verifyEmailLink")}
-					</A>
-				</div>
+				<A
+					class="text-primary text-sm underline-offset-4 hover:underline"
+					href={createLocalizedPath(locale(), "/login")}
+				>
+					{t("auth.resetPassword.backToLogin")}
+				</A>
 			</CardFooter>
 		</Card>
 	);

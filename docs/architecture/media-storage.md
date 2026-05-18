@@ -43,7 +43,7 @@ The split keeps those concerns separate from the start:
 - private owner-only objects resolve through `/api/media/private/[...key]`
 - signed reads resolve through `/api/media/signed/[token]`
 
-Signed reads are app-issued and stateless. The media router signs `{ mediaId, userId, exp }` with `MEDIA_SIGNING_SECRET` or `APP_LMS_BETTER_AUTH_SECRET`, and the signed route reloads the media record before streaming the object.
+Signed reads are app-issued and stateless. The media router signs `{ mediaId, userId, exp }` with `APP_LMS_MEDIA_SIGNING_SECRET` or `APP_LMS_BETTER_AUTH_SECRET`, and the signed route reloads the media record before streaming the object.
 
 ## Capabilities surfaced to the UI
 

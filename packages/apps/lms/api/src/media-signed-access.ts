@@ -34,7 +34,7 @@ function decodeBase64Url(value: string) {
 }
 
 async function importSigningKey() {
-	const secret = env.MEDIA_SIGNING_SECRET ?? env.APP_LMS_BETTER_AUTH_SECRET;
+	const secret = env.APP_LMS_MEDIA_SIGNING_SECRET ?? env.APP_LMS_BETTER_AUTH_SECRET;
 	if (!secret) {
 		throw new Error("Missing media signing secret.");
 	}

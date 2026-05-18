@@ -1,5 +1,5 @@
 import { useI18n } from "@de100/apps-lms-i18n";
-import { signInFormValidator } from "@de100/apps-lms-validators/client";
+import { resendVerificationEmailFormValidator } from "@de100/apps-lms-validators/client";
 import {
 	Button,
 	Card,
@@ -14,43 +14,48 @@ import {
 	FieldLabel,
 	Input,
 } from "@de100/ui-solidjs";
-import { A, useNavigate } from "@solidjs/router";
+import { A, useLocation } from "@solidjs/router";
 import { createForm } from "@tanstack/solid-form";
-import { createSignal, Show } from "solid-js";
+import { createSignal } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";
 
 import { createLocalizedPath } from "../../i18n/routing";
 
-export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
-	const navigate = useNavigate();
+export default function VerifyEmailForm() {
+	const location = useLocation();
 	const { locale, t } = useI18n();
 	const [submitError, setSubmitError] = createSignal<string | null>(null);
+	const [successMessage, setSuccessMessage] = createSignal<string | null>(
+		new URLSearchParams(location.search).get("sent") === "1" ? t("auth.verifyEmail.success") : null,
+	);
+	const initialEmail = new URLSearchParams(location.search).get("email") ?? "";
 
 	const form = createForm(() => ({
 		defaultValues: {
-			email: "",
-			password: "",
+			email: initialEmail,
 		},
 		onSubmit: async ({ value }) => {
 			setSubmitError(null);
-			await authClient.signIn.email(
+			setSuccessMessage(null);
+
+			await authClient.sendVerificationEmail(
 				{
+					callbackURL: `${new URL(createLocalizedPath(locale(), "/login"), window.location.origin).toString()}?verified=1`,
 					email: value.email,
-					password: value.password,
 				},
 				{
 					onError: (error) => {
 						setSubmitError(error.error.message);
 					},
 					onSuccess: () => {
-						navigate(createLocalizedPath(locale(), "/dashboard"));
+						setSuccessMessage(t("auth.verifyEmail.success"));
 					},
 				},
 			);
 		},
 		validators: {
-			onSubmit: signInFormValidator,
+			onSubmit: resendVerificationEmailFormValidator,
 		},
 	}));
 
@@ -58,13 +63,13 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 		<Card class="w-full border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 			<CardHeader class="grid gap-3">
 				<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
-					{t("auth.signIn.eyebrow")}
+					{t("auth.verifyEmail.eyebrow")}
 				</p>
 				<CardTitle class="text-balance font-semibold text-3xl text-foreground tracking-tight">
-					{t("auth.signIn.title")}
+					{t("auth.verifyEmail.title")}
 				</CardTitle>
 				<CardDescription class="text-muted-foreground text-sm leading-6">
-					{t("auth.signIn.description")}
+					{t("auth.verifyEmail.description")}
 				</CardDescription>
 			</CardHeader>
 
@@ -83,7 +88,7 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 
 							return (
 								<Field class="grid gap-4">
-									<FieldLabel for={field().name}>{t("auth.signIn.emailLabel")}</FieldLabel>
+									<FieldLabel for={field().name}>{t("auth.verifyEmail.emailLabel")}</FieldLabel>
 									<FieldContent>
 										<Input
 											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
@@ -106,38 +111,17 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 						}}
 					</form.Field>
 
-					<form.Field name="password">
-						{(field) => {
-							const errorId = `${field().name}-error`;
-
-							return (
-								<Field class="grid gap-4">
-									<FieldLabel for={field().name}>{t("auth.signIn.passwordLabel")}</FieldLabel>
-									<FieldContent>
-										<Input
-											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
-											aria-invalid={field().state.meta.errors.length > 0}
-											id={field().name}
-											name={field().name}
-											onBlur={field().handleBlur}
-											onInput={(event) => field().handleChange(event.currentTarget.value)}
-											type="password"
-											value={field().state.value}
-										/>
-										<FieldError
-											class="text-destructive text-sm"
-											errors={field().state.meta.errors}
-											id={errorId}
-										/>
-									</FieldContent>
-								</Field>
-							);
-						}}
-					</form.Field>
-
-					<Show when={submitError()}>
-						{(message) => <FieldError class="text-destructive text-sm">{message()}</FieldError>}
-					</Show>
+					{submitError() ? (
+						<FieldError class="text-destructive text-sm">{submitError()}</FieldError>
+					) : null}
+					{successMessage() ? (
+						<p
+							class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-emerald-700 text-sm leading-6 dark:text-emerald-300"
+							role="status"
+						>
+							{successMessage()}
+						</p>
+					) : null}
 
 					<form.Subscribe>
 						{(state) => (
@@ -146,7 +130,9 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 								disabled={!state().canSubmit || state().isSubmitting}
 								type="submit"
 							>
-								{state().isSubmitting ? t("auth.signIn.submitting") : t("auth.signIn.submit")}
+								{state().isSubmitting
+									? t("auth.verifyEmail.submitting")
+									: t("auth.verifyEmail.submit")}
 							</Button>
 						)}
 					</form.Subscribe>
@@ -154,30 +140,12 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 			</CardContent>
 
 			<CardFooter class="pt-2">
-				<div class="flex w-full flex-wrap items-center justify-between gap-3 text-sm">
-					<Button
-						class="px-0 text-sm"
-						onClick={props.onSwitchToSignUp}
-						type="button"
-						variant="link"
-					>
-						{t("auth.signIn.switchPrompt")}
-					</Button>
-					<div class="flex flex-wrap gap-3">
-						<A
-							class="text-primary underline-offset-4 hover:underline"
-							href={createLocalizedPath(locale(), "/forgot-password")}
-						>
-							{t("auth.signIn.forgotPasswordLink")}
-						</A>
-						<A
-							class="text-primary underline-offset-4 hover:underline"
-							href={createLocalizedPath(locale(), "/verify-email")}
-						>
-							{t("auth.signIn.verifyEmailLink")}
-						</A>
-					</div>
-				</div>
+				<A
+					class="text-primary text-sm underline-offset-4 hover:underline"
+					href={createLocalizedPath(locale(), "/login")}
+				>
+					{t("auth.verifyEmail.backToLogin")}
+				</A>
 			</CardFooter>
 		</Card>
 	);

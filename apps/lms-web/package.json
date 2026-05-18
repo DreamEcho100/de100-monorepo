@@ -21,8 +21,8 @@
 		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
 		"type:check": "tsc -p tsconfig.json --noEmit",
-		"with-env": "dotenv -e ../../.env.example -e ../../.env --",
-		"with-trace-env": "dotenv -e ../../.env.example -e ../../.env -e ../../.env.trace.local --"
+		"with-env": "dotenv -e ../../.env -e ../../.env.local --",
+		"with-trace-env": "dotenv -e ../../.env -e ../../.env.local -e ../../.env.trace.local --"
 	},
 	"dependencies": {
 		"@de100/apps-lms-api": "workspace:*",

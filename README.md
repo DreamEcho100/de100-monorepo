@@ -10,10 +10,10 @@ This workspace currently centers on the LMS starter in `apps/lms-web`, backed by
 pnpm install
 ```
 
-2. Create a local env file from the checked-in example.
+2. Create the preferred local env file from the checked-in template.
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 3. Start the local Postgres container.
@@ -22,7 +22,7 @@ cp .env.example .env
 pnpm -F @de100/apps-lms-db db:up
 ```
 
-If you want Better Auth secondary storage backed by local Redis instead of the default in-process cache, also start Redis and set `APP_LMS_CACHE_DRIVER=redis` plus `REDIS_URL` in `.env`.
+If you want Better Auth secondary storage backed by local Redis instead of the default in-process cache, also start Redis and set `APP_LMS_CACHE_DRIVER=redis` plus `REDIS_URL` in `.env.local`.
 
 ```bash
 docker compose up -d lms-redis
@@ -64,6 +64,7 @@ pnpm dev
 - Use the top-bar language and theme controls to verify cookie-backed locale/theme persistence and SSR hydration behavior.
 - When `APP_LMS_CACHE_DRIVER=redis` or `APP_LMS_CACHE_DRIVER=upstash`, Better Auth session, verification, and related ephemeral records should flow through the configured cache backend.
 - Upload a small local file from the `/media` page when you want to verify real binary upload, access, confirm, and delete behavior.
+- With `APP_LMS_EMAIL_DRIVER=log`, Better Auth verification and password-reset emails are written to the local server logs instead of being sent through a hosted provider.
 
 ## Deployment
 

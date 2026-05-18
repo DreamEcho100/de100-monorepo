@@ -1,5 +1,3 @@
-import { fileURLToPath, URL } from "node:url";
-
 import { env } from "@de100/apps-lms-env/server";
 import { solidStart } from "@solidjs/start/config";
 import { nitroV2Plugin as nitro } from "@solidjs/vite-plugin-nitro-2";

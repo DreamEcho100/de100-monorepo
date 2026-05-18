@@ -9,7 +9,9 @@ const moduleDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(moduleDir, "../../../../");
 const webAppCwd = resolve(repoRoot, "apps/lms-web");
 
+config({ path: resolve(repoRoot, ".env.local") });
 config({ path: resolve(repoRoot, ".env") });
+config({ path: resolve(webAppCwd, ".env.local") });
 config({ path: resolve(webAppCwd, ".env") });
 
 const app = await alchemy("de100-lms");

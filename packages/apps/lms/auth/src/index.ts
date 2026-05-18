@@ -6,6 +6,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 import { getDefaultCookieAttributes } from "./cookie-attributes";
+import { createAppEmailSender } from "./email";
 import { getTrustedOrigins } from "./trusted-origins";
 
 export function createAuth() {
@@ -14,11 +15,18 @@ export function createAuth() {
 		driver: env.APP_LMS_CACHE_DRIVER,
 		keyPrefix: env.APP_LMS_CACHE_KEY_PREFIX,
 		redisUrl: env.REDIS_URL,
-		upstashRedisToken: env.UPSTASH_REDIS_TOKEN,
-		upstashRedisUrl: env.UPSTASH_REDIS_URL,
+		upstashRedisToken: env.APP_LMS_UPSTASH_REDIS_TOKEN,
+		upstashRedisUrl: env.APP_LMS_UPSTASH_REDIS_URL,
+	});
+	const emailSender = createAppEmailSender({
+		driver: env.APP_LMS_EMAIL_DRIVER,
+		from: env.APP_LMS_EMAIL_FROM,
+		replyTo: env.APP_LMS_EMAIL_REPLY_TO,
+		resendApiKey: env.APP_LMS_RESEND_API_KEY,
 	});
 
 	return betterAuth({
+		appName: "DE100 LMS",
 		database: drizzleAdapter(db, {
 			provider: "pg",
 
@@ -32,6 +40,19 @@ export function createAuth() {
 		trustedOrigins: (request) => getTrustedOrigins(env, request),
 		emailAndPassword: {
 			enabled: true,
+			sendResetPassword: async (data) => {
+				void emailSender.sendPasswordResetEmail(data).catch((error) => {
+					console.error("[de100/apps-lms-auth] failed to send password reset email", error);
+				});
+			},
+		},
+		emailVerification: {
+			sendOnSignUp: true,
+			sendVerificationEmail: async (data) => {
+				void emailSender.sendVerificationEmail(data).catch((error) => {
+					console.error("[de100/apps-lms-auth] failed to send verification email", error);
+				});
+			},
 		},
 		session: {
 			storeSessionInDatabase: true,

@@ -38,6 +38,7 @@ catalog:
   dotenv: ^17.4.2
   alchemy: ^0.91.2
   better-auth: 1.5.5
+  resend: ^6.12.3
   drizzle-orm: ^0.45.1
   "drizzle-kit": ^0.31.8
   postgres: ^3.4.9

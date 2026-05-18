@@ -10,14 +10,14 @@ From the repo root:
 
 ```bash
 pnpm install
-cp .env.example .env
+cp .env.example .env.local
 pnpm -F @de100/apps-lms-db db:up
 pnpm -F @de100/apps-lms-db db:migrate
 pnpm -F @de100/apps-lms-web db:seed
 pnpm dev
 ```
 
-If you switch `.env` to `APP_LMS_CACHE_DRIVER=redis`, also start the local Redis service first:
+If you switch `.env.local` to `APP_LMS_CACHE_DRIVER=redis`, also start the local Redis service first:
 
 ```bash
 docker compose up -d lms-redis
@@ -25,10 +25,12 @@ docker compose up -d lms-redis
 
 If this local database was originally bootstrapped with `db:push` before the checked-in migrations existed, run `pnpm -F @de100/apps-lms-db db:reset` once and then repeat the migrate and seed steps.
 
-The app expects the default local origin from `.env.example`:
+The app expects the default local origin from `.env.local`:
 
 - app: `http://127.0.0.1:3000`
 - auth base URL: `http://127.0.0.1:3000/api/auth`
+
+`.env.local` is the preferred local developer file. `.env` still works as a temporary fallback for older workflows, but the checked-in `.env.example` is now a template only and is no longer loaded at runtime.
 
 Page routes are canonical under `/en/...` and `/ar/...`. The locale middleware will redirect bare page routes such as `/login` or `/dashboard`, but docs and manual tests should use the locale-prefixed URLs directly.
 
@@ -48,8 +50,14 @@ Page routes are canonical under `/en/...` and `/ar/...`. The locale middleware w
 
 - `APP_LMS_CACHE_DRIVER=memory` is the safe local default and keeps Better Auth secondary storage in-process.
 - `APP_LMS_CACHE_DRIVER=redis` uses `REDIS_URL`, which matches the optional `lms-redis` Docker service in the repo root compose file.
-- `APP_LMS_CACHE_DRIVER=upstash` uses `UPSTASH_REDIS_URL` and `UPSTASH_REDIS_TOKEN`.
+- `APP_LMS_CACHE_DRIVER=upstash` uses `APP_LMS_UPSTASH_REDIS_URL` and `APP_LMS_UPSTASH_REDIS_TOKEN`.
 - Better Auth keeps sessions in the database and mirrors secondary-storage reads and writes through the configured cache backend.
+
+## Auth email delivery
+
+- `APP_LMS_EMAIL_DRIVER=log` is the safe local default and writes verification/password-reset emails to the server logs.
+- `APP_LMS_EMAIL_DRIVER=resend` uses `APP_LMS_EMAIL_FROM` plus `APP_LMS_RESEND_API_KEY` to deliver real emails through Resend.
+- The current starter now sends Better Auth verification emails on sign-up and can send password-reset emails once you wire the corresponding UI flow.
 
 ## Seeded accounts
 
@@ -139,6 +147,7 @@ Use the shared VS Code browser or your normal browser. Playwright is not require
 4. Sign out and sign back in with `viewer@lms.test`.
 5. Confirm each account only sees its own dashboard, todos, and media records.
 6. Switch locale to Arabic and confirm the route changes to `/ar/...` while the form copy and `dir` update.
+7. When `APP_LMS_EMAIL_DRIVER=log`, trigger sign-up or password-reset flows and verify the server logs print the generated Better Auth email links.
 
 ### Todos
 

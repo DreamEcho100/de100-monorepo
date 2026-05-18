@@ -10,8 +10,9 @@
 		"includes": [
 			"**",
 			"!**/node_modules",
-			"!*.hbs",
+			"!**/*.hbs",
 			"!**/.next",
+			"!**/.cache",
 			"!**/dist",
 			"!**/.turbo",
 			"!**/.nx",
