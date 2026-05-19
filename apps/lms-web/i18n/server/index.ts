@@ -1,13 +1,13 @@
-import type { ThemePreference } from "@de100/apps-lms-i18n";
-import { createServerI18nState } from "@de100/apps-lms-i18n";
+import type { ThemePreference } from "@de100/i18n-core/shared";
+import { createServerI18nState } from "@de100/i18n-domains-solidjs/server";
 
 import { splitLocaleFromPathname } from "../routing";
-import { appLocales, defaultLocale } from "../shared";
+import { i18nDefaultLocale, i18nLocales } from "../shared";
 
-export function getServerAppI18nState(request?: Request) {
+export function getServerI18nState(request?: Request) {
 	const state = createServerI18nState({
-		defaultLocale,
-		locales: appLocales,
+		defaultLocale: i18nDefaultLocale,
+		locales: i18nLocales,
 		request,
 	});
 	const pathnameLocale = request
@@ -18,7 +18,7 @@ export function getServerAppI18nState(request?: Request) {
 		return state;
 	}
 
-	const activeLocale = appLocales.find((candidate) => candidate.code === pathnameLocale);
+	const activeLocale = i18nLocales.find((candidate) => candidate.code === pathnameLocale);
 	if (!activeLocale) {
 		return state;
 	}

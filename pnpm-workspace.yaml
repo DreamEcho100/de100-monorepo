@@ -4,6 +4,8 @@ packages:
   - packages/apps/*
   - packages/apps/lms/*
   - packages/ui/*
+  - packages/i18n/*
+  - packages/i18n/domains/*
   - tooling/*
 
 catalog:

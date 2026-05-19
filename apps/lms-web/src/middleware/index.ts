@@ -1,4 +1,4 @@
-import { LOCALE_COOKIE_NAME, PREFERENCE_COOKIE_MAX_AGE } from "@de100/apps-lms-i18n";
+import { LOCALE_COOKIE_NAME, PREFERENCE_COOKIE_MAX_AGE } from "@de100/i18n-core/shared";
 import { getCookie, getRequestHeader, setCookie } from "@solidjs/start/http";
 import { createMiddleware } from "@solidjs/start/middleware";
 

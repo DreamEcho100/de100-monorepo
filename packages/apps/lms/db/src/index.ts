@@ -13,7 +13,7 @@ type CreateDbOptions = {
 	driver?: DatabaseDriver;
 };
 
-export function createDb_(options: CreateDbOptions = {}) {
+function createDb_(options: CreateDbOptions = {}) {
 	const databaseUrl = options.databaseUrl ?? env.APP_LMS_DATABASE_URL;
 	const resolvedDriver = resolveDatabaseDriver({
 		databaseUrl,
@@ -38,15 +38,17 @@ export function createDb_(options: CreateDbOptions = {}) {
 	}
 }
 
+export type DbInstance = ReturnType<typeof createDb_>;
+
 declare global {
-	var $db: ReturnType<typeof createDb_> | undefined;
+	var $db: DbInstance | undefined;
 }
 
 const globalForDb = globalThis as typeof globalThis & {
-	$db?: ReturnType<typeof createDb_>;
+	$db?: DbInstance;
 };
 
-export function createDb(mode?: "redeclare" | "keep" | "create-only") {
+export function createDb(mode: "redeclare" | "keep" | "create-only" = "keep") {
 	switch (mode) {
 		case "redeclare": {
 			// biome-ignore lint/suspicious/noAssignInExpressions: <explanation> We want to reassign the global $db variable in this case.</explanation>
@@ -60,13 +62,7 @@ export function createDb(mode?: "redeclare" | "keep" | "create-only") {
 			return createDb_();
 		}
 		default: {
-			if (process.env.NODE_ENV === "production") {
-				// biome-ignore lint/suspicious/noAssignInExpressions: <explanation> We want to assign to the global $db variable if it's not already set.</explanation>
-				return (globalForDb.$db ??= createDb_());
-			}
-
-			// biome-ignore lint/suspicious/noAssignInExpressions: <explanation> We want to reassign the global $db variable in development to ensure we have a fresh instance.</explanation>
-			return (globalForDb.$db = createDb_());
+			throw new Error(`Unsupported createDb mode: ${mode}`);
 		}
 	}
 }

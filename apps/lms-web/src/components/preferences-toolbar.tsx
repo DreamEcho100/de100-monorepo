@@ -1,5 +1,5 @@
-import type { ThemePreference } from "@de100/apps-lms-i18n";
-import { useI18n } from "@de100/apps-lms-i18n";
+import type { ThemePreference } from "@de100/i18n-core/shared";
+import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import { useLocation, useNavigate } from "@solidjs/router";
 import { createMemo } from "solid-js";
 

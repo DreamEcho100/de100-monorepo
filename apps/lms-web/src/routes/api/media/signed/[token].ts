@@ -1,4 +1,5 @@
 import { resolveSignedMediaAccessToken } from "@de100/apps-lms-api/routers/media";
+import { createDb } from "@de100/apps-lms-db";
 import type { APIEvent } from "@solidjs/start/server";
 
 import { createCorsPreflightResponse, withCorsAndLogging } from "~/libs/apis/cors";
@@ -19,7 +20,7 @@ async function handler(event: APIEvent) {
 			);
 		}
 
-		const mediaRecord = await resolveSignedMediaAccessToken(token);
+		const mediaRecord = await resolveSignedMediaAccessToken(await createDb(), token);
 		if (!mediaRecord) {
 			return withCorsAndLogging(new Response("Not Found", { status: 404 }), event.request);
 		}

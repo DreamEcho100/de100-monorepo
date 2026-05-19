@@ -58,7 +58,7 @@ pnpm -F @de100/apps-lms-infra deploy
 - Validation contracts for app and API entry points should come from `@de100/apps-lms-validators` instead of direct `zod` imports in feature code.
 - Default app-facing data flow is oRPC plus TanStack Query using `queryOptions()` for reads and `mutationOptions()` for writes.
 - Direct SolidStart routes are the exception for boundaries that need raw request/response control, such as Better Auth and binary media streaming.
-- Locale and theme runtime helpers live in `@de100/apps-lms-i18n`, while app-owned locale definitions live under `apps/lms-web/i18n/*`.
+- Locale and theme runtime helpers live in `@de100/i18n-core` and `@de100/i18n-domains/solidjs`, while app-owned locale definitions live under `i18n/*`.
 - Locale and theme preferences are cookie-backed; locale falls back to `Accept-Language`, theme defaults to `system`, and canonical page routes now live under `/en/...` and `/ar/...` with middleware-based redirects from bare page URLs.
 - Production Cloudflare deployment lives in `packages/apps/lms/infra` and is managed through Alchemy.
 - Documentation in this folder is part of the implementation, not a final cleanup step.

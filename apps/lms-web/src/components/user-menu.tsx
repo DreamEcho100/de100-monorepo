@@ -1,4 +1,4 @@
-import { useI18n } from "@de100/apps-lms-i18n";
+import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import { createSignal, Show } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";

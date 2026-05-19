@@ -3,11 +3,11 @@ import type { DocumentComponentProps } from "@solidjs/start/server";
 import { createHandler, StartServer } from "@solidjs/start/server";
 import { getRequestEvent } from "solid-js/web";
 
-import { createThemeBootstrapScript, getServerAppI18nState } from "../i18n/server";
+import { createThemeBootstrapScript, getServerI18nState } from "../i18n/server";
 
 function Document(props: DocumentComponentProps) {
 	const request = getRequestEvent()?.request;
-	const { initialSnapshot } = getServerAppI18nState(request);
+	const { initialSnapshot } = getServerI18nState(request);
 	const themeBootstrapScript = createThemeBootstrapScript(initialSnapshot.themePreference);
 
 	return (

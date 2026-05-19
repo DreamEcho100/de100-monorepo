@@ -1,4 +1,4 @@
-import { useI18n } from "@de100/apps-lms-i18n";
+import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import { Title } from "@solidjs/meta";
 import { useLocation } from "@solidjs/router";
 import { createMemo, createSignal, Match, Show, Switch } from "solid-js";

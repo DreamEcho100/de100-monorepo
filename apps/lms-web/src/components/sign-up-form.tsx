@@ -1,5 +1,5 @@
-import { useI18n } from "@de100/apps-lms-i18n";
 import { signUpFormValidator } from "@de100/apps-lms-validators/client";
+import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import {
 	Button,
 	Card,

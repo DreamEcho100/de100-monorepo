@@ -7,9 +7,10 @@ import { defineConfig } from "vite";
 const isTraceModeEnabled =
 	process.env.LMS_APP_VITE_TRACE_MODE === "1" || process.env.LMS_APP_VITE_TRACE_MODE === "true";
 
-const solidWorkspaceDeps = ["@de100/apps-lms-i18n", "@de100/ui-solidjs"];
+const solidWorkspaceDeps = ["@de100/i18n-domains-solidjs", "@de100/ui-solidjs"];
 
 const depsToOptimize = [
+	"@de100/apps-i18n",
 	"@de100/apps-lms-api",
 	"@de100/apps-lms-auth",
 	// "@de100/apps-lms-config",

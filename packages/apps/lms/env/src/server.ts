@@ -23,15 +23,9 @@ for (const envPath of new Set(candidateEnvPaths)) {
 	}
 }
 
-const runtimeEnv = {
-	...process.env,
-	APP_LMS_DATABASE_URL: process.env.APP_LMS_DATABASE_URL ?? process.env.APP_LMS_NEON_DB_URL,
-};
-
 export const env = createEnv({
 	server: {
 		APP_LMS_DATABASE_URL: z.string().min(1),
-		APP_LMS_NEON_DB_URL: z.string().min(1).optional(),
 		APP_LMS_DATABASE_DRIVER: z.enum(["auto", "postgres", "neon-http"]).default("auto"),
 		APP_LMS_CACHE_DRIVER: z.enum(["memory", "redis", "upstash"]).default("memory"),
 		APP_LMS_CACHE_KEY_PREFIX: z.string().min(1).default("de100:lms"),
@@ -53,6 +47,6 @@ export const env = createEnv({
 		DISABLE_ORPC_OUTPUT_VALIDATION: z.boolean().default(false),
 		APP_LMS_SERVER_PORT: z.coerce.number().int().positive().default(3000),
 	},
-	runtimeEnv,
+	runtimeEnv: process.env,
 	emptyStringAsUndefined: true,
 });

@@ -2,7 +2,7 @@
 	"root": false,
 	"extends": ["@de100/biome-config/base.json"],
 	"files": {
-		"includes": ["!.nitro", "!.output", "!.solid-start", "!dist", "!node_modules"]
+		"includes": ["!.nitro", "!.local", "!.output", "!.solid-start", "!dist", "!node_modules"]
 	},
 	"linter": {
 		"domains": {

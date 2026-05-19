@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { getServerAppI18nState } from ".";
+import { getServerI18nState } from ".";
 
-describe("getServerAppI18nState", () => {
+describe("getServerI18nState", () => {
 	it("prefers the locale segment in the URL over the locale cookie", () => {
 		const request = new Request("https://example.com/ar/login", {
 			headers: {
@@ -10,7 +10,7 @@ describe("getServerAppI18nState", () => {
 			},
 		});
 
-		const state = getServerAppI18nState(request);
+		const state = getServerI18nState(request);
 
 		expect(state.activeLocale?.code).toBe("ar");
 		expect(state.initialSnapshot.dir).toBe("rtl");
@@ -24,7 +24,7 @@ describe("getServerAppI18nState", () => {
 			},
 		});
 
-		const state = getServerAppI18nState(request);
+		const state = getServerI18nState(request);
 
 		expect(state.activeLocale?.code).toBe("ar");
 		expect(state.initialSnapshot.locale).toBe("ar");

@@ -1,4 +1,4 @@
-import { useI18n } from "@de100/apps-lms-i18n";
+import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import { Title } from "@solidjs/meta";
 
 import ForgotPasswordForm from "~/components/forgot-password-form";

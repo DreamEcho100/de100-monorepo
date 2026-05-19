@@ -72,8 +72,8 @@ This log is append-only. Each entry records a meaningful implementation slice.
 
 - moved Docker-backed DB lifecycle scripts into `@de100/apps-lms-db` and removed the root `db:*` command aliases
 - activated `@de100/apps-lms-validators` with shared, server, and client surfaces so auth forms and API routers no longer import Zod directly
-- created `@de100/apps-lms-i18n` with core and Solid-specific runtime helpers for locale and theme preference handling
-- added app-owned English and Arabic catalogs under `apps/lms-web/i18n/*`
+- created `@de100/i18n-core` and `@de100/i18n-domains/solidjs` with core and Solid-specific runtime helpers for locale and theme preference handling
+- added app-owned English and Arabic catalogs under `i18n/*`
 - wired SSR document `lang`, `dir`, and theme state from cookies plus `Accept-Language`, with a pre-hydration theme bootstrap script for `system`
 - added top-bar locale and theme controls that persist `locale` and `theme` cookies and keep hydration aligned with the server snapshot
 - revalidated the new package and app with focused typechecks plus a clean production build
