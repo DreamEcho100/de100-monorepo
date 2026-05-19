@@ -1,11 +1,11 @@
 {
-	"checklist": [
-		"Verify seeded private media routes",
-		"Issue a signed URL from the media page",
-		"Confirm local storage serves real fixture bodies"
-	],
-	"fileName": "grading-notes.json",
-	"seed": "lms-media-fixture",
-	"status": "ready",
-	"visibility": "private"
+  "checklist": [
+    "Verify seeded private media routes",
+    "Issue a signed URL from the media page",
+    "Confirm local storage serves real fixture bodies"
+  ],
+  "fileName": "grading-notes.json",
+  "seed": "lms-media-fixture",
+  "status": "ready",
+  "visibility": "private"
 }

@@ -16,7 +16,7 @@ type MediaPutOptions = {
 };
 
 type MediaObject = {
-	body: ReadableStream<Uint8Array> | null;
+	body: ConstructorParameters<typeof Response>[0];
 	httpEtag?: string;
 	httpMetadata?: MediaHttpMetadata;
 	size?: number;
@@ -254,13 +254,14 @@ function createLocalBucket(visibility: MediaVisibility): MediaBucket {
 			const { fs, objectPath } = await resolveLocalObjectPath(key, visibility);
 
 			try {
-				const fileHandle = await fs.open(objectPath, "r");
-				const stats = await fileHandle.stat();
-				const stream = fileHandle.readableWebStream() as ReadableStream<Uint8Array>;
-				const storedMetadata = await readLocalObjectMetadata(fs, objectPath);
+				const [fileBytes, stats, storedMetadata] = await Promise.all([
+					fs.readFile(objectPath),
+					fs.stat(objectPath),
+					readLocalObjectMetadata(fs, objectPath),
+				]);
 
 				return {
-					body: stream,
+					body: new Uint8Array(fileBytes),
 					httpMetadata: storedMetadata?.httpMetadata,
 					size: stats.size,
 					uploaded: stats.mtime,

@@ -8,8 +8,9 @@ import { defineConfig } from "drizzle-kit";
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(moduleDir, "../../../..");
 const candidateEnvPaths = [
-	resolve(repoRoot, ".env.example"),
+	resolve(repoRoot, ".env.local"),
 	resolve(repoRoot, ".env"),
+	resolve(repoRoot, "apps/lms-web/.env.local"),
 	resolve(repoRoot, "apps/lms-web/.env"),
 ];
 
