@@ -23,11 +23,6 @@ for (const envPath of new Set(candidateEnvPaths)) {
 	}
 }
 
-const runtimeEnv = {
-	...process.env,
-	APP_LMS_DATABASE_URL: process.env.APP_LMS_DATABASE_URL ?? process.env.APP_LMS_NEON_DB_URL,
-};
-
 export const env = createEnv({
 	server: {
 		APP_LMS_DATABASE_URL: z.string().min(1),
@@ -53,6 +48,6 @@ export const env = createEnv({
 		DISABLE_ORPC_OUTPUT_VALIDATION: z.boolean().default(false),
 		APP_LMS_SERVER_PORT: z.coerce.number().int().positive().default(3000),
 	},
-	runtimeEnv,
+	runtimeEnv: process.env,
 	emptyStringAsUndefined: true,
 });

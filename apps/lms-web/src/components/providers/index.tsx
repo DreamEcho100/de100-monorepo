@@ -7,18 +7,18 @@ import { getRequestEvent, isServer } from "solid-js/web";
 
 import { getQueryClient } from "~/libs/@tanstack/query/query-client.js";
 
-import { getClientAppI18nSnapshot } from "../../../i18n/client";
+import { getClientAppAppI18nSnapshot } from "../../../i18n/client";
 import { getServerAppI18nState } from "../../../i18n/server";
-import { appLocales } from "../../../i18n/shared";
+import { appI18nLocales } from "../../../i18n/shared";
 
 export default function Providers(props: ParentProps) {
 	const queryClient = getQueryClient();
 	const initialSnapshot = isServer
 		? getServerAppI18nState(getRequestEvent()?.request).initialSnapshot
-		: getClientAppI18nSnapshot();
+		: getClientAppAppI18nSnapshot();
 
 	return (
-		<I18nProvider initialSnapshot={initialSnapshot} locales={appLocales}>
+		<I18nProvider initialSnapshot={initialSnapshot} locales={appI18nLocales}>
 			<QueryClientProvider client={queryClient}>
 				{props.children}
 				<SolidQueryDevtools />

@@ -11,21 +11,19 @@ import { and, desc, eq } from "drizzle-orm";
 
 import { protectedProcedure } from "../index";
 
-const getDb = async () => (await import("@de100/apps-lms-db")).db;
+const todoRouterBasePath = "/todos";
 
 export const todoRouter = {
 	getAll: protectedProcedure
 		.output(todoListOutputSchema)
 		.route({
 			method: "GET",
-			path: "/todos",
+			path: `${todoRouterBasePath}`,
 			summary: "List the signed-in user's todos",
 			tags: ["Todos"],
 		})
 		.handler(async ({ context }) => {
-			const db = await getDb();
-
-			return await db
+			return await context.db
 				.select()
 				.from(todo)
 				.where(eq(todo.userId, context.session.user.id))
@@ -37,14 +35,12 @@ export const todoRouter = {
 		.output(todoRecordOutputSchema)
 		.route({
 			method: "POST",
-			path: "/todos",
+			path: `${todoRouterBasePath}`,
 			summary: "Create a todo for the signed-in user",
 			tags: ["Todos"],
 		})
 		.handler(async ({ context, input }) => {
-			const db = await getDb();
-
-			const [createdTodo] = await db
+			const [createdTodo] = await context.db
 				.insert(todo)
 				.values({
 					text: input.text,
@@ -71,14 +67,12 @@ export const todoRouter = {
 		.output(todoRecordOutputSchema)
 		.route({
 			method: "PATCH",
-			path: "/todos/{id}",
+			path: `${todoRouterBasePath}/{id}`,
 			summary: "Update a todo's completion state",
 			tags: ["Todos"],
 		})
 		.handler(async ({ context, input }) => {
-			const db = await getDb();
-
-			const [updatedTodo] = await db
+			const [updatedTodo] = await context.db
 				.update(todo)
 				.set({ completed: input.completed })
 				.where(and(eq(todo.id, input.id), eq(todo.userId, context.session.user.id)))
@@ -101,14 +95,12 @@ export const todoRouter = {
 		.output(todoRecordOutputSchema)
 		.route({
 			method: "DELETE",
-			path: "/todos/{id}",
+			path: `${todoRouterBasePath}/{id}`,
 			summary: "Delete a todo owned by the signed-in user",
 			tags: ["Todos"],
 		})
 		.handler(async ({ context, input }) => {
-			const db = await getDb();
-
-			const [deletedTodo] = await db
+			const [deletedTodo] = await context.db
 				.delete(todo)
 				.where(and(eq(todo.id, input.id), eq(todo.userId, context.session.user.id)))
 				.returning();

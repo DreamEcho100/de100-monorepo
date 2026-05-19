@@ -1,7 +1,7 @@
-import type { AppLocaleCode } from "./shared";
-import { appLocales, defaultLocale } from "./shared";
+import type { AppI18nLocaleCode } from "./shared";
+import { appI18nDefaultLocale, appI18nLocales } from "./shared";
 
-const appLocaleLookup = new Set<string>(appLocales.map((locale) => locale.code));
+const appLocaleLookup = new Set<string>(appI18nLocales.map((locale) => locale.code));
 const excludedTopLevelSegments = new Set(["api", "_build", "assets", "health"]);
 const staticAssetPattern = /\.[a-z0-9]+$/i;
 
@@ -22,7 +22,7 @@ function normalizePathname(pathname: string) {
 	return withLeadingSlash;
 }
 
-export function isAppLocale(value: string | undefined): value is AppLocaleCode {
+export function isAppI18nLocale(value: string | undefined): value is AppI18nLocaleCode {
 	return typeof value === "string" && appLocaleLookup.has(value);
 }
 
@@ -31,7 +31,7 @@ export function splitLocaleFromPathname(pathname: string) {
 	const pathnameSegments = normalizedPathname.split("/").filter(Boolean);
 	const [firstSegment, ...remainingSegments] = pathnameSegments;
 
-	if (!isAppLocale(firstSegment)) {
+	if (!isAppI18nLocale(firstSegment)) {
 		return {
 			localeInPathname: undefined,
 			pathnameWithoutLocale: normalizedPathname,
@@ -50,7 +50,7 @@ export function splitLocaleFromPathname(pathname: string) {
 }
 
 export function createLocalizedPath(locale: string, pathname: string) {
-	const resolvedLocale = isAppLocale(locale) ? locale : defaultLocale;
+	const resolvedLocale = isAppI18nLocale(locale) ? locale : appI18nDefaultLocale;
 	const normalizedPathname = normalizePathname(pathname);
 	const { pathnameWithoutLocale, pathnameWithoutLocaleSegments } =
 		splitLocaleFromPathname(normalizedPathname);
@@ -65,9 +65,9 @@ export function createLocalizedPath(locale: string, pathname: string) {
 export function resolvePreferredLocale(options?: {
 	cookieLocale?: string | null | undefined;
 	headerLocale?: string | null | undefined;
-}): AppLocaleCode {
+}): AppI18nLocaleCode {
 	const cookieLocale = options?.cookieLocale ?? undefined;
-	if (isAppLocale(cookieLocale)) {
+	if (isAppI18nLocale(cookieLocale)) {
 		return cookieLocale;
 	}
 
@@ -75,13 +75,13 @@ export function resolvePreferredLocale(options?: {
 	if (headerLocale) {
 		for (const languagePart of headerLocale.split(",")) {
 			const baseTag = languagePart.split(";")[0]?.trim().split("-")[0];
-			if (isAppLocale(baseTag)) {
+			if (isAppI18nLocale(baseTag)) {
 				return baseTag;
 			}
 		}
 	}
 
-	return defaultLocale;
+	return appI18nDefaultLocale;
 }
 
 export function isLocaleManagedPathname(pathname: string) {

@@ -357,7 +357,7 @@ async function main() {
 		import("@de100/apps-lms-api/media-storage"),
 	]);
 
-	const db = createDb("keep");
+	const db = createDb();
 	const auth = createAuth();
 	const mediaStorageDriver = getConfiguredMediaStorageDriver();
 

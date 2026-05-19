@@ -1,16 +1,17 @@
 import { applyDocumentSnapshot, readDocumentSnapshot } from "@de100/apps-lms-i18n";
 
-import { appLocales, defaultLocale } from "../shared";
+import { appI18nDefaultLocale, appI18nLocalCodeToDef, appI18nLocales } from "../shared";
 
-export function getClientAppI18nSnapshot() {
+export function getClientAppAppI18nSnapshot() {
 	return readDocumentSnapshot({
-		defaultLocale,
-		locales: appLocales,
+		defaultLocale: appI18nDefaultLocale,
+		locales: appI18nLocales,
+		codeToAppI18nLocales: appI18nLocalCodeToDef,
 	});
 }
 
 export function bootstrapClientI18n() {
-	const snapshot = getClientAppI18nSnapshot();
+	const snapshot = getClientAppAppI18nSnapshot();
 
 	applyDocumentSnapshot(snapshot);
 

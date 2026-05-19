@@ -2,12 +2,12 @@ import type { ThemePreference } from "@de100/apps-lms-i18n";
 import { createServerI18nState } from "@de100/apps-lms-i18n";
 
 import { splitLocaleFromPathname } from "../routing";
-import { appLocales, defaultLocale } from "../shared";
+import { appI18nDefaultLocale, appI18nLocales } from "../shared";
 
 export function getServerAppI18nState(request?: Request) {
 	const state = createServerI18nState({
-		defaultLocale,
-		locales: appLocales,
+		defaultLocale: appI18nDefaultLocale,
+		locales: appI18nLocales,
 		request,
 	});
 	const pathnameLocale = request
@@ -18,7 +18,7 @@ export function getServerAppI18nState(request?: Request) {
 		return state;
 	}
 
-	const activeLocale = appLocales.find((candidate) => candidate.code === pathnameLocale);
+	const activeLocale = appI18nLocales.find((candidate) => candidate.code === pathnameLocale);
 	if (!activeLocale) {
 		return state;
 	}

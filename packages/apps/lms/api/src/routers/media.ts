@@ -1,3 +1,4 @@
+import type { DbInstance } from "@de100/apps-lms-db";
 import { media } from "@de100/apps-lms-db/schema/media";
 import {
 	mediaCapabilitiesOutputSchema,
@@ -27,8 +28,6 @@ import {
 	MediaBindingsUnavailableError,
 } from "../media-storage";
 
-const getDb = async () => (await import("@de100/apps-lms-db")).db;
-
 function requireRequest(request: Request | null) {
 	if (!request) {
 		throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -50,8 +49,7 @@ function serializeMediaRecord(request: Request, record: typeof media.$inferSelec
 	};
 }
 
-async function getOwnedMediaRecord(userId: string, id: string) {
-	const db = await getDb();
+async function getOwnedMediaRecord(db: DbInstance, userId: string, id: string) {
 	const [currentMedia] = await db
 		.select()
 		.from(media)
@@ -80,12 +78,14 @@ async function removeMediaObject(request: Request, record: typeof media.$inferSe
 	}
 }
 
+const mediaRouterBasePath = "/media";
+
 export const mediaRouter = {
 	getCapabilities: protectedProcedure
 		.output(mediaCapabilitiesOutputSchema)
 		.route({
 			method: "GET",
-			path: "/media/capabilities",
+			path: `${mediaRouterBasePath}/capabilities`,
 			summary: "Describe the active media backend and delivery capabilities",
 			tags: ["Media"],
 		})
@@ -105,13 +105,13 @@ export const mediaRouter = {
 		.output(mediaSignedAccessOutputSchema)
 		.route({
 			method: "POST",
-			path: "/media/{id}/signed-access",
+			path: `${mediaRouterBasePath}/{id}/signed-access`,
 			summary: "Issue a short-lived signed access URL for a media record",
 			tags: ["Media"],
 		})
 		.handler(async ({ context, input }) => {
 			const request = requireRequest(context.request);
-			const currentMedia = await getOwnedMediaRecord(context.session.user.id, input.id);
+			const currentMedia = await getOwnedMediaRecord(context.db, context.session.user.id, input.id);
 
 			if (currentMedia.status !== "ready") {
 				throw new ORPCError("NOT_FOUND");
@@ -139,13 +139,12 @@ export const mediaRouter = {
 		.output(mediaRecordOutputSchema)
 		.route({
 			method: "POST",
-			path: "/media",
+			path: `${mediaRouterBasePath}`,
 			summary: "Upload a media file for the signed-in user",
 			tags: ["Media"],
 		})
 		.handler(async ({ context, input }) => {
 			const request = requireRequest(context.request);
-			const db = await getDb();
 			const bucket = getMediaBucket(request, input.visibility);
 			const bucketName = getMediaBucketName(request, input.visibility);
 			const key = createStorageKey({
@@ -181,7 +180,7 @@ export const mediaRouter = {
 			}
 
 			const timestamp = new Date();
-			const [createdMedia] = await db
+			const [createdMedia] = await context.db
 				.insert(media)
 				.values({
 					bucketName,
@@ -211,15 +210,14 @@ export const mediaRouter = {
 		.output(mediaListOutputSchema)
 		.route({
 			method: "GET",
-			path: "/media",
+			path: `${mediaRouterBasePath}`,
 			summary: "List media records owned by the signed-in user",
 			tags: ["Media"],
 		})
 		.handler(async ({ context }) => {
 			const request = requireRequest(context.request);
-			const db = await getDb();
 
-			const records = await db
+			const records = await context.db
 				.select()
 				.from(media)
 				.where(and(eq(media.userId, context.session.user.id), isNull(media.deletedAt)))
@@ -241,21 +239,20 @@ export const mediaRouter = {
 		.output(mediaRecordOutputSchema)
 		.route({
 			method: "POST",
-			path: "/media/{id}/confirm",
+			path: `${mediaRouterBasePath}/{id}/confirm`,
 			summary: "Mark an uploaded media record as ready",
 			tags: ["Media"],
 		})
 		.handler(async ({ context, input }) => {
 			const request = requireRequest(context.request);
-			const db = await getDb();
-			const currentMedia = await getOwnedMediaRecord(context.session.user.id, input.id);
+			const currentMedia = await getOwnedMediaRecord(context.db, context.session.user.id, input.id);
 
 			if (currentMedia.status === "ready") {
 				return serializeMediaRecord(request, currentMedia);
 			}
 
 			const timestamp = new Date();
-			const [confirmedMedia] = await db
+			const [confirmedMedia] = await context.db
 				.update(media)
 				.set({
 					confirmedAt: currentMedia.confirmedAt ?? timestamp,
@@ -285,19 +282,18 @@ export const mediaRouter = {
 		.output(mediaRecordOutputSchema)
 		.route({
 			method: "DELETE",
-			path: "/media/{id}",
+			path: `${mediaRouterBasePath}/{id}`,
 			summary: "Delete a media record owned by the signed-in user",
 			tags: ["Media"],
 		})
 		.handler(async ({ context, input }) => {
 			const request = requireRequest(context.request);
-			const db = await getDb();
-			const currentMedia = await getOwnedMediaRecord(context.session.user.id, input.id);
+			const currentMedia = await getOwnedMediaRecord(context.db, context.session.user.id, input.id);
 
 			await removeMediaObject(request, currentMedia);
 
 			const timestamp = new Date();
-			const [deletedMedia] = await db
+			const [deletedMedia] = await context.db
 				.update(media)
 				.set({
 					deletedAt: timestamp,
@@ -315,13 +311,12 @@ export const mediaRouter = {
 		}),
 };
 
-export async function resolveSignedMediaAccessToken(token: string) {
+export async function resolveSignedMediaAccessToken(db: DbInstance, token: string) {
 	const payload = await verifySignedMediaAccessToken(token);
 	if (!payload) {
 		return null;
 	}
 
-	const db = await getDb();
 	const [mediaRecord] = await db
 		.select()
 		.from(media)
