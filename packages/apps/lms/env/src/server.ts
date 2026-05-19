@@ -43,6 +43,7 @@ export const env = createEnv({
 		APP_LMS_EMAIL_FROM: z.string().min(1).default("LMS Starter <noreply@lms.local>"),
 		APP_LMS_EMAIL_REPLY_TO: z.string().min(1).optional(),
 		APP_LMS_RESEND_API_KEY: z.string().min(1).optional(),
+		APP_LMS_NEON_DB_URL: z.string().min(1).optional(),
 		NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 		DISABLE_ORPC_OUTPUT_VALIDATION: z.boolean().default(false),
 		APP_LMS_SERVER_PORT: z.coerce.number().int().positive().default(3000),

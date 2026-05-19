@@ -117,13 +117,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@upstash/redis':
-        specifier: ^1.38.0
-        version: 1.38.0
-      dotenv:
-        specifier: 'catalog:'
-        version: 17.4.2
     devDependencies:
       '@biomejs/biome':
         specifier: 'catalog:'
@@ -132,13 +125,13 @@ importers:
         specifier: workspace:*
         version: link:tooling/biome
       '@turbo/gen':
-        specifier: ^2.9.12
+        specifier: ^2.9.14
         version: 2.9.14(@types/node@25.8.0)
       dotenv-cli:
         specifier: 'catalog:'
         version: 11.0.0
       turbo:
-        specifier: ^2.9.12
+        specifier: ^2.9.14
         version: 2.9.14
       typescript:
         specifier: 'catalog:'
