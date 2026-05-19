@@ -41,7 +41,9 @@ Before the first deploy, make sure you have:
 2. A production database URL.
 3. A `APP_LMS_BETTER_AUTH_SECRET` with at least 32 characters.
 4. A final public origin for the deployed app.
-5. A local `.env.local` file at the repo root containing the production values you want Alchemy to read, or equivalent provider-managed secrets. `.env` and `apps/lms-web/.env` remain fallback paths for older workflows.
+5. A local `.env.deploy.local` file at the repo root containing the production values you want Alchemy and Drizzle to read, or equivalent provider-managed secrets. `.env.deploy`, `.env`, and `apps/lms-web/.env` remain fallback paths for older workflows.
+
+Keep `.env.local` focused on local development. The deploy and migration tooling now loads `.env.deploy.local` and `.env.deploy` before the normal local-dev files so you can keep the two environments separate.
 
 ## Required production env values
 
@@ -61,6 +63,12 @@ APP_LMS_EMAIL_FROM=LMS Starter <noreply@your-domain.example>
 APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 APP_LMS_MEDIA_STORAGE_DRIVER=r2
 APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
+```
+
+Start from the checked-in template:
+
+```bash
+cp .env.deploy.local.example .env.deploy.local
 ```
 
 Add cache configuration based on your chosen driver:
@@ -127,6 +135,8 @@ pnpm install
 ```bash
 pnpm -F @de100/apps-lms-db db:migrate
 ```
+
+That command now reads `.env.deploy.local` or `.env.deploy` before the normal local-dev env files, so you can migrate production without rewriting `.env.local`.
 
 3. Deploy the Cloudflare stack.
 

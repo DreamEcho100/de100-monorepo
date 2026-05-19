@@ -412,7 +412,7 @@ export default function MediaPage() {
 				}
 				when={isHydrated()}
 			>
-				{() => (
+				{(_val) => (
 					<>
 						<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 							<CardHeader>

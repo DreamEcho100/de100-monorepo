@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,11 +9,22 @@ import { config } from "dotenv";
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(moduleDir, "../../../../");
 const webAppCwd = resolve(repoRoot, "apps/lms-web");
+const candidateEnvPaths = [
+	resolve(repoRoot, ".env.deploy.local"),
+	resolve(repoRoot, ".env.deploy"),
+	resolve(webAppCwd, ".env.deploy.local"),
+	resolve(webAppCwd, ".env.deploy"),
+	resolve(repoRoot, ".env.local"),
+	resolve(repoRoot, ".env"),
+	resolve(webAppCwd, ".env.local"),
+	resolve(webAppCwd, ".env"),
+];
 
-config({ path: resolve(repoRoot, ".env.local") });
-config({ path: resolve(repoRoot, ".env") });
-config({ path: resolve(webAppCwd, ".env.local") });
-config({ path: resolve(webAppCwd, ".env") });
+for (const envPath of new Set(candidateEnvPaths)) {
+	if (existsSync(envPath)) {
+		config({ path: envPath, override: false });
+	}
+}
 
 const app = await alchemy("de100-lms");
 

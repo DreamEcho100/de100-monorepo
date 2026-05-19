@@ -117,6 +117,13 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      '@upstash/redis':
+        specifier: ^1.38.0
+        version: 1.38.0
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
     devDependencies:
       '@biomejs/biome':
         specifier: 'catalog:'

@@ -193,7 +193,9 @@ APP_LMS_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
 
 The repo's production Cloudflare path is driven by `packages/apps/lms/infra/alchemy.run.ts` and documented in `docs/setup/production-deployment.md`.
 
-Recommended production baseline in your uncommitted `.env.local` or provider secret store:
+Keep `.env.local` for local development. For hosted migration and deploy commands, put the production baseline in uncommitted `.env.deploy.local` or in a provider-managed secret store. The production-facing Drizzle and Alchemy entrypoints load `.env.deploy.local` and `.env.deploy` before the normal local-dev files.
+
+Recommended production baseline in `.env.deploy.local`:
 
 ```env
 APP_LMS_ALCHEMY_PASSWORD=replace-with-a-local-password-for-alchemy-state
@@ -205,7 +207,7 @@ APP_LMS_CORS_ORIGIN=https://your-app-domain.example
 # Leave empty for same-origin browser -> server requests.
 VITE_APP_LMS_SERVER_URL=
 APP_LMS_EMAIL_DRIVER=resend
-APP_LMS_EMAIL_FROM=LMS Starter <noreply@your-domain.example>
+APP_LMS_EMAIL_FROM=LMS Starter <onboarding@resend.dev>
 APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 APP_LMS_CACHE_DRIVER=upstash
 APP_LMS_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
@@ -214,6 +216,8 @@ APP_LMS_MEDIA_STORAGE_DRIVER=r2
 APP_LMS_MEDIA_SIGNING_SECRET=replace-with-a-separate-32-character-secret
 APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
 ```
+
+Use Resend's onboarding sender for the first hosted rollout, then replace it with your verified sender domain once it exists.
 
 Notes:
 
