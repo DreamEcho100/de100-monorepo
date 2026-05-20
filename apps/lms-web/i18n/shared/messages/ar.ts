@@ -1,6 +1,6 @@
-import type { AppI18nTranslations } from "@de100/apps-lms-i18n";
+import type { I18nTranslations } from "@de100/apps-lms-i18n";
 
-export const arMessages: AppI18nTranslations = {
+export const arMessages: I18nTranslations = {
 	auth: {
 		notices: {
 			passwordResetSuccess:

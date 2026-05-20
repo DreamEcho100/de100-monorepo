@@ -1,4 +1,4 @@
-import type { AppI18nLocaleCode, AppI18nLocaleDefShape, AppI18nSnapshot } from "../shared/index";
+import type { I18nLocaleCode, I18nLocaleDefShape, I18nSnapshot } from "../shared/index";
 import {
 	DEFAULT_RESOLVED_THEME,
 	DEFAULT_THEME_PREFERENCE,
@@ -7,9 +7,9 @@ import {
 	THEME_COOKIE_NAME,
 } from "../shared/index";
 
-type RequestSnapshotOptions<TLocaleCode extends AppI18nLocaleCode> = {
+type RequestSnapshotOptions<TLocaleCode extends I18nLocaleCode> = {
 	defaultLocale: TLocaleCode;
-	locales: readonly AppI18nLocaleDefShape<TLocaleCode>[];
+	locales: readonly I18nLocaleDefShape<TLocaleCode>[];
 	request?: Request;
 };
 
@@ -85,9 +85,9 @@ function resolveLocaleFromAcceptLanguage<TLocaleCode extends string>(
 	return defaultLocale;
 }
 
-export function createRequestAppI18nSnapshot<TLocaleCode extends AppI18nLocaleCode>(
+export function createRequestI18nSnapshot<TLocaleCode extends I18nLocaleCode>(
 	options: RequestSnapshotOptions<TLocaleCode>,
-): AppI18nSnapshot<TLocaleCode> {
+): I18nSnapshot<TLocaleCode> {
 	const allowedLocaleCodes = options.locales.map((locale) => locale.code);
 	const cookies = parseCookieHeader(options.request?.headers.get("cookie"));
 	const localeCookie = cookies.get(LOCALE_COOKIE_NAME);

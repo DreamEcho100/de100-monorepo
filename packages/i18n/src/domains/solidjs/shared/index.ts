@@ -1,22 +1,22 @@
 import type { Accessor } from "solid-js";
 
 import type {
-	AppI18nLocaleCode,
-	AppI18nLocaleDefShape,
-	AppI18nSnapshot,
-	AppI18nTranslations,
+	I18nLocaleCode,
+	I18nLocaleDefShape,
+	I18nSnapshot,
+	I18nTranslations,
 	ResolvedTheme,
 	TextDirection,
 	ThemePreference,
 } from "../../../core/shared/index";
 
 export type I18nContextValue<
-	TLocaleCode extends AppI18nLocaleCode = AppI18nLocaleCode,
-	TMessages extends AppI18nTranslations = AppI18nTranslations,
+	TLocaleCode extends I18nLocaleCode = I18nLocaleCode,
+	TMessages extends I18nTranslations = I18nTranslations,
 > = {
 	dir: Accessor<TextDirection>;
 	locale: Accessor<TLocaleCode>;
-	locales: readonly AppI18nLocaleDefShape<TLocaleCode, TMessages>[];
+	locales: readonly I18nLocaleDefShape<TLocaleCode, TMessages>[];
 	messages: Accessor<TMessages>;
 	resolvedTheme: Accessor<ResolvedTheme>;
 	setLocale: (locale: TLocaleCode) => void;
@@ -26,9 +26,9 @@ export type I18nContextValue<
 };
 
 export type I18nProviderProps<
-	TLocaleCode extends AppI18nLocaleCode = AppI18nLocaleCode,
-	TMessages extends AppI18nTranslations = AppI18nTranslations,
+	TLocaleCode extends I18nLocaleCode = I18nLocaleCode,
+	TMessages extends I18nTranslations = I18nTranslations,
 > = {
-	initialSnapshot: AppI18nSnapshot;
-	locales: readonly AppI18nLocaleDefShape<TLocaleCode, TMessages>[];
+	initialSnapshot: I18nSnapshot;
+	locales: readonly I18nLocaleDefShape<TLocaleCode, TMessages>[];
 };

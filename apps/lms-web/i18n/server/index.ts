@@ -4,7 +4,7 @@ import { createServerI18nState } from "@de100/apps-lms-i18n";
 import { splitLocaleFromPathname } from "../routing";
 import { appI18nDefaultLocale, appI18nLocales } from "../shared";
 
-export function getServerAppI18nState(request?: Request) {
+export function getServerI18nState(request?: Request) {
 	const state = createServerI18nState({
 		defaultLocale: appI18nDefaultLocale,
 		locales: appI18nLocales,

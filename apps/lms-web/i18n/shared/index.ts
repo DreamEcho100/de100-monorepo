@@ -1,23 +1,13 @@
 export * as DEF from "./def";
 
-import type {
-	AppI18nLocalCodeToDef,
-	AppI18nLocaleCode,
-	AppI18nLocaleDef,
-} from "@de100/apps-lms-i18n";
+import type { I18nLocalCodeToDef, I18nLocaleCode, I18nLocaleDef } from "@de100/apps-lms-i18n";
 
 import { arMessages } from "./messages/ar.ts";
 import { enMessages } from "./messages/en.ts";
 
-export {
-	type AppI18nLocalCodeToDef,
-	type AppI18nLocaleCode,
-	type AppI18nLocaleDef,
-	arMessages,
-	enMessages,
-};
+export { arMessages, enMessages, type I18nLocalCodeToDef, type I18nLocaleCode, type I18nLocaleDef };
 
-export const appI18nLocales: readonly AppI18nLocaleDef[] = [
+export const appI18nLocales: readonly I18nLocaleDef[] = [
 	{
 		code: "en",
 		dir: "ltr",
@@ -32,14 +22,14 @@ export const appI18nLocales: readonly AppI18nLocaleDef[] = [
 	},
 ];
 
-export const appI18nLocalCodeToDef: AppI18nLocalCodeToDef = appI18nLocales.reduce((acc, locale) => {
+export const appI18nLocalCodeToDef: I18nLocalCodeToDef = appI18nLocales.reduce((acc, locale) => {
 	acc[locale.code] = locale;
 	return acc;
-}, {} as AppI18nLocalCodeToDef);
+}, {} as I18nLocalCodeToDef);
 
-export const appI18nDefaultLocale: AppI18nLocaleCode = "en";
+export const appI18nDefaultLocale: I18nLocaleCode = "en";
 
-export function getAppI18nAppI18nLocaleDefShape(locale: AppI18nLocaleCode | string) {
+export function getI18nI18nLocaleDefShape(locale: I18nLocaleCode | string) {
 	const fallbackLocale = appI18nLocales[0];
 
 	if (!fallbackLocale) {

@@ -16,19 +16,19 @@ import {
 	resolveThemePreference,
 } from "../../../core/client/index";
 import type {
-	AppI18nLocaleCode,
-	AppI18nSnapshot,
-	AppI18nTranslations,
+	I18nLocaleCode,
+	I18nSnapshot,
+	I18nTranslations,
 	ResolvedTheme,
 	ThemePreference,
 } from "../../../core/shared/index";
 import { getMessage, LOCALE_COOKIE_NAME, THEME_COOKIE_NAME } from "../../../core/shared/index";
 import type { I18nContextValue, I18nProviderProps } from "../shared/index";
 
-const I18nContext = createContext<I18nContextValue<AppI18nLocaleCode, AppI18nTranslations>>();
+const I18nContext = createContext<I18nContextValue<I18nLocaleCode, I18nTranslations>>();
 
 export function I18nProvider(
-	props: ParentProps<I18nProviderProps<AppI18nLocaleCode, AppI18nTranslations>>,
+	props: ParentProps<I18nProviderProps<I18nLocaleCode, I18nTranslations>>,
 ) {
 	if (props.locales.length === 0) {
 		throw new Error("I18nProvider requires at least one locale definition.");
@@ -39,8 +39,8 @@ export function I18nProvider(
 		props.locales.find((candidate) => candidate.code === props.initialSnapshot.locale) ??
 		defaultLocale;
 	const localeMap = new Map(props.locales.map((locale) => [locale.code, locale] as const));
-	const [localeCode, setLocaleCode] = createSignal<AppI18nLocaleCode>(
-		fallbackLocale.code as AppI18nLocaleCode,
+	const [localeCode, setLocaleCode] = createSignal<I18nLocaleCode>(
+		fallbackLocale.code as I18nLocaleCode,
 	);
 	const [themePreference, setThemePreferenceSignal] = createSignal<ThemePreference>(
 		props.initialSnapshot.themePreference,
@@ -50,7 +50,7 @@ export function I18nProvider(
 	);
 	const locale = createMemo(() => localeCode());
 	const currentLocale = createMemo(
-		() => localeMap.get(localeCode() as AppI18nLocaleCode) ?? fallbackLocale,
+		() => localeMap.get(localeCode() as I18nLocaleCode) ?? fallbackLocale,
 	);
 	const dir = createMemo(() => currentLocale().dir);
 	const messages = createMemo(() => currentLocale().messages);
@@ -77,7 +77,7 @@ export function I18nProvider(
 			return;
 		}
 
-		const nextSnapshot: AppI18nSnapshot = {
+		const nextSnapshot: I18nSnapshot = {
 			dir: dir(),
 			locale: locale(),
 			resolvedTheme: resolvedTheme(),
@@ -89,9 +89,9 @@ export function I18nProvider(
 		persistCookie(THEME_COOKIE_NAME, nextSnapshot.themePreference);
 	});
 
-	const setLocale = (nextLocale: AppI18nLocaleCode | (string & {})) => {
-		if (localeMap.has(nextLocale as AppI18nLocaleCode)) {
-			setLocaleCode(nextLocale as AppI18nLocaleCode);
+	const setLocale = (nextLocale: I18nLocaleCode | (string & {})) => {
+		if (localeMap.has(nextLocale as I18nLocaleCode)) {
+			setLocaleCode(nextLocale as I18nLocaleCode);
 		}
 	};
 
@@ -99,16 +99,16 @@ export function I18nProvider(
 		setThemePreferenceSignal(nextThemePreference);
 	};
 
-	const t = (key: AppI18nLocaleCode | (string & {}), fallback?: string) =>
+	const t = (key: I18nLocaleCode | (string & {}), fallback?: string) =>
 		getMessage(messages(), key, getMessage(fallbackLocale.messages, key, fallback ?? key));
-	const contextValue: I18nContextValue<AppI18nLocaleCode, AppI18nTranslations> = {
+	const contextValue: I18nContextValue<I18nLocaleCode, I18nTranslations> = {
 		dir,
-		locale: locale as () => AppI18nLocaleCode,
+		locale: locale as () => I18nLocaleCode,
 		locales: props.locales as unknown as I18nContextValue<
-			AppI18nLocaleCode,
-			AppI18nTranslations
+			I18nLocaleCode,
+			I18nTranslations
 		>["locales"],
-		messages: messages as () => AppI18nTranslations,
+		messages: messages as () => I18nTranslations,
 		resolvedTheme,
 		setLocale,
 		setThemePreference,
@@ -120,8 +120,8 @@ export function I18nProvider(
 }
 
 export function useI18n<
-	TLocaleCode extends AppI18nLocaleCode = AppI18nLocaleCode,
-	TMessages extends AppI18nTranslations = AppI18nTranslations,
+	TLocaleCode extends I18nLocaleCode = I18nLocaleCode,
+	TMessages extends I18nTranslations = I18nTranslations,
 >() {
 	const context = useContext(I18nContext);
 

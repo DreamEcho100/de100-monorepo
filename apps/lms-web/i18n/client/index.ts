@@ -2,16 +2,16 @@ import { applyDocumentSnapshot, readDocumentSnapshot } from "@de100/apps-lms-i18
 
 import { appI18nDefaultLocale, appI18nLocalCodeToDef, appI18nLocales } from "../shared";
 
-export function getClientAppAppI18nSnapshot() {
+export function getClientAppI18nSnapshot() {
 	return readDocumentSnapshot({
 		defaultLocale: appI18nDefaultLocale,
 		locales: appI18nLocales,
-		codeToAppI18nLocales: appI18nLocalCodeToDef,
+		codeToI18nLocales: appI18nLocalCodeToDef,
 	});
 }
 
 export function bootstrapClientI18n() {
-	const snapshot = getClientAppAppI18nSnapshot();
+	const snapshot = getClientAppI18nSnapshot();
 
 	applyDocumentSnapshot(snapshot);
 

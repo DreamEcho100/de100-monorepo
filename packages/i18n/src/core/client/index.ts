@@ -1,8 +1,8 @@
 import type {
-	AppI18nLocalCodeToDef,
-	AppI18nLocaleCode,
-	AppI18nLocaleDefShape,
-	AppI18nSnapshot,
+	I18nLocalCodeToDef,
+	I18nLocaleCode,
+	I18nLocaleDefShape,
+	I18nSnapshot,
 	ResolvedTheme,
 	ThemePreference,
 } from "../shared/index";
@@ -58,8 +58,8 @@ export function resolveThemePreference(
 	return themePreference === "system" ? systemTheme : themePreference;
 }
 
-export function applyDocumentSnapshot<TLocaleCode extends AppI18nLocaleCode>(
-	snapshot: AppI18nSnapshot<TLocaleCode>,
+export function applyDocumentSnapshot<TLocaleCode extends I18nLocaleCode>(
+	snapshot: I18nSnapshot<TLocaleCode>,
 	root: HTMLElement = document.documentElement,
 ) {
 	root.lang = snapshot.locale;
@@ -85,12 +85,12 @@ export function persistCookie(name: string, value: string) {
 	].join("; ");
 }
 
-export function readDocumentSnapshot<TLocaleCode extends AppI18nLocaleCode>(options: {
+export function readDocumentSnapshot<TLocaleCode extends I18nLocaleCode>(options: {
 	defaultLocale: TLocaleCode;
-	locales: readonly AppI18nLocaleDefShape<TLocaleCode>[];
-	codeToAppI18nLocales: AppI18nLocalCodeToDef;
+	locales: readonly I18nLocaleDefShape<TLocaleCode>[];
+	codeToI18nLocales: I18nLocalCodeToDef;
 	root?: HTMLElement;
-}): AppI18nSnapshot<TLocaleCode> {
+}): I18nSnapshot<TLocaleCode> {
 	const root = options.root ?? document.documentElement;
 	let locale: TLocaleCode = options.defaultLocale;
 

@@ -31,8 +31,14 @@ TODOS:
 
 - [ ] I18n package:
   - [ ] Split the package more, to `@de100/apps-lms-i18n-core` and `@de100/apps-lms-i18n-solid` or something like that, to separate the core logic, dependency, and integration with solidjs.
-  - [ ] Make the typing more granular, to allow for better type inference and autocompletion.
+  - [ ] Make the typing and utilities more granular, to allow for better type inference and autocompletion.
+    - [x] migrating the i18n core
+    - [ ] migrating the i18n solid js
 - [ ] The UI package:
   - [ ] Nest/change the `@de100/ui-solidjs` package to `@de100/ui-domains-solidjs` or something like that, to separate the domain-specific components from the generic ones.
   - [ ] Make `@de100/ui-core` package, to hold the generic components, hooks, and utilities that can be used across different domains and frameworks.
 ```
+
+# Day 6
+
+Worked on migrating the i18n core.
