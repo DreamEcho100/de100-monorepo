@@ -22,7 +22,7 @@ import type {
 	ResolvedTheme,
 	ThemePreference,
 } from "../../../core/shared/index";
-import { getMessage, LOCALE_COOKIE_NAME, THEME_COOKIE_NAME } from "../../../core/shared/index";
+import { generateI18nConfig, getMessage, LOCALE_COOKIE_NAME, THEME_COOKIE_NAME } from "../../../core/shared/index";
 import type { I18nContextValue, I18nProviderProps } from "../shared/index";
 
 const I18nContext = createContext<I18nContextValue<I18nLocaleCode, I18nTranslations>>();
@@ -98,6 +98,16 @@ export function I18nProvider(
 	const setThemePreference = (nextThemePreference: ThemePreference) => {
 		setThemePreferenceSignal(nextThemePreference);
 	};
+
+
+	const i18nConfig = createMemo(() => {
+		generateI18nConfig({
+		locale: locale(),
+		// fallbackLocale: currentLocale(),
+		translations: messages(),
+	})
+
+	});
 
 	const t = (key: I18nLocaleCode | (string & {}), fallback?: string) =>
 		getMessage(messages(), key, getMessage(fallbackLocale.messages, key, fallback ?? key));

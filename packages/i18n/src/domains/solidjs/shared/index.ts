@@ -1,6 +1,7 @@
 import type { Accessor } from "solid-js";
 
 import type {
+	generateI18nConfig,
 	I18nLocaleCode,
 	I18nLocaleDefShape,
 	I18nSnapshot,
@@ -9,6 +10,8 @@ import type {
 	TextDirection,
 	ThemePreference,
 } from "../../../core/shared/index";
+
+type BaseTranslationState = ReturnType<typeof generateI18nConfig>;
 
 export type I18nContextValue<
 	TLocaleCode extends I18nLocaleCode = I18nLocaleCode,
@@ -21,7 +24,7 @@ export type I18nContextValue<
 	resolvedTheme: Accessor<ResolvedTheme>;
 	setLocale: (locale: TLocaleCode) => void;
 	setThemePreference: (themePreference: ThemePreference) => void;
-	t: (key: string, fallback?: string) => string;
+	t: BaseTranslationState["t"];
 	themePreference: Accessor<ThemePreference>;
 };
 

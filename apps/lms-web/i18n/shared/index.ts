@@ -1,4 +1,4 @@
-export * as DEF from "./def";
+export type * as DEF from "./def.d.ts";
 
 import type { I18nLocalCodeToDef, I18nLocaleCode, I18nLocaleDef } from "@de100/apps-lms-i18n";
 

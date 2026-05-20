@@ -41,4 +41,4 @@ TODOS:
 
 # Day 6
 
-Worked on migrating the i18n core.
+Worked on migrating the i18n core and some of the solidjs integration, still need to do some refactor and enhancement...

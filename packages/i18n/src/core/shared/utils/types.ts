@@ -1,4 +1,4 @@
-import type { I18nTranslations, I18nTranslationsShape } from "../types";
+import type { I18nMessage, I18nTranslations, I18nTranslationsShape } from "../types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TObj = Record<string, any>;
@@ -61,11 +61,11 @@ export type ExtractParamOptions<S extends string> =
  * Recursively traverses the translation structure to create paths like "user.profile.name"
  */
 export type DotPathsFor<TranslationRegistry extends TObj = I18nTranslations> = {
-	[Key in keyof TranslationRegistry]: TranslationRegistry[Key] extends I18nTranslationsShape
+	[Key in keyof TranslationRegistry]: TranslationRegistry[Key] extends I18nMessage
 		? Key // If it's a translation message, use the key as-is
 		: TranslationRegistry[Key] extends TObj
 			? Join<Key, DotPathsFor<TranslationRegistry[Key]>> // If it's nested, join with child paths
-			: never;
+			: "never";
 }[keyof TranslationRegistry];
 
 /**

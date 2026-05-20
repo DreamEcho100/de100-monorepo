@@ -3,7 +3,7 @@
  * This function provides type safety for translation definitions
  */
 
-import type { I18nTranslationsShape, ParamOptions } from "../types";
+import type { I18nMessage, I18nTranslations, I18nTranslationsShape, ParamOptions } from "../types";
 import type {
 	DotPathsFor,
 	ExtractParamOptions,
@@ -134,12 +134,13 @@ export function generateI18nConfig({
 }: {
 	locale: string;
 	// defaultLocale: string;
-	fallbackLocale: string | string[] | readonly string[];
-	translations: Record<Lowercase<string>, I18nTranslationsShape>;
+	fallbackLocale?: string | string[] | readonly string[];
+	translations: I18nTranslations;
 	onError?: (error: I18nError) => void;
 }) {
 	// Convert fallback locale to array for uniform processing
-	const fallbackLocales = typeof fallbackLocale === "string" ? [fallbackLocale] : fallbackLocale;
+	const fallbackLocales =
+		typeof fallbackLocale === "string" ? [fallbackLocale] : (fallbackLocale ?? []);
 
 	// Create ordered list of locales to try (current locale + parents + fallbacks)
 	const orderedLocales = new Set([
@@ -157,7 +158,7 @@ export function generateI18nConfig({
 	function t<S extends DotPathsFor, A extends Params<S>>(key: S, args?: A) {
 		// Try each locale in order until we find a translation
 		for (const locale of orderedLocales) {
-			const translationFile = translations[locale.toLowerCase() as Lowercase<string>];
+			const translationFile = translations[locale];
 			if (translationFile == null) continue;
 
 			try {
@@ -207,7 +208,7 @@ function getOrderedLocaleAndParentLocales(locale: string) {
  */
 function getTranslation<S extends DotPathsFor, A extends Params<S>>(
 	locale: string,
-	translations: I18nTranslationsShape,
+	translations: I18nTranslationsShape | I18nMessage,
 	key: S,
 	args?: A,
 ) {
@@ -233,14 +234,18 @@ function getTranslation<S extends DotPathsFor, A extends Params<S>>(
  * Navigate through nested translation object using dot-notation key
  * Example: getTranslationByKey(obj, "user.profile.name")
  */
-function getTranslationByKey(obj: I18nTranslationsShape, key: string) {
+function getTranslationByKey(obj: I18nTranslationsShape | I18nMessage, key: string) {
 	const keys = key.split(".");
 	let currentObj = obj;
 
 	// Navigate through each key segment
 	for (let i = 0; i <= keys.length - 1; i++) {
 		const k = keys[i];
-		const newObj = currentObj[k as keyof typeof currentObj];
+		if (typeof currentObj !== "object" && i < keys.length - 1) {
+			return undefined; // Can't navigate further if current is not an object
+		}
+
+		const newObj = (currentObj as Record<string, unknown>)[k as keyof typeof currentObj];
 
 		// Return undefined if key doesn't exist
 		if (newObj == null) return undefined;
@@ -252,7 +257,7 @@ function getTranslationByKey(obj: I18nTranslationsShape, key: string) {
 		}
 
 		// Continue navigation for nested objects
-		currentObj = newObj;
+		currentObj = newObj as I18nTranslationsShape;
 	}
 
 	return undefined;

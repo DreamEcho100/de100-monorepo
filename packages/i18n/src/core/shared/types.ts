@@ -34,7 +34,7 @@ type DefineTranslation<TranslationKey extends string, TranslationOptions extends
 /**
  * A translation message can be either a simple string or a defined translation with parameters
  */
-type I18nMessage = string | ReturnType<DefineTranslation<string, ParamOptions>>;
+export type I18nMessage = string | ReturnType<DefineTranslation<string, ParamOptions>>;
 
 /**
  * Structure for language message files - nested object with string keys

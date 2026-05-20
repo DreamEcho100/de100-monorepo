@@ -26,7 +26,6 @@ for (const envPath of new Set(candidateEnvPaths)) {
 export const env = createEnv({
 	server: {
 		APP_LMS_DATABASE_URL: z.string().min(1),
-		APP_LMS_NEON_DB_URL: z.string().min(1).optional(),
 		APP_LMS_DATABASE_DRIVER: z.enum(["auto", "postgres", "neon-http"]).default("auto"),
 		APP_LMS_CACHE_DRIVER: z.enum(["memory", "redis", "upstash"]).default("memory"),
 		APP_LMS_CACHE_KEY_PREFIX: z.string().min(1).default("de100:lms"),
