@@ -19,6 +19,7 @@ import { createForm } from "@tanstack/solid-form";
 import { createSignal } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";
+import { localizeValidationError, localizeValidationErrors } from "~/libs/validation-errors";
 
 import { createLocalizedPath } from "../../i18n/routing";
 
@@ -85,13 +86,14 @@ export default function VerifyEmailForm() {
 					<form.Field name="email">
 						{(field) => {
 							const errorId = `${field().name}-error`;
+							const localizedErrors = localizeValidationErrors(field().state.meta.errors, t);
 
 							return (
 								<Field class="grid gap-4">
 									<FieldLabel for={field().name}>{t("auth.verifyEmail.emailLabel")}</FieldLabel>
 									<FieldContent>
 										<Input
-											aria-describedby={field().state.meta.errors[0] ? errorId : undefined}
+											aria-describedby={localizedErrors[0]?.message ? errorId : undefined}
 											aria-invalid={field().state.meta.errors.length > 0}
 											id={field().name}
 											name={field().name}
@@ -102,7 +104,7 @@ export default function VerifyEmailForm() {
 										/>
 										<FieldError
 											class="text-destructive text-sm"
-											errors={field().state.meta.errors}
+											errors={localizedErrors}
 											id={errorId}
 										/>
 									</FieldContent>
@@ -112,7 +114,9 @@ export default function VerifyEmailForm() {
 					</form.Field>
 
 					{submitError() ? (
-						<FieldError class="text-destructive text-sm">{submitError()}</FieldError>
+						<FieldError class="text-destructive text-sm">
+							{localizeValidationError(submitError(), t) ?? submitError()}
+						</FieldError>
 					) : null}
 					{successMessage() ? (
 						<p

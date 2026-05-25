@@ -15,68 +15,59 @@ import { openApiDocsPath } from "~/libs/apis/openapi-routes";
 import { createLocalizedPath } from "../i18n/routing";
 
 const starterSlices = [
-	"Email/password auth with Better Auth and seeded demo accounts",
-	"Typed oRPC queries and mutations for dashboard, todos, and media metadata",
-	"Drizzle migrations and repeatable local reset, migrate, and seed commands",
-	"Cloudflare-ready media flows with draft confirmation and owner-managed cleanup",
-];
+	"about.starterSlices.auth",
+	"about.starterSlices.transport",
+	"about.starterSlices.storage",
+	"about.starterSlices.media",
+] as const;
 
 export default function AboutPage() {
-	const { locale } = useI18n();
+	const { locale, t } = useI18n();
 
 	return (
 		<main
 			class="mx-auto grid w-full max-w-6xl items-start gap-6 px-[clamp(1rem,2vw+0.5rem,2rem)] pt-8 pb-16"
 			id="main-content"
 		>
-			<Title>About</Title>
+			<Title>{t("about.metaTitle")}</Title>
 			<Card class="border-primary/10 bg-card/95 shadow-black/5 shadow-sm">
 				<CardHeader class="space-y-4">
 					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div class="space-y-2">
 							<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
-								Starter surface
+								{t("about.eyebrow")}
 							</p>
-							<CardTitle>About this LMS starter</CardTitle>
-							<CardDescription>
-								This route now describes the actual monorepo starter instead of shipping the stock
-								Solid scaffold page.
-							</CardDescription>
+							<CardTitle>{t("about.title")}</CardTitle>
+							<CardDescription>{t("about.description")}</CardDescription>
 						</div>
-						<Badge variant="secondary">SolidStart + Better Auth + oRPC</Badge>
+						<Badge variant="secondary">{t("about.badge")}</Badge>
 					</div>
-					<p class="max-w-[60ch] text-base text-muted-foreground leading-7">
-						The current app is meant to validate the platform slices before the full LMS product
-						build starts: authentication, seeded local data, user-owned todos, and Cloudflare-aware
-						media management.
-					</p>
+					<p class="max-w-[60ch] text-base text-muted-foreground leading-7">{t("about.lede")}</p>
 				</CardHeader>
 			</Card>
 
 			<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 				<CardHeader>
-					<CardTitle>Included today</CardTitle>
-					<CardDescription>
-						These are the starter slices that are already wired through the active app package.
-					</CardDescription>
+					<CardTitle>{t("about.includedTitle")}</CardTitle>
+					<CardDescription>{t("about.includedDescription")}</CardDescription>
 				</CardHeader>
 				<CardContent class="space-y-4">
 					<ul class="space-y-3">
 						{starterSlices.map((item) => (
 							<li class="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-4 py-3">
-								<span>{item}</span>
+								<span>{t(item)}</span>
 							</li>
 						))}
 					</ul>
 					<div class="flex flex-wrap gap-3">
 						<A class="button secondary" href={createLocalizedPath(locale(), "/dashboard")}>
-							Open dashboard
+							{t("about.ctas.dashboard")}
 						</A>
 						<A class="button secondary" href={createLocalizedPath(locale(), "/todos")}>
-							Open todos
+							{t("about.ctas.todos")}
 						</A>
 						<A class="button secondary" href={createLocalizedPath(locale(), openApiDocsPath)}>
-							View API reference
+							{t("about.ctas.apiReference")}
 						</A>
 					</div>
 				</CardContent>

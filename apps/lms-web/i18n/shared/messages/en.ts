@@ -1,4 +1,27 @@
 export const enMessages = {
+	about: {
+		badge: "SolidStart + Better Auth + oRPC",
+		ctas: {
+			apiReference: "View API reference",
+			dashboard: "Open dashboard",
+			todos: "Open todos",
+		},
+		description:
+			"This route now describes the actual monorepo starter instead of shipping the stock Solid scaffold page.",
+		eyebrow: "Starter surface",
+		includedDescription:
+			"These are the starter slices that are already wired through the active app package.",
+		includedTitle: "Included today",
+		lede: "The current app is meant to validate the platform slices before the full LMS product build starts: authentication, seeded local data, user-owned todos, and Cloudflare-aware media management.",
+		metaTitle: "About",
+		starterSlices: {
+			auth: "Email/password auth with Better Auth and seeded demo accounts",
+			media: "Cloudflare-ready media flows with draft confirmation and owner-managed cleanup",
+			storage: "Drizzle migrations and repeatable local reset, migrate, and seed commands",
+			transport: "Typed oRPC queries and mutations for dashboard, todos, and media metadata",
+		},
+		title: "About this LMS starter",
+	},
 	auth: {
 		notices: {
 			passwordResetSuccess: "Your password was updated. Sign in with the new password.",
@@ -63,6 +86,12 @@ export const enMessages = {
 			title: "Verify your email",
 		},
 	},
+	validation: {
+		invalidEmail: "Invalid email address.",
+		nameMinLength: "Name must be at least 2 characters.",
+		passwordMinLength: "Password must be at least 8 characters.",
+		passwordsDoNotMatch: "Passwords do not match.",
+	},
 	apiReference: {
 		fallbackTitle: "Shared API surface",
 		labels: {
@@ -82,6 +111,10 @@ export const enMessages = {
 		},
 		subtitle: "from the same-origin OpenAPI spec.",
 		title: "OpenAPI reference",
+	},
+	common: {
+		notFound: "Not found",
+		stackBadge: "SolidStart + Better Auth + oRPC",
 	},
 	dashboard: {
 		api: {
@@ -128,12 +161,22 @@ export const enMessages = {
 			todos: "Todos",
 		},
 		primaryNavigation: "Primary",
+		skipToMainContent: "Skip to main content",
 		theme: "Theme",
 		themes: {
 			dark: "Dark",
 			light: "Light",
 			system: "System",
 		},
+	},
+	notFound: {
+		description: "This path is not part of the migrated SolidStart app surface.",
+		eyebrow: "Missing route",
+		helpLinkLabel: "start.solidjs.com",
+		helpPrefix: "Visit",
+		helpSuffix: "to learn more about building SolidStart apps.",
+		metaTitle: "Not Found",
+		title: "Page Not Found",
 	},
 	home: {
 		accounts: {
@@ -173,6 +216,7 @@ export const enMessages = {
 			title: "What you can demo right now",
 		},
 		lede: "Use the auth flow to establish a session, then move into the dashboard and todos routes to verify the shared stack end to end.",
+		stackBadge: "SolidStart + Better Auth + oRPC",
 		title: "DE100 LMS starter",
 	},
 	meta: {

@@ -1,4 +1,5 @@
 // import type { UseQueryResult } from "@tanstack/solid-query";
+import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import type { UseQueryResult } from "@tanstack/solid-query";
 import type { JSX } from "solid-js";
 import { ErrorBoundary, Match, Suspense, Switch } from "solid-js";
@@ -32,6 +33,8 @@ export interface QueryBoundaryProps<T = unknown> {
  * children (as a render prop) in a type-safe way.
  */
 export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
+	const { t } = useI18n();
+
 	return (
 		<Suspense fallback={props.loadingFallback}>
 			<ErrorBoundary
@@ -77,7 +80,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
           </Match> */}
 
 					<Match when={!props.query.isFetching && !props.query.data}>
-						{props.notFoundFallback ? props.notFoundFallback : <div>not found</div>}
+						{props.notFoundFallback ? props.notFoundFallback : <div>{t("common.notFound")}</div>}
 					</Match>
 
 					<Match when={props.query.data}>

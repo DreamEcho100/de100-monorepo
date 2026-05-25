@@ -29,7 +29,7 @@ Still need more work on it, here are my current todos
 ```md
 TODOS:
 
-- [ ] I18n package:
+- [x] I18n package:
   - [x] Split the package more, to `@de100/i18n-core` and `@de100/i18n-domains-solidjs` or something like that, to separate the core logic, dependency, and integration with solidjs.
   - [x] Make the typing and utilities more granular, to allow for better type inference and autocompletion.
     - [x] migrating the i18n core
@@ -46,3 +46,7 @@ Worked on migrating the i18n core and some of the solidjs integration, still nee
 ## Day 7
 
 More work on enhancing the i18n package...
+
+## Day 8
+
+Squash the i18n git commits and push.

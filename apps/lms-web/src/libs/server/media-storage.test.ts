@@ -64,6 +64,7 @@ describe("media-storage", () => {
 	let localMediaRoot: string | null = null;
 
 	beforeEach(() => {
+		process.env.APP_LMS_MEDIA_STORAGE_DRIVER = "r2";
 		vi.spyOn(globalThis.crypto, "randomUUID").mockReturnValue(
 			"11111111-1111-4111-8111-111111111111",
 		);

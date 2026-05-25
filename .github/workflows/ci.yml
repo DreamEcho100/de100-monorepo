@@ -81,3 +81,36 @@ jobs:
 
       - name: Typecheck
         run: pnpm type:check
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./tooling/github/setup
+
+      - name: Write CI env.local
+        shell: bash
+        run: |
+          cat <<'EOF' > .env.local
+          APP_LMS_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/de100_lms
+          APP_LMS_DATABASE_DRIVER=postgres
+          APP_LMS_BETTER_AUTH_SECRET=de100-lms-ci-local-secret-please-change
+          APP_LMS_BETTER_AUTH_URL=http://127.0.0.1:3000/api/auth
+          APP_LMS_CORS_ORIGIN=http://127.0.0.1:3000
+          VITE_APP_LMS_SERVER_URL=http://127.0.0.1:3000
+          APP_LMS_CACHE_DRIVER=memory
+          APP_LMS_CACHE_KEY_PREFIX=de100:lms:ci
+          APP_LMS_MEDIA_STORAGE_DRIVER=local
+          APP_LMS_MEDIA_LOCAL_ROOT=./apps/lms-web/.local/media
+          APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
+          APP_LMS_SERVER_PORT=3000
+          EOF
+
+      - name: Test
+        run: |
+          pnpm -F @de100/apps-lms-web test
+          pnpm -F @de100/apps-lms-api test
+          pnpm -F @de100/apps-lms-auth test
+          pnpm -F @de100/apps-lms-db test

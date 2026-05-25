@@ -1,6 +1,28 @@
 import type { I18nTranslations } from "@de100/i18n-core/shared";
 
 export const arMessages: I18nTranslations = {
+	about: {
+		badge: "SolidStart + Better Auth + oRPC",
+		ctas: {
+			apiReference: "افتح مرجع الواجهة البرمجية",
+			dashboard: "افتح لوحة التحكم",
+			todos: "افتح المهام",
+		},
+		description:
+			"يصف هذا المسار الآن بداية المستودع الموحد الفعلية بدلًا من عرض صفحة Solid الافتراضية الجاهزة.",
+		eyebrow: "سطح البداية",
+		includedDescription: "هذه هي الأجزاء الجاهزة حاليًا والمربوطة بالفعل عبر حزمة التطبيق النشطة.",
+		includedTitle: "المتوفر اليوم",
+		lede: "يهدف التطبيق الحالي إلى التحقق من شرائح المنصة قبل بدء بناء منتج LMS الكامل: المصادقة والبيانات المحلية المولدة والمهام المملوكة للمستخدم وإدارة الوسائط المتوافقة مع Cloudflare.",
+		metaTitle: "حول التطبيق",
+		starterSlices: {
+			auth: "مصادقة البريد الإلكتروني وكلمة المرور عبر Better Auth مع حسابات تجريبية جاهزة",
+			media: "تدفقات وسائط جاهزة لـ Cloudflare مع تأكيد المسودات وتنظيف يديره المالك",
+			storage: "ترحيلات Drizzle وأوامر محلية قابلة للتكرار لإعادة التهيئة والترحيل والبذر",
+			transport: "استعلامات وعمليات oRPC معرّفة نوعيًا للوحة التحكم والمهام وبيانات الوسائط",
+		},
+		title: "حول بداية LMS هذه",
+	},
 	auth: {
 		notices: {
 			passwordResetSuccess:
@@ -66,6 +88,12 @@ export const arMessages: I18nTranslations = {
 			title: "تحقق من بريدك الإلكتروني",
 		},
 	},
+	validation: {
+		invalidEmail: "عنوان البريد الإلكتروني غير صالح.",
+		nameMinLength: "يجب أن يتكون الاسم من حرفين على الأقل.",
+		passwordMinLength: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+		passwordsDoNotMatch: "كلمتا المرور غير متطابقتين.",
+	},
 	apiReference: {
 		fallbackTitle: "واجهة برمجية مشتركة",
 		labels: {
@@ -85,6 +113,10 @@ export const arMessages: I18nTranslations = {
 		},
 		subtitle: "من مواصفة OpenAPI على نفس النطاق.",
 		title: "مرجع OpenAPI",
+	},
+	common: {
+		notFound: "غير موجود",
+		stackBadge: "SolidStart + Better Auth + oRPC",
 	},
 	dashboard: {
 		api: {
@@ -132,12 +164,22 @@ export const arMessages: I18nTranslations = {
 			todos: "المهام",
 		},
 		primaryNavigation: "التنقل الرئيسي",
+		skipToMainContent: "انتقل إلى المحتوى الرئيسي",
 		theme: "المظهر",
 		themes: {
 			dark: "داكن",
 			light: "فاتح",
 			system: "النظام",
 		},
+	},
+	notFound: {
+		description: "هذا المسار ليس جزءًا من سطح تطبيق SolidStart الذي تمت هجرته.",
+		eyebrow: "مسار مفقود",
+		helpLinkLabel: "start.solidjs.com",
+		helpPrefix: "زر",
+		helpSuffix: "لمعرفة المزيد حول بناء تطبيقات SolidStart.",
+		metaTitle: "غير موجود",
+		title: "الصفحة غير موجودة",
 	},
 	home: {
 		accounts: {
@@ -176,6 +218,7 @@ export const arMessages: I18nTranslations = {
 			title: "ما الذي يمكنك عرضه الآن",
 		},
 		lede: "استخدم مسار المصادقة لإنشاء جلسة، ثم انتقل إلى لوحة التحكم وصفحة المهام للتحقق من الحزمة المشتركة من البداية إلى النهاية.",
+		stackBadge: "SolidStart + Better Auth + oRPC",
 		title: "بداية منصة DE100 التعليمية",
 	},
 	meta: {

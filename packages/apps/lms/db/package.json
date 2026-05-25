@@ -10,8 +10,8 @@
 		}
 	},
 	"scripts": {
-		"test": "vitest run --config ../../vitest.config.ts",
-		"test:watch": "vitest --config ../../vitest.config.ts",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"db:up": "docker compose -f ../../../../docker-compose.yml up -d --wait lms-postgres",
 		"db:down": "docker compose -f ../../../../docker-compose.yml down",
 		"db:logs": "docker compose -f ../../../../docker-compose.yml logs -f lms-postgres",

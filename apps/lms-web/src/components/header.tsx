@@ -22,7 +22,7 @@ export default function Header() {
 				class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:font-medium focus:text-primary-foreground focus:text-sm focus:shadow-lg"
 				href="#main-content"
 			>
-				Skip to main content
+				{t("header.skipToMainContent")}
 			</a>
 			<div class="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-[clamp(1rem,2vw+0.5rem,2rem)] py-4">
 				<nav aria-label={t("header.primaryNavigation")} class="flex flex-wrap gap-2">

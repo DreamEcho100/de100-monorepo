@@ -60,7 +60,7 @@ export default function HomePage() {
 								{t("home.description")}
 							</CardDescription>
 						</div>
-						<Badge variant="secondary">SolidStart + Better Auth + oRPC</Badge>
+						<Badge variant="secondary">{t("home.stackBadge")}</Badge>
 					</div>
 					<p class="max-w-[70ch] text-muted-foreground text-sm leading-6">{t("home.lede")}</p>
 					<div class="flex flex-wrap gap-3">

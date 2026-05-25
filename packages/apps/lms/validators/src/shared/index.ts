@@ -1,3 +1,5 @@
+export * from "./auth";
+
 export type SignInInput = {
 	email: string;
 	password: string;
