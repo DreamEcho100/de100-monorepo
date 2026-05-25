@@ -1,5 +1,7 @@
 import { z } from "zod/v4";
 
+import { mediaValidationErrorKeys } from "../shared/media";
+
 export const mediaVisibilitySchema = z.enum(["private", "public"]);
 export const mediaStatusSchema = z.enum(["draft", "ready", "deleted"]);
 export const mediaStorageDriverSchema = z.enum(["local", "r2"]);
@@ -69,7 +71,7 @@ function isMediaUploadFile(value: unknown): value is MediaUploadFile {
 
 export const mediaUploadInputSchema = z.object({
 	file: z.custom<MediaUploadFile>((value) => isMediaUploadFile(value), {
-		message: "Expected a file upload.",
+		message: mediaValidationErrorKeys.expectedFileUpload,
 	}),
 	visibility: mediaVisibilitySchema.default("private"),
 });

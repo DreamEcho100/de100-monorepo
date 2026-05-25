@@ -6,9 +6,10 @@ import {
 	todoRecordOutputSchema,
 	toggleTodoInputSchema,
 } from "@de100/apps-lms-validators/server";
-import { ORPCError } from "@orpc/server";
+import { appErrorCodes } from "@de100/apps-lms-validators/shared";
 import { and, desc, eq } from "drizzle-orm";
 
+import { createAppError, defineAppError } from "../errors";
 import { protectedProcedure } from "../index";
 
 const todoRouterBasePath = "/todos";
@@ -31,6 +32,9 @@ export const todoRouter = {
 		}),
 
 	create: protectedProcedure
+		.errors({
+			INTERNAL_SERVER_ERROR: defineAppError(appErrorCodes.todo.createFailed),
+		})
 		.input(createTodoInputSchema)
 		.output(todoRecordOutputSchema)
 		.route({
@@ -49,9 +53,7 @@ export const todoRouter = {
 				.returning();
 
 			if (!createdTodo) {
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
-					message: "Failed to create todo.",
-				});
+				throw createAppError("INTERNAL_SERVER_ERROR", appErrorCodes.todo.createFailed);
 			}
 
 			return createdTodo;
@@ -59,9 +61,7 @@ export const todoRouter = {
 
 	toggle: protectedProcedure
 		.errors({
-			NOT_FOUND: {
-				message: "Todo not found.",
-			},
+			NOT_FOUND: defineAppError(appErrorCodes.todo.notFound),
 		})
 		.input(toggleTodoInputSchema)
 		.output(todoRecordOutputSchema)
@@ -79,7 +79,7 @@ export const todoRouter = {
 				.returning();
 
 			if (!updatedTodo) {
-				throw new ORPCError("NOT_FOUND");
+				throw createAppError("NOT_FOUND", appErrorCodes.todo.notFound);
 			}
 
 			return updatedTodo;
@@ -87,9 +87,7 @@ export const todoRouter = {
 
 	delete: protectedProcedure
 		.errors({
-			NOT_FOUND: {
-				message: "Todo not found.",
-			},
+			NOT_FOUND: defineAppError(appErrorCodes.todo.notFound),
 		})
 		.input(deleteTodoInputSchema)
 		.output(todoRecordOutputSchema)
@@ -106,7 +104,7 @@ export const todoRouter = {
 				.returning();
 
 			if (!deletedTodo) {
-				throw new ORPCError("NOT_FOUND");
+				throw createAppError("NOT_FOUND", appErrorCodes.todo.notFound);
 			}
 
 			return deletedTodo;

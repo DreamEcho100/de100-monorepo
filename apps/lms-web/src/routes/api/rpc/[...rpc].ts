@@ -1,6 +1,6 @@
 import { createContext } from "@de100/apps-lms-api/context";
 import { appRouter } from "@de100/apps-lms-api/routers/index";
-import { onError } from "@orpc/server";
+import { ORPCError, onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import type { APIEvent } from "@solidjs/start/server";
 
@@ -9,6 +9,17 @@ import { createCorsPreflightResponse, withCorsAndLogging } from "~/libs/apis/cor
 const rpcHandler = new RPCHandler(appRouter, {
 	interceptors: [
 		onError((error) => {
+			if (error instanceof ORPCError) {
+				console.error("[orpc] request failed", {
+					code: error.code,
+					data: error.data,
+					defined: error.defined,
+					message: error.message,
+					status: error.status,
+				});
+				return;
+			}
+
 			console.error(error);
 		}),
 	],

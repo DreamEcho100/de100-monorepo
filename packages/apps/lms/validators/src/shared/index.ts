@@ -1,4 +1,6 @@
 export * from "./auth";
+export * from "./errors";
+export * from "./media";
 
 export type SignInInput = {
 	email: string;

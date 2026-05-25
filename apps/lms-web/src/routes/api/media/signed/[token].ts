@@ -5,9 +5,8 @@ import type { APIEvent } from "@solidjs/start/server";
 import { createCorsPreflightResponse, withCorsAndLogging } from "~/libs/apis/cors";
 import {
 	createMediaObjectResponse,
-	getMediaBucket,
-	MediaBindingsUnavailableError,
-	MediaLocalStorageUnavailableError,
+	getMediaStorageProvider,
+	MediaStorageUnavailableError,
 } from "~/libs/server/media-storage";
 
 async function handler(event: APIEvent) {
@@ -25,8 +24,11 @@ async function handler(event: APIEvent) {
 			return withCorsAndLogging(new Response("Not Found", { status: 404 }), event.request);
 		}
 
-		const bucket = getMediaBucket(event, mediaRecord.visibility);
-		const object = await bucket.get(mediaRecord.key);
+		const provider = getMediaStorageProvider(event);
+		const object = await provider.getObject({
+			key: mediaRecord.key,
+			visibility: mediaRecord.visibility,
+		});
 		if (!object) {
 			return withCorsAndLogging(new Response("Not Found", { status: 404 }), event.request);
 		}
@@ -36,10 +38,7 @@ async function handler(event: APIEvent) {
 			event.request,
 		);
 	} catch (error) {
-		if (
-			error instanceof MediaBindingsUnavailableError ||
-			error instanceof MediaLocalStorageUnavailableError
-		) {
+		if (error instanceof MediaStorageUnavailableError) {
 			return withCorsAndLogging(new Response(error.message, { status: 503 }), event.request);
 		}
 

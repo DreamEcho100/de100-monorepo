@@ -19,13 +19,14 @@ import { createForm } from "@tanstack/solid-form";
 import { createSignal, Show } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";
-import { localizeValidationError, localizeValidationErrors } from "~/libs/validation-errors";
+import { localizeAuthError } from "~/libs/auth-errors";
+import { localizeValidationErrors } from "~/libs/validation-errors";
 
 import { createLocalizedPath } from "../../i18n/routing";
 
 export default function ForgotPasswordForm() {
 	const { locale, t } = useI18n();
-	const [submitError, setSubmitError] = createSignal<string | null>(null);
+	const [submitError, setSubmitError] = createSignal<unknown | null>(null);
 	const [successMessage, setSuccessMessage] = createSignal<string | null>(null);
 
 	const form = createForm(() => ({
@@ -46,7 +47,7 @@ export default function ForgotPasswordForm() {
 				},
 				{
 					onError: (error) => {
-						setSubmitError(error.error.message);
+						setSubmitError(error);
 					},
 					onSuccess: () => {
 						setSuccessMessage(t("auth.forgotPassword.success"));
@@ -113,9 +114,9 @@ export default function ForgotPasswordForm() {
 					</form.Field>
 
 					<Show when={submitError()}>
-						{(message) => (
+						{(error) => (
 							<FieldError class="text-destructive text-sm">
-								{localizeValidationError(message(), t) ?? message()}
+								{localizeAuthError(error(), t) ?? t("errors.auth.requestFailed")}
 							</FieldError>
 						)}
 					</Show>

@@ -4,6 +4,8 @@ import type { UseQueryResult } from "@tanstack/solid-query";
 import type { JSX } from "solid-js";
 import { ErrorBoundary, Match, Suspense, Switch } from "solid-js";
 
+import { localizeOrpcError } from "~/libs/orpc-errors";
+
 export interface QueryBoundaryProps<T = unknown> {
 	query: UseQueryResult<T, Error>;
 
@@ -46,7 +48,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
 						})
 					) : (
 						<div>
-							<div class="error">{err.message}</div>
+							<div class="error">{localizeOrpcError(err, t) ?? err.message}</div>
 							<button
 								type="button"
 								disabled={props.query.isRefetching || props.query.isSuccess}
@@ -55,7 +57,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
 									reset();
 								}}
 							>
-								retry
+								{t("common.retry")}
 							</button>
 						</div>
 					)
@@ -73,7 +75,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
                     props.query.refetch();
                   }}
                 >
-                  retry
+                  {t("common.retry")}
                 </button>
               </div>
             )}

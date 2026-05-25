@@ -21,6 +21,7 @@ import { createEffect, createMemo, createSignal, For, onMount, Show } from "soli
 
 import { authClient } from "~/libs/apis/auth-client";
 import { orpc } from "~/libs/apis/orpc";
+import { localizeOrpcError } from "~/libs/orpc-errors";
 
 import { createLocalizedPath } from "../i18n/routing";
 
@@ -222,7 +223,7 @@ export default function MediaPage() {
 	const uploadMediaMutation = createMutation(() =>
 		orpc.media.upload.mutationOptions({
 			onError: (error) => {
-				setUploadError(error instanceof Error ? error.message : t("media.status.uploadFailed"));
+				setUploadError(localizeOrpcError(error, t) ?? t("media.status.uploadFailed"));
 			},
 			onSuccess: async () => {
 				setFile(null);
@@ -234,7 +235,7 @@ export default function MediaPage() {
 	const confirmUploadMutation = createMutation(() =>
 		orpc.media.confirmUpload.mutationOptions({
 			onError: (error) => {
-				setUploadError(error instanceof Error ? error.message : t("media.status.confirmFailed"));
+				setUploadError(localizeOrpcError(error, t) ?? t("media.status.confirmFailed"));
 			},
 			onSuccess: async () => {
 				setUploadNotice(t("media.status.uploadConfirmedNotice"));
@@ -245,7 +246,7 @@ export default function MediaPage() {
 	const deleteMediaMutation = createMutation(() =>
 		orpc.media.delete.mutationOptions({
 			onError: (error) => {
-				setUploadError(error instanceof Error ? error.message : t("media.status.deleteFailed"));
+				setUploadError(localizeOrpcError(error, t) ?? t("media.status.deleteFailed"));
 			},
 			onSuccess: async () => {
 				setUploadNotice(t("media.status.deletedNotice"));
@@ -256,9 +257,7 @@ export default function MediaPage() {
 	const issueSignedAccessMutation = createMutation(() =>
 		orpc.media.issueSignedAccess.mutationOptions({
 			onError: (error) => {
-				setUploadError(
-					error instanceof Error ? error.message : t("media.status.signedAccessFailed"),
-				);
+				setUploadError(localizeOrpcError(error, t) ?? t("media.status.signedAccessFailed"));
 			},
 			onSuccess: (result, variables) => {
 				setSignedAccessLink(result.url);
@@ -433,9 +432,8 @@ export default function MediaPage() {
 										class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
 										role="alert"
 									>
-										{mediaCapabilities.error instanceof Error
-											? mediaCapabilities.error.message
-											: t("media.status.backendLoadError")}
+										{localizeOrpcError(mediaCapabilities.error, t) ??
+											t("media.status.backendLoadError")}
 									</p>
 								</Show>
 								<Show when={canLoadMedia() && mediaCapabilities.data}>
@@ -579,9 +577,7 @@ export default function MediaPage() {
 										class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
 										role="alert"
 									>
-										{mediaItems.error instanceof Error
-											? mediaItems.error.message
-											: t("media.status.loadError")}
+										{localizeOrpcError(mediaItems.error, t) ?? t("media.status.loadError")}
 									</p>
 								</Show>
 								<Show when={canLoadMedia() && !mediaItems.isPending && !mediaItems.isError}>

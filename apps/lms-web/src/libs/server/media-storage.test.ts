@@ -11,6 +11,7 @@ import {
 	getConfiguredMediaBucket,
 	getMediaBucket,
 	getMediaBucketName,
+	getMediaStorageProvider,
 	getPublicMediaDirectUrl,
 	MediaBindingsUnavailableError,
 } from "./media-storage";
@@ -110,7 +111,7 @@ describe("media-storage", () => {
 		);
 	});
 
-	it("reads bucket bindings and names from the request runtime", () => {
+	it("reads bucket bindings and names from the request runtime", async () => {
 		const publicBucket = createBucket();
 		const privateBucket = createBucket();
 		const event = createEvent({
@@ -119,22 +120,36 @@ describe("media-storage", () => {
 			privateBucket,
 			privateBucketName: "private-media",
 		});
+		const provider = getMediaStorageProvider(event);
+		const publicAdapter = getMediaBucket(event, "public");
+		const privateAdapter = getMediaBucket(event, "private");
 
-		expect(getMediaBucket(event, "public")).toBe(publicBucket);
-		expect(getMediaBucket(event, "private")).toBe(privateBucket);
+		await publicAdapter.get("user_42/media/public/photo.png");
+		await privateAdapter.get("user_42/media/private/notes.png");
+
+		expect(publicBucket.get).toHaveBeenCalledWith("user_42/media/public/photo.png");
+		expect(privateBucket.get).toHaveBeenCalledWith("user_42/media/private/notes.png");
 		expect(getMediaBucketName(event, "public")).toBe("public-media");
 		expect(getMediaBucketName(event, "private")).toBe("private-media");
+		expect(provider.getBucketName("public")).toBe("public-media");
+		expect(provider.getBucketName("private")).toBe("private-media");
 	});
 
-	it("throws when an r2 request is missing the requested bucket binding", () => {
+	it("throws when an r2 request is missing the requested bucket binding", async () => {
 		const publicBucket = createBucket();
 		const event = createEvent({
 			publicBucket,
 			publicBucketName: "public-media",
 		});
+		const publicAdapter = getMediaBucket(event, "public");
+		const privateAdapter = getMediaBucket(event, "private");
 
-		expect(getMediaBucket(event, "public")).toBe(publicBucket);
-		expect(() => getMediaBucket(event, "private")).toThrow(MediaBindingsUnavailableError);
+		await publicAdapter.get("user_42/media/public/photo.png");
+		expect(publicBucket.get).toHaveBeenCalledWith("user_42/media/public/photo.png");
+
+		await expect(privateAdapter.get("user_42/media/private/photo.png")).rejects.toBeInstanceOf(
+			MediaBindingsUnavailableError,
+		);
 	});
 
 	it("builds public URLs from the active request and dev domain", () => {

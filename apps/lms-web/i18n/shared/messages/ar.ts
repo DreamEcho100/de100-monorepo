@@ -89,6 +89,7 @@ export const arMessages: I18nTranslations = {
 		},
 	},
 	validation: {
+		expectedFileUpload: "يجب اختيار ملف صالح للرفع.",
 		invalidEmail: "عنوان البريد الإلكتروني غير صالح.",
 		nameMinLength: "يجب أن يتكون الاسم من حرفين على الأقل.",
 		passwordMinLength: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
@@ -116,7 +117,27 @@ export const arMessages: I18nTranslations = {
 	},
 	common: {
 		notFound: "غير موجود",
+		retry: "إعادة المحاولة",
 		stackBadge: "SolidStart + Better Auth + oRPC",
+	},
+	errors: {
+		auth: {
+			emailAlreadyVerified: "تم التحقق من هذا البريد الإلكتروني بالفعل.",
+			emailNotVerified: "تحقق من بريدك الإلكتروني قبل تسجيل الدخول.",
+			invalidCallback: "رابط المصادقة هذا غير مضبوط بشكل صحيح. حاول مرة أخرى لاحقًا.",
+			invalidEmail: "عنوان البريد الإلكتروني غير صالح.",
+			invalidEmailOrPassword: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+			invalidToken: "هذا الرابط غير صالح. اطلب رابطًا جديدًا.",
+			requestFailed: "فشل طلب المصادقة. حاول مرة أخرى.",
+			sessionExpired: "انتهت جلستك. سجّل الدخول مرة أخرى ثم أعد المحاولة.",
+			tokenExpired: "انتهت صلاحية هذا الرابط. اطلب رابطًا جديدًا.",
+			userAlreadyExists: "يوجد حساب بهذا البريد الإلكتروني بالفعل.",
+			verificationUnavailable: "التحقق عبر البريد الإلكتروني غير متاح حاليًا.",
+		},
+		todo: {
+			createFailed: "فشل إنشاء المهمة.",
+			notFound: "المهمة غير موجودة.",
+		},
 	},
 	dashboard: {
 		api: {
@@ -289,6 +310,7 @@ export const arMessages: I18nTranslations = {
 			loadError: "فشل تحميل مكتبة الوسائط.",
 			loadingDrafts: "جارٍ تحميل مسودات الوسائط...",
 			missingFile: "اختر ملفًا قبل الرفع.",
+			notFound: "سجل الوسائط غير موجود.",
 			noDrafts: "لا توجد مسودات بعد.",
 			noReady: "لا توجد وسائط مؤكدة بعد.",
 			signedAccessFailed: "فشل إنشاء رابط وسائط موقّع.",

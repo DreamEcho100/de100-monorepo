@@ -9,9 +9,11 @@ import {
 	mediaSignedAccessOutputSchema,
 	mediaUploadInputSchema,
 } from "@de100/apps-lms-validators/server";
-import { ORPCError } from "@orpc/server";
+import type { AppErrorCode } from "@de100/apps-lms-validators/shared";
+import { appErrorCodes } from "@de100/apps-lms-validators/shared";
 import { and, desc, eq, isNull } from "drizzle-orm";
 
+import { createAppError, defineAppError } from "../errors";
 import { protectedProcedure } from "../index";
 import {
 	createSignedMediaAccessUrl,
@@ -21,30 +23,29 @@ import {
 import {
 	createMediaAccessUrl,
 	createStorageKey,
-	getMediaBucket,
-	getMediaBucketName,
-	getMediaStorageCapabilities,
-	getPublicMediaDirectUrl,
-	MediaBindingsUnavailableError,
+	getMediaStorageProvider,
+	MediaStorageUnavailableError,
 } from "../media-storage";
 
-function requireRequest(request: Request | null) {
+function requireRequest(request: Request | null, appCode: AppErrorCode) {
 	if (!request) {
-		throw new ORPCError("INTERNAL_SERVER_ERROR", {
-			message: "Media procedures require the active request context.",
-		});
+		throw createAppError("INTERNAL_SERVER_ERROR", appCode);
 	}
 
 	return request;
 }
 
-function serializeMediaRecord(request: Request, record: typeof media.$inferSelect) {
+function serializeMediaRecord(
+	request: Request,
+	provider: ReturnType<typeof getMediaStorageProvider>,
+	record: typeof media.$inferSelect,
+) {
 	return {
 		...record,
 		accessUrl: createMediaAccessUrl(request, record.visibility, record.key),
 		directUrl:
 			record.visibility === "public" && record.status === "ready"
-				? getPublicMediaDirectUrl(request, record.key)
+				? provider.getPublicDirectUrl(record.key)
 				: null,
 	};
 }
@@ -57,21 +58,25 @@ async function getOwnedMediaRecord(db: DbInstance, userId: string, id: string) {
 		.limit(1);
 
 	if (!currentMedia) {
-		throw new ORPCError("NOT_FOUND");
+		throw createAppError("NOT_FOUND", appErrorCodes.media.notFound);
 	}
 
 	return currentMedia;
 }
 
-async function removeMediaObject(request: Request, record: typeof media.$inferSelect) {
+async function removeMediaObject(
+	provider: ReturnType<typeof getMediaStorageProvider>,
+	record: typeof media.$inferSelect,
+	appCode: AppErrorCode,
+) {
 	try {
-		const bucket = getMediaBucket(request, record.visibility);
-		await bucket.delete(record.key);
+		await provider.deleteObject({
+			key: record.key,
+			visibility: record.visibility,
+		});
 	} catch (error) {
-		if (error instanceof MediaBindingsUnavailableError) {
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
-				message: error.message,
-			});
+		if (error instanceof MediaStorageUnavailableError) {
+			throw createAppError("INTERNAL_SERVER_ERROR", appCode);
 		}
 
 		throw error;
@@ -82,6 +87,9 @@ const mediaRouterBasePath = "/media";
 
 export const mediaRouter = {
 	getCapabilities: protectedProcedure
+		.errors({
+			INTERNAL_SERVER_ERROR: defineAppError(appErrorCodes.media.backendLoadFailed),
+		})
 		.output(mediaCapabilitiesOutputSchema)
 		.route({
 			method: "GET",
@@ -90,16 +98,16 @@ export const mediaRouter = {
 			tags: ["Media"],
 		})
 		.handler(async ({ context }) => {
-			const request = requireRequest(context.request);
+			const request = requireRequest(context.request, appErrorCodes.media.backendLoadFailed);
+			const provider = getMediaStorageProvider(request);
 
-			return getMediaStorageCapabilities(request);
+			return provider.getCapabilities();
 		}),
 
 	issueSignedAccess: protectedProcedure
 		.errors({
-			NOT_FOUND: {
-				message: "Media record not found.",
-			},
+			INTERNAL_SERVER_ERROR: defineAppError(appErrorCodes.media.signedAccessFailed),
+			NOT_FOUND: defineAppError(appErrorCodes.media.notFound),
 		})
 		.input(mediaSignedAccessInputSchema)
 		.output(mediaSignedAccessOutputSchema)
@@ -110,11 +118,11 @@ export const mediaRouter = {
 			tags: ["Media"],
 		})
 		.handler(async ({ context, input }) => {
-			const request = requireRequest(context.request);
+			const request = requireRequest(context.request, appErrorCodes.media.signedAccessFailed);
 			const currentMedia = await getOwnedMediaRecord(context.db, context.session.user.id, input.id);
 
 			if (currentMedia.status !== "ready") {
-				throw new ORPCError("NOT_FOUND");
+				throw createAppError("NOT_FOUND", appErrorCodes.media.notFound);
 			}
 
 			const signedAccess = await issueSignedMediaAccessToken({
@@ -131,9 +139,7 @@ export const mediaRouter = {
 
 	upload: protectedProcedure
 		.errors({
-			INTERNAL_SERVER_ERROR: {
-				message: "Media upload failed.",
-			},
+			INTERNAL_SERVER_ERROR: defineAppError(appErrorCodes.media.uploadFailed),
 		})
 		.input(mediaUploadInputSchema)
 		.output(mediaRecordOutputSchema)
@@ -144,9 +150,9 @@ export const mediaRouter = {
 			tags: ["Media"],
 		})
 		.handler(async ({ context, input }) => {
-			const request = requireRequest(context.request);
-			const bucket = getMediaBucket(request, input.visibility);
-			const bucketName = getMediaBucketName(request, input.visibility);
+			const request = requireRequest(context.request, appErrorCodes.media.uploadFailed);
+			const provider = getMediaStorageProvider(request);
+			const bucketName = provider.getBucketName(input.visibility);
 			const key = createStorageKey({
 				fileName: input.file.name,
 				userId: context.session.user.id,
@@ -159,7 +165,7 @@ export const mediaRouter = {
 					: new Blob([await input.file.arrayBuffer()], { type: contentType });
 
 			try {
-				await bucket.put(key, uploadBody, {
+				await provider.putObject({
 					httpMetadata: {
 						cacheControl:
 							input.visibility === "public"
@@ -168,12 +174,13 @@ export const mediaRouter = {
 						contentDisposition: `inline; filename="${input.file.name.replace(/"/g, "")}"`,
 						contentType,
 					},
+					key,
+					value: uploadBody,
+					visibility: input.visibility,
 				});
 			} catch (error) {
-				if (error instanceof MediaBindingsUnavailableError) {
-					throw new ORPCError("INTERNAL_SERVER_ERROR", {
-						message: error.message,
-					});
+				if (error instanceof MediaStorageUnavailableError) {
+					throw createAppError("INTERNAL_SERVER_ERROR", appErrorCodes.media.uploadFailed);
 				}
 
 				throw error;
@@ -198,15 +205,16 @@ export const mediaRouter = {
 				.returning();
 
 			if (!createdMedia) {
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
-					message: "Failed to persist uploaded media metadata.",
-				});
+				throw createAppError("INTERNAL_SERVER_ERROR", appErrorCodes.media.uploadFailed);
 			}
 
-			return serializeMediaRecord(request, createdMedia);
+			return serializeMediaRecord(request, provider, createdMedia);
 		}),
 
 	getAll: protectedProcedure
+		.errors({
+			INTERNAL_SERVER_ERROR: defineAppError(appErrorCodes.media.loadFailed),
+		})
 		.output(mediaListOutputSchema)
 		.route({
 			method: "GET",
@@ -215,7 +223,8 @@ export const mediaRouter = {
 			tags: ["Media"],
 		})
 		.handler(async ({ context }) => {
-			const request = requireRequest(context.request);
+			const request = requireRequest(context.request, appErrorCodes.media.loadFailed);
+			const provider = getMediaStorageProvider(request);
 
 			const records = await context.db
 				.select()
@@ -223,17 +232,13 @@ export const mediaRouter = {
 				.where(and(eq(media.userId, context.session.user.id), isNull(media.deletedAt)))
 				.orderBy(desc(media.createdAt));
 
-			return records.map((record) => serializeMediaRecord(request, record));
+			return records.map((record) => serializeMediaRecord(request, provider, record));
 		}),
 
 	confirmUpload: protectedProcedure
 		.errors({
-			INTERNAL_SERVER_ERROR: {
-				message: "Media confirmation failed.",
-			},
-			NOT_FOUND: {
-				message: "Media record not found.",
-			},
+			INTERNAL_SERVER_ERROR: defineAppError(appErrorCodes.media.confirmFailed),
+			NOT_FOUND: defineAppError(appErrorCodes.media.notFound),
 		})
 		.input(mediaRecordIdInputSchema)
 		.output(mediaRecordOutputSchema)
@@ -244,11 +249,12 @@ export const mediaRouter = {
 			tags: ["Media"],
 		})
 		.handler(async ({ context, input }) => {
-			const request = requireRequest(context.request);
+			const request = requireRequest(context.request, appErrorCodes.media.confirmFailed);
+			const provider = getMediaStorageProvider(request);
 			const currentMedia = await getOwnedMediaRecord(context.db, context.session.user.id, input.id);
 
 			if (currentMedia.status === "ready") {
-				return serializeMediaRecord(request, currentMedia);
+				return serializeMediaRecord(request, provider, currentMedia);
 			}
 
 			const timestamp = new Date();
@@ -263,20 +269,16 @@ export const mediaRouter = {
 				.returning();
 
 			if (!confirmedMedia) {
-				throw new ORPCError("NOT_FOUND");
+				throw createAppError("NOT_FOUND", appErrorCodes.media.notFound);
 			}
 
-			return serializeMediaRecord(request, confirmedMedia);
+			return serializeMediaRecord(request, provider, confirmedMedia);
 		}),
 
 	delete: protectedProcedure
 		.errors({
-			INTERNAL_SERVER_ERROR: {
-				message: "Media deletion failed.",
-			},
-			NOT_FOUND: {
-				message: "Media record not found.",
-			},
+			INTERNAL_SERVER_ERROR: defineAppError(appErrorCodes.media.deleteFailed),
+			NOT_FOUND: defineAppError(appErrorCodes.media.notFound),
 		})
 		.input(mediaRecordIdInputSchema)
 		.output(mediaRecordOutputSchema)
@@ -287,10 +289,11 @@ export const mediaRouter = {
 			tags: ["Media"],
 		})
 		.handler(async ({ context, input }) => {
-			const request = requireRequest(context.request);
+			const request = requireRequest(context.request, appErrorCodes.media.deleteFailed);
+			const provider = getMediaStorageProvider(request);
 			const currentMedia = await getOwnedMediaRecord(context.db, context.session.user.id, input.id);
 
-			await removeMediaObject(request, currentMedia);
+			await removeMediaObject(provider, currentMedia, appErrorCodes.media.deleteFailed);
 
 			const timestamp = new Date();
 			const [deletedMedia] = await context.db
@@ -304,10 +307,10 @@ export const mediaRouter = {
 				.returning();
 
 			if (!deletedMedia) {
-				throw new ORPCError("NOT_FOUND");
+				throw createAppError("NOT_FOUND", appErrorCodes.media.notFound);
 			}
 
-			return serializeMediaRecord(request, deletedMedia);
+			return serializeMediaRecord(request, provider, deletedMedia);
 		}),
 };
 

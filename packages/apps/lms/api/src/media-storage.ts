@@ -36,6 +36,46 @@ export type MediaBucket = {
 	): Promise<unknown>;
 };
 
+export type MediaStorageCapabilities = {
+	driver: MediaStorageDriver;
+	supportsDirectPublicUrl: boolean;
+	supportsSignedDelivery: boolean;
+};
+
+export type MediaObjectHead = Pick<MediaObject, "httpEtag" | "httpMetadata" | "size" | "uploaded">;
+
+export type PutMediaObjectInput = {
+	httpMetadata?: MediaHttpMetadata;
+	key: string;
+	value: ReadableStream | ArrayBuffer | ArrayBufferView | string | Blob;
+	visibility: MediaVisibility;
+};
+
+export type ReadMediaObjectInput = {
+	key: string;
+	visibility: MediaVisibility;
+};
+
+export type SignedMediaUrlInput = {
+	expiresInSeconds: number;
+	key: string;
+	visibility: MediaVisibility;
+};
+
+export type MediaStorageProvider = {
+	createSignedReadUrl(input: SignedMediaUrlInput): Promise<string | null>;
+	createSignedWriteUrl(input: SignedMediaUrlInput): Promise<string | null>;
+	deleteObject(input: ReadMediaObjectInput): Promise<void>;
+	driver: MediaStorageDriver;
+	getBucketName(visibility: MediaVisibility): string | null;
+	getCapabilities(): MediaStorageCapabilities;
+	getObject(input: ReadMediaObjectInput): Promise<MediaObject | null>;
+	getPublicDirectUrl(key: string): string | null;
+	headObject(input: ReadMediaObjectInput): Promise<MediaObjectHead | null>;
+	listPrefix(input: { prefix: string; visibility: MediaVisibility }): Promise<string[] | null>;
+	putObject(input: PutMediaObjectInput): Promise<void>;
+};
+
 type MediaBindings = {
 	PRIVATE_MEDIA_BUCKET: MediaBucket;
 	PRIVATE_MEDIA_BUCKET_NAME: string;
@@ -59,7 +99,9 @@ type CloudflareRuntimeRequest = Request & {
 	};
 };
 
-export class MediaBindingsUnavailableError extends Error {
+export class MediaStorageUnavailableError extends Error {}
+
+export class MediaBindingsUnavailableError extends MediaStorageUnavailableError {
 	constructor() {
 		super(
 			"Cloudflare media bindings are unavailable for this request. Use Cloudflare dev/deploy runtime when testing media routes.",
@@ -67,7 +109,7 @@ export class MediaBindingsUnavailableError extends Error {
 	}
 }
 
-export class MediaLocalStorageUnavailableError extends Error {
+export class MediaLocalStorageUnavailableError extends MediaStorageUnavailableError {
 	constructor() {
 		super(
 			"Local media storage is unavailable in this runtime. Use the Node-based local dev server or switch APP_LMS_MEDIA_STORAGE_DRIVER back to r2.",
@@ -103,13 +145,82 @@ export function getMediaStorageDriver(source: RequestLike): MediaStorageDriver {
 	return "local";
 }
 
-export function getMediaStorageCapabilities(source: RequestLike) {
+export function getMediaStorageCapabilities(source: RequestLike): MediaStorageCapabilities {
 	const driver = getMediaStorageDriver(source);
 
 	return {
 		driver,
 		supportsDirectPublicUrl: driver === "r2",
 		supportsSignedDelivery: true,
+	};
+}
+
+function resolveMediaBucketInternal(source: RequestLike, visibility: MediaVisibility): MediaBucket {
+	if (getMediaStorageDriver(source) === "local") {
+		return createLocalBucket(visibility);
+	}
+
+	const bindings = getBindings(source);
+	const bucket =
+		visibility === "public" ? bindings.PUBLIC_MEDIA_BUCKET : bindings.PRIVATE_MEDIA_BUCKET;
+
+	if (!bucket) {
+		throw new MediaBindingsUnavailableError();
+	}
+
+	return bucket;
+}
+
+export function getMediaStorageProvider(source: RequestLike): MediaStorageProvider {
+	return {
+		async createSignedReadUrl(_input) {
+			return null;
+		},
+		async createSignedWriteUrl(_input) {
+			return null;
+		},
+		async deleteObject(input) {
+			const bucket = resolveMediaBucketInternal(source, input.visibility);
+			await bucket.delete(input.key);
+		},
+		driver: getMediaStorageDriver(source),
+		getBucketName(visibility) {
+			return getMediaBucketName(source, visibility);
+		},
+		getCapabilities() {
+			return getMediaStorageCapabilities(source);
+		},
+		async getObject(input) {
+			const bucket = resolveMediaBucketInternal(source, input.visibility);
+			return await bucket.get(input.key);
+		},
+		getPublicDirectUrl(key) {
+			return getPublicMediaDirectUrl(source, key);
+		},
+		async headObject(input) {
+			const bucket = resolveMediaBucketInternal(source, input.visibility);
+			const object = await bucket.get(input.key);
+
+			if (!object) {
+				return null;
+			}
+
+			return {
+				httpEtag: object.httpEtag,
+				httpMetadata: object.httpMetadata,
+				size: object.size,
+				uploaded: object.uploaded,
+			};
+		},
+		async listPrefix(_input) {
+			return null;
+		},
+		async putObject(input) {
+			const bucket = resolveMediaBucketInternal(source, input.visibility);
+			await bucket.put(input.key, input.value, {
+				httpMetadata: input.httpMetadata,
+			});
+		},
 	};
 }
 
@@ -314,19 +425,30 @@ async function createBlobFromMediaValue(
 }
 
 export function getMediaBucket(source: RequestLike, visibility: MediaVisibility): MediaBucket {
-	if (getMediaStorageDriver(source) === "local") {
-		return createLocalBucket(visibility);
-	}
+	const provider = getMediaStorageProvider(source);
 
-	const bindings = getBindings(source);
-	const bucket =
-		visibility === "public" ? bindings.PUBLIC_MEDIA_BUCKET : bindings.PRIVATE_MEDIA_BUCKET;
-
-	if (!bucket) {
-		throw new MediaBindingsUnavailableError();
-	}
-
-	return bucket;
+	return {
+		async delete(key) {
+			await provider.deleteObject({
+				key,
+				visibility,
+			});
+		},
+		async get(key) {
+			return await provider.getObject({
+				key,
+				visibility,
+			});
+		},
+		async put(key, value, options) {
+			await provider.putObject({
+				httpMetadata: options?.httpMetadata,
+				key,
+				value,
+				visibility,
+			});
+		},
+	};
 }
 
 export function getConfiguredMediaBucket(visibility: MediaVisibility): MediaBucket | null {

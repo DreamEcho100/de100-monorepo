@@ -17,6 +17,7 @@ import { createEffect, createMemo, createSignal, For, onMount, Show } from "soli
 
 import { authClient } from "~/libs/apis/auth-client";
 import { orpc } from "~/libs/apis/orpc";
+import { localizeOrpcError } from "~/libs/orpc-errors";
 
 import { createLocalizedPath } from "../i18n/routing";
 
@@ -44,7 +45,7 @@ export default function TodosPage() {
 	const createTodoMutation = createMutation(() =>
 		orpc.todo.create.mutationOptions({
 			onError: (error) => {
-				setTodoError(error instanceof Error ? error.message : t("todos.status.createError"));
+				setTodoError(localizeOrpcError(error, t) ?? t("todos.status.createError"));
 			},
 			onSuccess: async () => {
 				setNewTodoText("");
@@ -55,7 +56,7 @@ export default function TodosPage() {
 	const toggleTodoMutation = createMutation(() =>
 		orpc.todo.toggle.mutationOptions({
 			onError: (error) => {
-				setTodoError(error instanceof Error ? error.message : t("todos.status.updateError"));
+				setTodoError(localizeOrpcError(error, t) ?? t("todos.status.updateError"));
 			},
 			onSuccess: async () => {
 				await refreshTodos();
@@ -65,7 +66,7 @@ export default function TodosPage() {
 	const deleteTodoMutation = createMutation(() =>
 		orpc.todo.delete.mutationOptions({
 			onError: (error) => {
-				setTodoError(error instanceof Error ? error.message : t("todos.status.deleteError"));
+				setTodoError(localizeOrpcError(error, t) ?? t("todos.status.deleteError"));
 			},
 			onSuccess: async () => {
 				await refreshTodos();
@@ -231,7 +232,7 @@ export default function TodosPage() {
 							class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
 							role="alert"
 						>
-							{todos.error instanceof Error ? todos.error.message : t("todos.status.loadError")}
+							{localizeOrpcError(todos.error, t) ?? t("todos.status.loadError")}
 						</p>
 					</Show>
 

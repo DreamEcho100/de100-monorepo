@@ -22,6 +22,13 @@ The repo now uses a single `APP_LMS_DATABASE_URL` plus an optional `APP_LMS_DATA
 - `APP_LMS_RESEND_API_KEY`: required when `APP_LMS_EMAIL_DRIVER=resend`
 - `APP_LMS_MEDIA_STORAGE_DRIVER`: one of `r2` or `local`
 - `APP_LMS_MEDIA_LOCAL_ROOT`: filesystem root used when `APP_LMS_MEDIA_STORAGE_DRIVER=local`
+- `APP_LMS_MEDIA_S3_ENDPOINT`: optional S3-compatible endpoint URL for hosted object storage adapters
+- `APP_LMS_MEDIA_S3_REGION`: optional S3-compatible region, defaults to `auto`
+- `APP_LMS_MEDIA_S3_ACCESS_KEY_ID`: optional access key ID for S3-compatible adapters
+- `APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY`: optional secret access key for S3-compatible adapters
+- `APP_LMS_MEDIA_S3_PUBLIC_BUCKET`: optional public bucket name for S3-compatible adapters
+- `APP_LMS_MEDIA_S3_PRIVATE_BUCKET`: optional private bucket name for S3-compatible adapters
+- `APP_LMS_MEDIA_S3_FORCE_PATH_STYLE`: optional S3 path-style toggle, defaults to `true`
 - `APP_LMS_MEDIA_SIGNING_SECRET`: optional dedicated HMAC secret for signed media URLs; falls back to `APP_LMS_BETTER_AUTH_SECRET`
 - `APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS`: signed media URL lifetime in seconds, defaults to `3600`
 - `REDIS_URL`: required when `APP_LMS_CACHE_DRIVER=redis`
@@ -111,6 +118,8 @@ The starter supports two storage backends:
 - `APP_LMS_MEDIA_STORAGE_DRIVER=local` for a local filesystem fallback during development
 
 When local storage is enabled, `APP_LMS_MEDIA_LOCAL_ROOT` controls where uploaded files are written.
+
+The environment schema also includes optional S3-compatible fields (`APP_LMS_MEDIA_S3_*`) so hosted adapters can share one configuration contract across R2-style endpoints and other S3 APIs.
 
 Private media sharing now uses signed app URLs. The signing flow uses:
 

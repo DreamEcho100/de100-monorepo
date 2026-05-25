@@ -1,7 +1,18 @@
-import type { AuthValidationErrorKey } from "@de100/apps-lms-validators/shared";
-import { authValidationErrorKeys } from "@de100/apps-lms-validators/shared";
+import type {
+	AuthValidationErrorKey,
+	MediaValidationErrorKey,
+} from "@de100/apps-lms-validators/shared";
+import {
+	authValidationErrorKeys,
+	mediaValidationErrorKeys,
+} from "@de100/apps-lms-validators/shared";
 
-const knownValidationErrorKeys = new Set<string>(Object.values(authValidationErrorKeys));
+type KnownValidationErrorKey = AuthValidationErrorKey | MediaValidationErrorKey;
+
+const knownValidationErrorKeys = new Set<string>([
+	...Object.values(authValidationErrorKeys),
+	...Object.values(mediaValidationErrorKeys),
+]);
 
 export function localizeValidationError(error: unknown, t: (key: string) => string) {
 	if (typeof error !== "string") {
@@ -9,7 +20,7 @@ export function localizeValidationError(error: unknown, t: (key: string) => stri
 	}
 
 	if (knownValidationErrorKeys.has(error)) {
-		return t(error as AuthValidationErrorKey);
+		return t(error as KnownValidationErrorKey);
 	}
 
 	return error;

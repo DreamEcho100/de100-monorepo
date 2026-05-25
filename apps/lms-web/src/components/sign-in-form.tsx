@@ -19,14 +19,15 @@ import { createForm } from "@tanstack/solid-form";
 import { createSignal, Show } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";
-import { localizeValidationError, localizeValidationErrors } from "~/libs/validation-errors";
+import { localizeAuthError } from "~/libs/auth-errors";
+import { localizeValidationErrors } from "~/libs/validation-errors";
 
 import { createLocalizedPath } from "../../i18n/routing";
 
 export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 	const navigate = useNavigate();
 	const { locale, t } = useI18n();
-	const [submitError, setSubmitError] = createSignal<string | null>(null);
+	const [submitError, setSubmitError] = createSignal<unknown | null>(null);
 
 	const form = createForm(() => ({
 		defaultValues: {
@@ -42,7 +43,7 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 				},
 				{
 					onError: (error) => {
-						setSubmitError(error.error.message);
+						setSubmitError(error);
 					},
 					onSuccess: () => {
 						navigate(createLocalizedPath(locale(), "/dashboard"));
@@ -139,9 +140,9 @@ export default function SignInForm(props: { onSwitchToSignUp: () => void }) {
 					</form.Field>
 
 					<Show when={submitError()}>
-						{(message) => (
+						{(error) => (
 							<FieldError class="text-destructive text-sm">
-								{localizeValidationError(message(), t) ?? message()}
+								{localizeAuthError(error(), t) ?? t("errors.auth.requestFailed")}
 							</FieldError>
 						)}
 					</Show>

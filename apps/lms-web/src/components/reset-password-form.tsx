@@ -19,7 +19,8 @@ import { createForm } from "@tanstack/solid-form";
 import { createSignal } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";
-import { localizeValidationError, localizeValidationErrors } from "~/libs/validation-errors";
+import { localizeAuthError } from "~/libs/auth-errors";
+import { localizeValidationErrors } from "~/libs/validation-errors";
 
 import { createLocalizedPath } from "../../i18n/routing";
 
@@ -27,7 +28,7 @@ export default function ResetPasswordForm() {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const { locale, t } = useI18n();
-	const [submitError, setSubmitError] = createSignal<string | null>(null);
+	const [submitError, setSubmitError] = createSignal<unknown | null>(null);
 	const resetToken = new URLSearchParams(location.search).get("token") ?? "";
 
 	const form = createForm(() => ({
@@ -50,7 +51,7 @@ export default function ResetPasswordForm() {
 				},
 				{
 					onError: (error) => {
-						setSubmitError(error.error.message);
+						setSubmitError(error);
 					},
 					onSuccess: () => {
 						navigate(`${createLocalizedPath(locale(), "/login")}?reset=1`, { replace: true });
@@ -152,7 +153,7 @@ export default function ResetPasswordForm() {
 
 					{submitError() ? (
 						<FieldError class="text-destructive text-sm">
-							{localizeValidationError(submitError(), t) ?? submitError()}
+							{localizeAuthError(submitError(), t) ?? t("errors.auth.requestFailed")}
 						</FieldError>
 					) : null}
 

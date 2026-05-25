@@ -87,6 +87,7 @@ export const enMessages = {
 		},
 	},
 	validation: {
+		expectedFileUpload: "Expected a file upload.",
 		invalidEmail: "Invalid email address.",
 		nameMinLength: "Name must be at least 2 characters.",
 		passwordMinLength: "Password must be at least 8 characters.",
@@ -114,7 +115,27 @@ export const enMessages = {
 	},
 	common: {
 		notFound: "Not found",
+		retry: "Retry",
 		stackBadge: "SolidStart + Better Auth + oRPC",
+	},
+	errors: {
+		auth: {
+			emailAlreadyVerified: "This email is already verified.",
+			emailNotVerified: "Verify your email before signing in.",
+			invalidCallback: "This authentication link is misconfigured. Please try again later.",
+			invalidEmail: "Invalid email address.",
+			invalidEmailOrPassword: "Invalid email or password.",
+			invalidToken: "This link is invalid. Request a new one.",
+			requestFailed: "Authentication request failed. Please try again.",
+			sessionExpired: "Your session expired. Sign in again and retry.",
+			tokenExpired: "This link expired. Request a new one.",
+			userAlreadyExists: "An account with this email already exists.",
+			verificationUnavailable: "Email verification is not available right now.",
+		},
+		todo: {
+			createFailed: "Failed to create todo.",
+			notFound: "Todo not found.",
+		},
 	},
 	dashboard: {
 		api: {
@@ -288,6 +309,7 @@ export const enMessages = {
 			loadError: "Failed to load media library.",
 			loadingDrafts: "Loading media drafts...",
 			missingFile: "Choose a file before uploading.",
+			notFound: "Media record not found.",
 			noDrafts: "No draft uploads yet.",
 			noReady: "No confirmed media yet.",
 			signedAccessFailed: "Failed to issue a signed media URL.",

@@ -19,14 +19,15 @@ import { createForm } from "@tanstack/solid-form";
 import { createSignal } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";
-import { localizeValidationError, localizeValidationErrors } from "~/libs/validation-errors";
+import { localizeAuthError } from "~/libs/auth-errors";
+import { localizeValidationErrors } from "~/libs/validation-errors";
 
 import { createLocalizedPath } from "../../i18n/routing";
 
 export default function VerifyEmailForm() {
 	const location = useLocation();
 	const { locale, t } = useI18n();
-	const [submitError, setSubmitError] = createSignal<string | null>(null);
+	const [submitError, setSubmitError] = createSignal<unknown | null>(null);
 	const [successMessage, setSuccessMessage] = createSignal<string | null>(
 		new URLSearchParams(location.search).get("sent") === "1" ? t("auth.verifyEmail.success") : null,
 	);
@@ -47,7 +48,7 @@ export default function VerifyEmailForm() {
 				},
 				{
 					onError: (error) => {
-						setSubmitError(error.error.message);
+						setSubmitError(error);
 					},
 					onSuccess: () => {
 						setSuccessMessage(t("auth.verifyEmail.success"));
@@ -115,7 +116,7 @@ export default function VerifyEmailForm() {
 
 					{submitError() ? (
 						<FieldError class="text-destructive text-sm">
-							{localizeValidationError(submitError(), t) ?? submitError()}
+							{localizeAuthError(submitError(), t) ?? t("errors.auth.requestFailed")}
 						</FieldError>
 					) : null}
 					{successMessage() ? (
