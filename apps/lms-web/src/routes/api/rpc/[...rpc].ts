@@ -26,20 +26,21 @@ const rpcHandler = new RPCHandler(appRouter, {
 });
 
 const handler = async (event: APIEvent) => {
+	const request = new Request(event.request);
 	const context = await createContext({
-		headers: event.request.headers,
-		request: event.request,
+		headers: new Headers(request.headers),
+		request,
 	});
-	const result = await rpcHandler.handle(event.request, {
+	const result = await rpcHandler.handle(request, {
 		prefix: "/api/rpc",
 		context,
 	});
 
 	if (!result.matched) {
-		return withCorsAndLogging(new Response("Not Found", { status: 404 }), event.request);
+		return withCorsAndLogging(new Response("Not Found", { status: 404 }), request);
 	}
 
-	return withCorsAndLogging(result.response, event.request);
+	return withCorsAndLogging(result.response, request);
 };
 
 export const GET = handler;

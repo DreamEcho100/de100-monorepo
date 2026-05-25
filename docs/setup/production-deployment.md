@@ -11,6 +11,23 @@ That stack currently provisions and deploys:
 - `PRIVATE_MEDIA_BUCKET` as an R2 bucket with private-object CORS rules
 - `IMAGES` as the Cloudflare Images binding made available to the app runtime
 
+## Current proof status
+
+- `implemented-and-evidenced`: local provider-boundary and media guardrail validation
+  - Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
+- `implemented-and-evidenced`: local browser regression after shared UI standardization
+  - Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
+- `implemented-and-unverified`: production-close hosted smoke pass on deployed origin (Better Auth, Resend, Upstash/Redis, R2 upload/read/signed access, migrations)
+
+Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
+
+## Secrets hygiene for deploy artifacts
+
+- Do not include live secrets in screenshots, logs, or evidence markdown.
+- Redact tokens, cookies, passwords, API keys, and auth headers before storing evidence.
+- Keep `.env.deploy.local` uncommitted.
+- Use placeholder values in all documentation snippets.
+
 ## Deploy architecture
 
 The app runtime itself still depends on external services outside Cloudflare:
@@ -196,6 +213,8 @@ Do not leave `APP_LMS_MEDIA_STORAGE_DRIVER=local` enabled for the Cloudflare dep
 The R2 bindings are injected at runtime by Alchemy. The app does not expect bucket credentials in plain env vars for this path.
 
 ## Verification after deploy
+
+Treat this list as `implemented-and-unverified` until a matching evidence artifact is added under `docs/evidence/`.
 
 After a successful deploy, verify:
 

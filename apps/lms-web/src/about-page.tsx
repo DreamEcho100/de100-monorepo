@@ -1,6 +1,7 @@
 import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import {
 	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
@@ -60,15 +61,19 @@ export default function AboutPage() {
 						))}
 					</ul>
 					<div class="flex flex-wrap gap-3">
-						<A class="button secondary" href={createLocalizedPath(locale(), "/dashboard")}>
+						<Button as={A} href={createLocalizedPath(locale(), "/dashboard")} variant="secondary">
 							{t("about.ctas.dashboard")}
-						</A>
-						<A class="button secondary" href={createLocalizedPath(locale(), "/todos")}>
+						</Button>
+						<Button as={A} href={createLocalizedPath(locale(), "/todos")} variant="secondary">
 							{t("about.ctas.todos")}
-						</A>
-						<A class="button secondary" href={createLocalizedPath(locale(), openApiDocsPath)}>
+						</Button>
+						<Button
+							as={A}
+							href={createLocalizedPath(locale(), openApiDocsPath)}
+							variant="secondary"
+						>
 							{t("about.ctas.apiReference")}
-						</A>
+						</Button>
 					</div>
 				</CardContent>
 			</Card>

@@ -13,7 +13,7 @@ import {
 
 async function handler(event: APIEvent) {
 	try {
-		const session = await auth.api.getSession({ headers: event.request.headers });
+		const session = await auth.api.getSession({ headers: new Headers(event.request.headers) });
 		if (!session?.user) {
 			return withCorsAndLogging(new Response("Unauthorized", { status: 401 }), event.request);
 		}

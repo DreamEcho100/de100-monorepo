@@ -73,3 +73,6 @@ overrides:
 publicHoistPattern:
   - "@ianvs/prettier-plugin-sort-imports"
   - prettier-plugin-tailwindcss
+
+patchedDependencies:
+  h3@1.15.11: patches/h3@1.15.11.patch

@@ -2,6 +2,23 @@
 
 The repo now uses a single `APP_LMS_DATABASE_URL` plus an optional `APP_LMS_DATABASE_DRIVER` override.
 
+## Verification status for this document
+
+- `implemented-and-evidenced`: Phase 3 storage-provider validation and guardrails
+	- Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
+- `implemented-and-evidenced`: local browser regression checks after shared UI standardization
+	- Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
+- `implemented-and-unverified`: hosted deploy-path verification for Resend, Upstash, and R2 under a production origin
+
+Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
+
+## Secrets hygiene for env docs and evidence
+
+- Never commit real secrets to `.env.example`, `.env.deploy.local.example`, docs, or evidence files.
+- Never include real secret values in screenshots, terminal captures, or request traces.
+- Use placeholders in examples and redact any copied logs before adding them to docs.
+- Keep `.env.local` and `.env.deploy.local` uncommitted.
+
 ## Required variables
 
 - `APP_LMS_DATABASE_URL`: Postgres connection string

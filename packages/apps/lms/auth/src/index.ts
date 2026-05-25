@@ -10,22 +10,46 @@ import { createAppEmailSender } from "./email";
 import { getTrustedOrigins } from "./trusted-origins";
 
 export function createAuth() {
+	console.info("[de100/apps-lms-auth] createAuth start");
 	const db = createDb();
-	const secondaryStorage = getCacheClient({
-		driver: env.APP_LMS_CACHE_DRIVER,
-		keyPrefix: env.APP_LMS_CACHE_KEY_PREFIX,
-		redisUrl: env.REDIS_URL,
-		upstashRedisToken: env.APP_LMS_UPSTASH_REDIS_TOKEN,
-		upstashRedisUrl: env.APP_LMS_UPSTASH_REDIS_URL,
-	});
-	const emailSender = createAppEmailSender({
-		driver: env.APP_LMS_EMAIL_DRIVER,
-		from: env.APP_LMS_EMAIL_FROM,
-		replyTo: env.APP_LMS_EMAIL_REPLY_TO,
-		resendApiKey: env.APP_LMS_RESEND_API_KEY,
-	});
+	console.info("[de100/apps-lms-auth] createAuth db ready");
+	const secondaryStorage = getCacheClient(
+		env.cache.type === "memory"
+			? {
+					driver: "memory",
+					keyPrefix: env.cache.keyPrefix,
+				}
+			: env.cache.type === "redis"
+				? {
+						driver: "redis",
+						keyPrefix: env.cache.keyPrefix,
+						redisUrl: env.cache.redisUrl,
+					}
+				: {
+						driver: "upstash",
+						keyPrefix: env.cache.keyPrefix,
+						upstashRedisToken: env.cache.upstashRedisToken,
+						upstashRedisUrl: env.cache.upstashRedisUrl,
+					},
+	);
+	console.info("[de100/apps-lms-auth] createAuth cache ready");
+	const emailSender = createAppEmailSender(
+		env.email.type === "log"
+			? {
+					driver: "log",
+					from: env.email.from,
+					replyTo: env.email.replyTo,
+				}
+			: {
+					driver: "resend",
+					from: env.email.from,
+					replyTo: env.email.replyTo,
+					resendApiKey: env.email.resendApiKey,
+				},
+	);
+	console.info("[de100/apps-lms-auth] createAuth email ready");
 
-	return betterAuth({
+	const instance = betterAuth({
 		appName: "DE100 LMS",
 		database: drizzleAdapter(db, {
 			provider: "pg",
@@ -65,6 +89,16 @@ export function createAuth() {
 		},
 		plugins: [],
 	});
+
+	console.info("[de100/apps-lms-auth] createAuth initialized");
+	return instance;
 }
 
-export const auth = createAuth();
+export const auth = (() => {
+	try {
+		return createAuth();
+	} catch (error) {
+		console.error("[de100/apps-lms-auth] createAuth failed", error);
+		throw error;
+	}
+})();

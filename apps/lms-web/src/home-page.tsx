@@ -1,6 +1,9 @@
 import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import {
+	Alert,
+	AlertDescription,
 	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
@@ -10,6 +13,7 @@ import {
 import { Title } from "@solidjs/meta";
 import { A } from "@solidjs/router";
 import { createQuery } from "@tanstack/solid-query";
+import type { JSX } from "solid-js";
 import { createSignal, For, Match, onMount, Switch } from "solid-js";
 
 import { openApiDocsPath } from "~/libs/apis/openapi-routes";
@@ -29,6 +33,18 @@ const featureKeys = [
 	"home.features.storage",
 	"home.features.reference",
 ] as const;
+
+function HomeApiStatusAlert(props: {
+	children: JSX.Element;
+	role: "alert" | "status";
+	variant?: "default" | "destructive";
+}) {
+	return (
+		<Alert role={props.role} variant={props.variant ?? "default"}>
+			<AlertDescription>{props.children}</AlertDescription>
+		</Alert>
+	);
+}
 
 export default function HomePage() {
 	const { locale, t } = useI18n();
@@ -64,21 +80,25 @@ export default function HomePage() {
 					</div>
 					<p class="max-w-[70ch] text-muted-foreground text-sm leading-6">{t("home.lede")}</p>
 					<div class="flex flex-wrap gap-3">
-						<A class="button secondary" href={createLocalizedPath(locale(), "/login")}>
+						<Button as={A} href={createLocalizedPath(locale(), "/login")} variant="secondary">
 							{t("home.ctas.auth")}
-						</A>
-						<A class="button secondary" href={createLocalizedPath(locale(), "/dashboard")}>
+						</Button>
+						<Button as={A} href={createLocalizedPath(locale(), "/dashboard")} variant="secondary">
 							{t("home.ctas.dashboard")}
-						</A>
-						<A class="button secondary" href={createLocalizedPath(locale(), "/todos")}>
+						</Button>
+						<Button as={A} href={createLocalizedPath(locale(), "/todos")} variant="secondary">
 							{t("home.ctas.todos")}
-						</A>
-						<A class="button secondary" href={createLocalizedPath(locale(), "/media")}>
+						</Button>
+						<Button as={A} href={createLocalizedPath(locale(), "/media")} variant="secondary">
 							{t("home.ctas.media")}
-						</A>
-						<A class="button secondary" href={createLocalizedPath(locale(), openApiDocsPath)}>
+						</Button>
+						<Button
+							as={A}
+							href={createLocalizedPath(locale(), openApiDocsPath)}
+							variant="secondary"
+						>
 							{t("home.ctas.apiReference")}
-						</A>
+						</Button>
 					</div>
 				</CardHeader>
 			</Card>
@@ -110,29 +130,18 @@ export default function HomePage() {
 					<CardContent>
 						<Switch>
 							<Match when={!isHydrated() || healthCheck.isPending}>
-								<p
-									class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
-									role="status"
-								>
-									{t("home.api.pending")}
-								</p>
+								<HomeApiStatusAlert role="status">{t("home.api.pending")}</HomeApiStatusAlert>
 							</Match>
 							<Match when={healthCheck.isError}>
-								<p
-									class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
-									role="alert"
-								>
+								<HomeApiStatusAlert role="alert" variant="destructive">
 									{t("home.api.error")}
-								</p>
+								</HomeApiStatusAlert>
 							</Match>
 							<Match when={healthCheck.data}>
 								{(healthStatus) => (
-									<p
-										class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-emerald-700 text-sm leading-6 dark:text-emerald-300"
-										role="status"
-									>
+									<HomeApiStatusAlert role="status">
 										{t("home.api.successPrefix")} {healthStatus()}
-									</p>
+									</HomeApiStatusAlert>
 								)}
 							</Match>
 						</Switch>

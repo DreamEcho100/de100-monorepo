@@ -1,5 +1,7 @@
 import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import {
+	Alert,
+	AlertDescription,
 	Badge,
 	Button,
 	Card,
@@ -12,11 +14,14 @@ import {
 	FieldDescription,
 	FieldLabel,
 	Input,
+	NativeSelect,
+	NativeSelectOption,
 } from "@de100/ui-solidjs";
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createMutation, createQuery, useQueryClient } from "@tanstack/solid-query";
 import { Loader2, Trash2 } from "lucide-solid";
+import type { JSX } from "solid-js";
 import { createEffect, createMemo, createSignal, For, onMount, Show } from "solid-js";
 
 import { authClient } from "~/libs/apis/auth-client";
@@ -58,6 +63,18 @@ type MediaListProps = {
 	supportsSignedDelivery: boolean;
 	t: (key: string) => string;
 };
+
+function MediaStatusAlert(props: {
+	children: JSX.Element;
+	role: "alert" | "status";
+	variant?: "default" | "destructive";
+}) {
+	return (
+		<Alert role={props.role} variant={props.variant ?? "default"}>
+			<AlertDescription>{props.children}</AlertDescription>
+		</Alert>
+	);
+}
 
 function MediaList(props: MediaListProps) {
 	if (props.items.length === 0) {
@@ -105,24 +122,26 @@ function MediaList(props: MediaListProps) {
 							{item.bucketName ?? props.t("media.status.unavailableBucket")}
 						</p>
 						<div class="flex flex-wrap gap-3">
-							<a
-								class="inline-flex items-center justify-center rounded-lg border border-border/70 bg-card px-4 py-2 font-medium text-foreground text-sm no-underline transition-colors hover:bg-accent hover:text-accent-foreground"
+							<Button
+								as="a"
 								href={item.accessUrl}
 								rel="noreferrer"
 								target="_blank"
+								variant="outline"
 							>
 								{props.t("media.actions.openAppUrl")}
-							</a>
+							</Button>
 							<Show when={item.directUrl}>
 								{(directUrl) => (
-									<a
-										class="inline-flex items-center justify-center rounded-lg border border-border/70 bg-card px-4 py-2 font-medium text-foreground text-sm no-underline transition-colors hover:bg-accent hover:text-accent-foreground"
+									<Button
+										as="a"
 										href={directUrl()}
 										rel="noreferrer"
 										target="_blank"
+										variant="outline"
 									>
 										{props.t("media.actions.openDirectUrl")}
-									</a>
+									</Button>
 								)}
 							</Show>
 							<Show when={props.supportsSignedDelivery && item.status === "ready"}>
@@ -144,14 +163,9 @@ function MediaList(props: MediaListProps) {
 							</Show>
 							<Show when={props.signedAccessMediaId === item.id && props.signedAccessLink}>
 								{(link) => (
-									<a
-										class="inline-flex items-center justify-center rounded-lg border border-border/70 bg-card px-4 py-2 font-medium text-foreground text-sm no-underline transition-colors hover:bg-accent hover:text-accent-foreground"
-										href={link()}
-										rel="noreferrer"
-										target="_blank"
-									>
+									<Button as="a" href={link()} rel="noreferrer" target="_blank" variant="outline">
 										{props.t("media.actions.openSignedUrl")}
-									</a>
+									</Button>
 								)}
 							</Show>
 							<Show when={item.status === "draft"}>
@@ -400,12 +414,7 @@ export default function MediaPage() {
 				fallback={
 					<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm lg:col-span-2">
 						<CardContent class="pt-6">
-							<p
-								class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
-								role="status"
-							>
-								{t("media.status.loadingBackend")}
-							</p>
+							<MediaStatusAlert role="status">{t("media.status.loadingBackend")}</MediaStatusAlert>
 						</CardContent>
 					</Card>
 				}
@@ -420,21 +429,15 @@ export default function MediaPage() {
 							</CardHeader>
 							<CardContent class="space-y-4">
 								<Show when={!canLoadMedia() || mediaCapabilities.isPending}>
-									<p
-										class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
-										role="status"
-									>
+									<MediaStatusAlert role="status">
 										{t("media.status.loadingBackend")}
-									</p>
+									</MediaStatusAlert>
 								</Show>
 								<Show when={canLoadMedia() && mediaCapabilities.isError}>
-									<p
-										class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
-										role="alert"
-									>
+									<MediaStatusAlert role="alert" variant="destructive">
 										{localizeOrpcError(mediaCapabilities.error, t) ??
 											t("media.status.backendLoadError")}
-									</p>
+									</MediaStatusAlert>
 								</Show>
 								<Show when={canLoadMedia() && mediaCapabilities.data}>
 									{(capabilities) => (
@@ -462,15 +465,12 @@ export default function MediaPage() {
 								</Show>
 								<Show when={signedAccessLink()}>
 									{(link) => (
-										<p
-											class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-emerald-700 text-sm leading-6 dark:text-emerald-300"
-											role="status"
-										>
+										<MediaStatusAlert role="status">
 											{t("media.status.signedAccessLabel")}{" "}
 											<a class="underline" href={link()} rel="noreferrer" target="_blank">
 												{t("media.actions.openSignedUrl")}
 											</a>
-										</p>
+										</MediaStatusAlert>
 									)}
 								</Show>
 							</CardContent>
@@ -501,8 +501,8 @@ export default function MediaPage() {
 									<Field class="grid gap-4">
 										<FieldLabel for="media-visibility">{t("media.fields.visibility")}</FieldLabel>
 										<FieldContent>
-											<select
-												class="h-9 w-full rounded-md border border-input bg-transparent px-2.5 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
+											<NativeSelect
+												class="w-full"
 												id="media-visibility"
 												onChange={(changeEvent) =>
 													setVisibility(
@@ -511,31 +511,25 @@ export default function MediaPage() {
 												}
 												value={visibility()}
 											>
-												<option value="private">{t("media.visibility.private")}</option>
-												<option value="public">{t("media.visibility.public")}</option>
-											</select>
+												<NativeSelectOption value="private">
+													{t("media.visibility.private")}
+												</NativeSelectOption>
+												<NativeSelectOption value="public">
+													{t("media.visibility.public")}
+												</NativeSelectOption>
+											</NativeSelect>
 										</FieldContent>
 									</Field>
 
 									<Show when={uploadNotice()}>
-										{(message) => (
-											<p
-												class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-emerald-700 text-sm leading-6 dark:text-emerald-300"
-												role="status"
-											>
-												{message()}
-											</p>
-										)}
+										{(message) => <MediaStatusAlert role="status">{message()}</MediaStatusAlert>}
 									</Show>
 
 									<Show when={uploadError()}>
 										{(message) => (
-											<p
-												class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
-												role="alert"
-											>
+											<MediaStatusAlert role="alert" variant="destructive">
 												{message()}
-											</p>
+											</MediaStatusAlert>
 										)}
 									</Show>
 
@@ -565,20 +559,14 @@ export default function MediaPage() {
 							</CardHeader>
 							<CardContent class="space-y-4">
 								<Show when={!canLoadMedia() || mediaItems.isPending}>
-									<p
-										class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
-										role="status"
-									>
+									<MediaStatusAlert role="status">
 										{t("media.status.loadingDrafts")}
-									</p>
+									</MediaStatusAlert>
 								</Show>
 								<Show when={canLoadMedia() && mediaItems.isError}>
-									<p
-										class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
-										role="alert"
-									>
+									<MediaStatusAlert role="alert" variant="destructive">
 										{localizeOrpcError(mediaItems.error, t) ?? t("media.status.loadError")}
-									</p>
+									</MediaStatusAlert>
 								</Show>
 								<Show when={canLoadMedia() && !mediaItems.isPending && !mediaItems.isError}>
 									<MediaList

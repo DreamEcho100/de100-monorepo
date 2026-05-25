@@ -1,0 +1,138 @@
+diff --git a/dist/index.cjs b/dist/index.cjs
+index c589254427ee73a36ab034eef35843b3e3880c4d..0c58308670bd3237b16dc75b13de513ebd107e71 100644
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -946,31 +946,55 @@ ${header}: ${value}`;
+     cb();
+   }
+ }
++function resolveWebResponseLike(response) {
++  if (response && typeof response._toNodeResponse === "function") {
++    return response._toNodeResponse();
++  }
++  return response;
++}
+ function sendWebResponse(event, response) {
+-  for (const [key, value] of response.headers) {
++  const _response = resolveWebResponseLike(response);
++  for (const [key, value] of _response.headers) {
+     if (key === "set-cookie") {
+       event.node.res.appendHeader(key, splitCookiesString(value));
+     } else {
+       event.node.res.setHeader(key, value);
+     }
+   }
+-  if (response.status) {
++  if (_response.status) {
+     event.node.res.statusCode = sanitizeStatusCode(
+-      response.status,
++      _response.status,
+       event.node.res.statusCode
+     );
+   }
+-  if (response.statusText) {
+-    event.node.res.statusMessage = sanitizeStatusMessage(response.statusText);
++  if (_response.statusText) {
++    event.node.res.statusMessage = sanitizeStatusMessage(_response.statusText);
+   }
+-  if (response.redirected) {
+-    event.node.res.setHeader("location", response.url);
++  if (_response.redirected && _response.url) {
++    event.node.res.setHeader("location", _response.url);
+   }
+-  if (!response.body) {
++  if (!_response.body) {
+     event.node.res.end();
+     return;
+   }
+-  return sendStream(event, response.body);
++  if (typeof _response.body === "string") {
++    return send(event, _response.body);
++  }
++  if (_response.body instanceof Uint8Array) {
++    return send(event, _response.body);
++  }
++  if (_response.body instanceof ArrayBuffer) {
++    return send(event, Buffer.from(_response.body));
++  }
++  if (_response.body instanceof DataView) {
++    return send(event, Buffer.from(_response.body.buffer));
++  }
++  if (typeof Blob !== "undefined" && _response.body instanceof Blob) {
++    return _response.body.arrayBuffer().then((arrayBuffer) => {
++      return send(event, Buffer.from(arrayBuffer));
++    });
++  }
++  return sendStream(event, _response.body);
+ }
+ function sendIterable(event, iterable, options) {
+   const serializer = options?.serializer ?? serializeIterableValue;
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 569d1d868ef2136f14a8cef7b62afc12bbbd1f0f..27d2489cbc09212d1e521dc72ab4acb68cd2a0b9 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -939,31 +939,55 @@ ${header}: ${value}`;
+     cb();
+   }
+ }
++function resolveWebResponseLike(response) {
++  if (response && typeof response._toNodeResponse === "function") {
++    return response._toNodeResponse();
++  }
++  return response;
++}
+ function sendWebResponse(event, response) {
+-  for (const [key, value] of response.headers) {
++  const _response = resolveWebResponseLike(response);
++  for (const [key, value] of _response.headers) {
+     if (key === "set-cookie") {
+       event.node.res.appendHeader(key, splitCookiesString(value));
+     } else {
+       event.node.res.setHeader(key, value);
+     }
+   }
+-  if (response.status) {
++  if (_response.status) {
+     event.node.res.statusCode = sanitizeStatusCode(
+-      response.status,
++      _response.status,
+       event.node.res.statusCode
+     );
+   }
+-  if (response.statusText) {
+-    event.node.res.statusMessage = sanitizeStatusMessage(response.statusText);
++  if (_response.statusText) {
++    event.node.res.statusMessage = sanitizeStatusMessage(_response.statusText);
+   }
+-  if (response.redirected) {
+-    event.node.res.setHeader("location", response.url);
++  if (_response.redirected && _response.url) {
++    event.node.res.setHeader("location", _response.url);
+   }
+-  if (!response.body) {
++  if (!_response.body) {
+     event.node.res.end();
+     return;
+   }
+-  return sendStream(event, response.body);
++  if (typeof _response.body === "string") {
++    return send(event, _response.body);
++  }
++  if (_response.body instanceof Uint8Array) {
++    return send(event, _response.body);
++  }
++  if (_response.body instanceof ArrayBuffer) {
++    return send(event, Buffer.from(_response.body));
++  }
++  if (_response.body instanceof DataView) {
++    return send(event, Buffer.from(_response.body.buffer));
++  }
++  if (typeof Blob !== "undefined" && _response.body instanceof Blob) {
++    return _response.body.arrayBuffer().then((arrayBuffer) => {
++      return send(event, Buffer.from(arrayBuffer));
++    });
++  }
++  return sendStream(event, _response.body);
+ }
+ function sendIterable(event, iterable, options) {
+   const serializer = options?.serializer ?? serializeIterableValue;

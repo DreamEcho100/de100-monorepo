@@ -66,6 +66,19 @@ pnpm dev
 - Upload a small local file from the `/media` page when you want to verify real binary upload, access, confirm, and delete behavior.
 - With `APP_LMS_EMAIL_DRIVER=log`, Better Auth verification and password-reset emails are written to the local server logs instead of being sent through a hosted provider.
 
+## Verification status
+
+This README now separates implemented behavior from proven behavior.
+
+- `implemented-and-evidenced`: Phase 3 provider-boundary validation and guardrails
+	- Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
+- `implemented-and-evidenced`: Phase 4 frontend standardization regression on home/about/media in `en` and `ar`
+	- Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
+- `implemented-and-unverified`: full browser matrix from Phase 1 (all four flows in both locales with evidence artifacts for each flow)
+- `implemented-and-unverified`: hosted smoke pass (deployed Better Auth, Resend, Upstash-backed secondary storage, R2 media upload/read/signed access, production migration rehearsal)
+
+Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
+
 ## Deployment
 
 Production deployment for the LMS starter goes through the infra package and Alchemy, not a separate Wrangler-first app config.

@@ -6,9 +6,16 @@ export interface CreateContextOptions {
 }
 
 export async function createContext({ headers, request }: CreateContextOptions) {
-	const session = await auth.api.getSession({
-		headers,
-	});
+	const normalizedHeaders = new Headers(headers);
+	let session: Awaited<ReturnType<typeof auth.api.getSession>> | null = null;
+	try {
+		session = await auth.api.getSession({
+			headers: normalizedHeaders,
+		});
+	} catch (error) {
+		console.error("[api-context] auth.api.getSession failed", error);
+		throw error;
+	}
 	return {
 		auth: null,
 		request: request ?? null,

@@ -5,7 +5,21 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
 const isTraceModeEnabled =
-	process.env.LMS_APP_VITE_TRACE_MODE === "1" || process.env.LMS_APP_VITE_TRACE_MODE === "true";
+	env.LMS_APP_VITE_TRACE_MODE === "1" || env.LMS_APP_VITE_TRACE_MODE === "true";
+const isAlchemyDeploy = Boolean(env.ALCHEMY_ROOT ?? process.env.ALCHEMY_ROOT);
+const nitroPreset =
+	env.NITRO_PRESET ??
+	process.env.NITRO_PRESET ??
+	(isAlchemyDeploy ? "cloudflare_module" : undefined);
+const nitroConfig = nitroPreset
+	? {
+			preset: nitroPreset,
+			cloudflare: {
+				nodeCompat: true,
+			},
+		}
+	: undefined;
+console.log("___ nitroPreset", nitroPreset);
 
 const solidWorkspaceDeps = ["@de100/i18n-domains-solidjs", "@de100/ui-solidjs"];
 
@@ -18,6 +32,7 @@ const depsToOptimize = [
 	// "@de100/apps-lms-env",
 	"@de100/apps-lms-infra",
 	"@de100/apps-lms-validators",
+	"@de100/i18n-core",
 ];
 
 export default defineConfig({
@@ -39,7 +54,11 @@ export default defineConfig({
 		cssMinify: isTraceModeEnabled ? false : undefined,
 		reportCompressedSize: !isTraceModeEnabled,
 	},
-	plugins: [solidStart({ middleware: "./src/middleware/index.ts" }), tailwindcss(), nitro()],
+	plugins: [
+		solidStart({ middleware: "./src/middleware/index.ts" }),
+		tailwindcss(),
+		nitro(nitroConfig),
+	],
 	optimizeDeps: {
 		include: depsToOptimize,
 		exclude: solidWorkspaceDeps,

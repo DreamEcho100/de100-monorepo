@@ -135,6 +135,24 @@ pnpm --dir apps/lms-web dev:trace
 
 Trace mode keeps names, enables dev/build sourcemaps, disables build minification, and stops Vite from ignoring dependency sourcemaps in the dev server. Normal `pnpm dev` and `pnpm build` behavior stays unchanged.
 
+## Evidence and verification status
+
+Use these labels when reading this file:
+
+- `implemented-and-evidenced`: behavior is implemented and linked to an artifact in `docs/evidence`.
+- `implemented-and-unverified`: behavior is implemented, but a matching evidence artifact is still pending.
+
+Current status matrix:
+
+- Browser regression after shared UI cleanup (`home`, `about`, `media`, locale + theme checks): `implemented-and-evidenced`
+	- Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
+- Media provider boundary + guardrails: `implemented-and-evidenced`
+	- Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
+- Driver and service proof matrix (`memory`, `redis`, `upstash`, `local`, `r2`, `log`, `resend`): `implemented-and-unverified`
+	- Note: this matrix remains documented and supported in code/config, but direct per-driver evidence files are still pending.
+
+Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
+
 ## Manual test checklist
 
 Use the shared VS Code browser or your normal browser. Playwright is not required for the current starter/MVP workflow.

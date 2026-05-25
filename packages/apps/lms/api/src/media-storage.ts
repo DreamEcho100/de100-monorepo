@@ -1,3 +1,5 @@
+import { env } from "@de100/apps-lms-env/server";
+
 export type MediaVisibility = "public" | "private";
 export type MediaStorageDriver = "local" | "r2";
 
@@ -127,9 +129,7 @@ function getBindings(source: RequestLike): Partial<MediaBindings> {
 }
 
 export function getConfiguredMediaStorageDriver(): MediaStorageDriver {
-	const configured = process.env.APP_LMS_MEDIA_STORAGE_DRIVER;
-
-	return configured === "local" ? "local" : "r2";
+	return env.mediaStorage.type;
 }
 
 export function getMediaStorageDriver(source: RequestLike): MediaStorageDriver {
@@ -238,7 +238,7 @@ async function getLocalFs() {
 }
 
 function getMediaLocalRoot() {
-	return process.env.APP_LMS_MEDIA_LOCAL_ROOT || "./.local/media";
+	return env.mediaStorage.localRoot;
 }
 
 async function getLocalBucketBasePath(visibility: MediaVisibility) {
