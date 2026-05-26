@@ -39,12 +39,14 @@ Apply the checked-in migrations to the configured database:
 pnpm -F @de100/apps-lms-db db:migrate
 ```
 
-Authenticate Alchemy and deploy the Cloudflare-backed app stack:
+Run self-host deployment checks through the infra package:
 
 ```bash
-pnpm --dir packages/apps/lms/infra exec alchemy configure
-pnpm --dir packages/apps/lms/infra exec alchemy login
-pnpm -F @de100/apps-lms-infra deploy
+pnpm -F @de100/apps-lms-infra selfhost:preflight
+pnpm -F @de100/apps-lms-infra selfhost:health
+pnpm -F @de100/apps-lms-infra selfhost:verify
+pnpm -F @de100/apps-lms-infra selfhost:smoke:public
+pnpm -F @de100/apps-lms-infra selfhost:verify:full
 ```
 
 ## Current repo assumptions
@@ -60,7 +62,7 @@ pnpm -F @de100/apps-lms-infra deploy
 - Direct SolidStart routes are the exception for boundaries that need raw request/response control, such as Better Auth and binary media streaming.
 - Locale and theme runtime helpers live in `@de100/i18n-core` and `@de100/i18n-domains/solidjs`, while app-owned locale definitions live under `i18n/*`.
 - Locale and theme preferences are cookie-backed; locale falls back to `Accept-Language`, theme defaults to `system`, and canonical page routes now live under `/en/...` and `/ar/...` with middleware-based redirects from bare page URLs.
-- Production Cloudflare deployment lives in `packages/apps/lms/infra` and is managed through Alchemy.
+- Production deployment commands live in `packages/apps/lms/infra` and are self-host-first.
 - Documentation in this folder is part of the implementation, not a final cleanup step.
 
 ## Where to look first

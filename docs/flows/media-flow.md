@@ -47,14 +47,14 @@ The current media baseline proves that the LMS app can upload, list, confirm, de
 - uploads and management now flow through oRPC, including `File` input handling for the current starter-sized payloads
 - media procedures now also declare explicit output schemas, error maps, and OpenAPI route metadata
 - signed private-sharing links now flow through oRPC for issuance and a dedicated signed-read route for binary delivery
-- public and private object reads still use direct app routes because they return binary responses and need request-bound Cloudflare bucket access
+- public and private object reads still use direct app routes because they return binary responses and need runtime media bucket access
 - private reads remain owner-prefixed at the route boundary
-- public reads can return a direct URL when the Cloudflare dev domain binding is available
+- public reads can return a direct URL when a public storage domain binding is available
 - local filesystem storage is available for development, while R2 remains the production-oriented backend
-- Cloudflare Images is provisioned, but image transformation and video-specific workflows are still follow-up work
+- image transformation and video-specific workflows are still follow-up work
 
 ## Next likely steps
 
 - validate the generated OpenAPI shape in the API reference UI and extend the same metadata discipline to any remaining thin procedures
-- decide where Cloudflare Images variants and Cloudflare Stream belong in the product surface
+- decide where managed image and video variants belong in the product surface
 - add media variants, optimization pipelines, and clearer unsupported-state UX for backend-specific capabilities

@@ -13,6 +13,33 @@ Status labels used in docs:
 - `2026-05-25-phase3-provider-refactor-validation.md`
 - `2026-05-25-phase4-ui-regression.md`
 
+## Templates
+
+- `templates/hosted-deploy-smoke-template.md`
+
+## Hosted smoke artifact convention
+
+Use this naming pattern for hosted smoke artifacts:
+
+- `YYYY-MM-DD-hosted-smoke-<environment>.md`
+
+Example:
+
+- `2026-05-26-hosted-smoke-staging.md`
+
+Store hosted smoke evidence files directly in `docs/evidence/`.
+
+## Checklist to evidence mapping
+
+When completing hosted smoke:
+
+1. Run `packages/apps/lms/infra/docs/checklists/hosted-smoke-run-procedure.md`.
+2. Prefer `pnpm -F @de100/apps-lms-infra selfhost:smoke:hosted -- --url <origin> --env <environment>` to run verification plus evidence scaffolding in one command.
+3. Complete `packages/apps/lms/infra/docs/checklists/post-deploy-smoke-checklist.md`.
+4. If manual flow was used, scaffold artifact with `pnpm -F @de100/apps-lms-infra selfhost:evidence:init -- <environment>`.
+5. Capture results with `docs/evidence/templates/hosted-deploy-smoke-template.md`.
+6. Save the filled artifact using the hosted smoke naming convention in this folder.
+
 ## Secrets hygiene rules for evidence
 
 - Never capture live API keys, tokens, passwords, cookies, or bearer headers in screenshots or logs.

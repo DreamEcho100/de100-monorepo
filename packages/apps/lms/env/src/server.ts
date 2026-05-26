@@ -55,7 +55,6 @@ const baseEnv = createEnv({
 		APP_LMS_SERVER_PORT: z.coerce.number().int().positive().default(3000),
 		LMS_APP_VITE_TRACE_MODE: z.string().min(1).optional(),
 		NITRO_PRESET: z.string().min(1).optional(),
-		ALCHEMY_ROOT: z.string().min(1).optional(),
 	},
 	runtimeEnv: process.env,
 	emptyStringAsUndefined: true,

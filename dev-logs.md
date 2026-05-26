@@ -50,3 +50,8 @@ More work on enhancing the i18n package...
 ## Day 8
 
 Squash the i18n git commits and push.
+
+
+## Day 9
+
+I have no experince on deploying to Cloudflare, so I tried to make the agent do it for me and failed miserably... will I'll pivot to self hosting but will make it generate a tutorial/docs like for me, since even though I have some experince I want to use some modern/good practices that I may lack

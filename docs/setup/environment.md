@@ -5,9 +5,9 @@ The repo now uses a single `APP_LMS_DATABASE_URL` plus an optional `APP_LMS_DATA
 ## Verification status for this document
 
 - `implemented-and-evidenced`: Phase 3 storage-provider validation and guardrails
-	- Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
+  - Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
 - `implemented-and-evidenced`: local browser regression checks after shared UI standardization
-	- Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
+  - Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
 - `implemented-and-unverified`: hosted deploy-path verification for Resend, Upstash, and R2 under a production origin
 
 Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
@@ -28,9 +28,11 @@ Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
 
 ## Optional variables
 
-- `APP_LMS_ALCHEMY_PASSWORD`: local password Alchemy uses to encrypt its stored state and secrets when you manage infrastructure
 - `APP_LMS_DATABASE_DRIVER`: one of `auto`, `postgres`, or `neon-http`
-- `VITE_APP_LMS_SERVER_URL`: explicit browser-to-server base URL when not using same-origin requests
+- `VITE_APP_LMS_SERVER_URL`: explicit browser-to-server base URL for split-origin setups; leave empty for same-origin deployments
+- `APP_LMS_SMOKE_BASE_URL`: optional base URL override for `selfhost:smoke:public`; defaults to `VITE_APP_LMS_SERVER_URL`, then `APP_LMS_CORS_ORIGIN`, then healthcheck origin
+- `APP_LMS_SMOKE_TIMEOUT_MS`: optional timeout in milliseconds for each smoke check request; defaults to `15000`
+- `APP_LMS_EVIDENCE_ENV`: optional default environment label used by `selfhost:evidence:init`; defaults to `staging`
 - `APP_LMS_CACHE_DRIVER`: one of `memory`, `redis`, or `upstash`
 - `APP_LMS_CACHE_KEY_PREFIX`: prefix applied to LMS cache keys, defaults to `de100:lms`
 - `APP_LMS_EMAIL_DRIVER`: one of `log` or `resend`
@@ -100,6 +102,12 @@ That mode enables Vite dev sourcemaps, disables build minification, preserves fu
 
 Create or edit `.env.local` when you need local secrets, non-default URLs, or a real database target.
 
+### Dev command matrix
+
+- `pnpm dev`: run monorepo watch mode through Turbo for coordinated package development
+- `pnpm --dir apps/lms-web with-env vite dev --host 127.0.0.1 --port 3000`: run only the app dev server with explicit env loading
+- `pnpm --dir apps/lms-web dev:trace --host 127.0.0.1 --port 3000`: run app dev server with trace-friendly debugging defaults
+
 ## Better Auth secondary storage
 
 The starter now routes Better Auth secondary storage through `@de100/apps-lms-cache`.
@@ -131,12 +139,17 @@ APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 
 The starter supports two storage backends:
 
-- `APP_LMS_MEDIA_STORAGE_DRIVER=r2` for Cloudflare R2-backed object storage
+- `APP_LMS_MEDIA_STORAGE_DRIVER=r2` for managed R2 object storage
 - `APP_LMS_MEDIA_STORAGE_DRIVER=local` for a local filesystem fallback during development
 
 When local storage is enabled, `APP_LMS_MEDIA_LOCAL_ROOT` controls where uploaded files are written.
 
 The environment schema also includes optional S3-compatible fields (`APP_LMS_MEDIA_S3_*`) so hosted adapters can share one configuration contract across R2-style endpoints and other S3 APIs.
+
+Current runtime note:
+
+- `r2` mode resolves buckets from runtime request bindings when available
+- when those bindings are unavailable, `r2` mode falls back to `APP_LMS_MEDIA_S3_*` hosted configuration
 
 Private media sharing now uses signed app URLs. The signing flow uses:
 
@@ -179,7 +192,8 @@ APP_LMS_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/de100_lms
 APP_LMS_DATABASE_DRIVER=postgres
 APP_LMS_BETTER_AUTH_URL=http://127.0.0.1:3000/api/auth
 APP_LMS_CORS_ORIGIN=http://127.0.0.1:3000
-VITE_APP_LMS_SERVER_URL=http://127.0.0.1:3000
+# Leave empty for same-origin local requests unless you intentionally split origins.
+VITE_APP_LMS_SERVER_URL=
 APP_LMS_EMAIL_DRIVER=log
 APP_LMS_EMAIL_FROM=LMS Starter <noreply@lms.local>
 APP_LMS_CACHE_DRIVER=memory
@@ -217,14 +231,14 @@ APP_LMS_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
 
 ## Production deployment environment
 
-The repo's production Cloudflare path is driven by `packages/apps/lms/infra/alchemy.run.ts` and documented in `docs/setup/production-deployment.md`.
+The repo's production path is self-host-first and documented in `docs/setup/production-deployment.md`.
 
-Keep `.env.local` for local development. For hosted migration and deploy commands, put the production baseline in uncommitted `.env.deploy.local` or in a provider-managed secret store. The production-facing Drizzle and Alchemy entrypoints load `.env.deploy.local` and `.env.deploy` before the normal local-dev files.
+Keep `.env.local` for local development. For hosted migration and deploy commands, put the production baseline in uncommitted `.env.deploy.local` or in a provider-managed secret store.
 
 Recommended production baseline in `.env.deploy.local`:
 
 ```env
-APP_LMS_ALCHEMY_PASSWORD=replace-with-a-local-password-for-alchemy-state
+APP_LMS_SERVER_PORT=3000
 APP_LMS_DATABASE_URL=postgresql://user:password@your-project.region.aws.neon.tech/dbname
 APP_LMS_DATABASE_DRIVER=auto
 APP_LMS_BETTER_AUTH_SECRET=replace-with-a-32-character-secret
@@ -239,6 +253,13 @@ APP_LMS_CACHE_DRIVER=upstash
 APP_LMS_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
 APP_LMS_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
 APP_LMS_MEDIA_STORAGE_DRIVER=r2
+APP_LMS_MEDIA_S3_ENDPOINT=https://your-s3-endpoint.example
+APP_LMS_MEDIA_S3_REGION=auto
+APP_LMS_MEDIA_S3_ACCESS_KEY_ID=replace-with-your-access-key-id
+APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY=replace-with-your-secret-access-key
+APP_LMS_MEDIA_S3_PUBLIC_BUCKET=public-media
+APP_LMS_MEDIA_S3_PRIVATE_BUCKET=private-media
+APP_LMS_MEDIA_S3_FORCE_PATH_STYLE=true
 APP_LMS_MEDIA_SIGNING_SECRET=replace-with-a-separate-32-character-secret
 APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
 ```
@@ -250,5 +271,5 @@ Notes:
 - `APP_LMS_BETTER_AUTH_URL` must point at the deployed `/api/auth` base on the final public origin.
 - `APP_LMS_CORS_ORIGIN` must match the browser origin serving the app.
 - Leave `VITE_APP_LMS_SERVER_URL` unset when the browser talks to the same deployed origin.
-- `APP_LMS_MEDIA_STORAGE_DRIVER=local` is for local development only; use `r2` for the Cloudflare deployment path.
+- `APP_LMS_MEDIA_STORAGE_DRIVER=local` is for local development only; use `r2` for shared self-host deployments.
 - Choose `APP_LMS_CACHE_DRIVER=memory` only for single-instance or low-stakes environments. Use `redis` or `upstash` when you need durable shared auth secondary storage.

@@ -9,6 +9,9 @@
 	},
 	"license": "MIT",
 	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ci": "vitest run",
 		"build": "tsc",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
 		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
@@ -27,6 +30,7 @@
 		"@biomejs/biome": "catalog:",
 		"@de100/biome-config": "workspace:*",
 		"@de100/tsconfig": "workspace:*",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

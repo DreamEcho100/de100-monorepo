@@ -128,3 +128,55 @@ This log is append-only. Each entry records a meaningful implementation slice.
 - made locale preference resolution return a concrete app locale code and simplified the locale middleware cookie persistence typing to rely on inferred request-event types
 - added the narrow `#libs/*` tsconfig path mapping the app compiler needs when it follows `@de100/ui-solidjs` into source files
 - revalidated the app with a clean `@de100/apps-lms-web` typecheck, a passing app lint check, and the focused i18n route/server tests
+
+## 2026-05-26
+
+### Slice: self-host deployment runbook completion
+
+- expanded infra deployment docs from scaffold notes to actionable Coolify+Caddy and Traefik runbooks with concrete command gates
+- added provider-specific setup guides for Hetzner, DigitalOcean, and Hostinger under `packages/apps/lms/infra/docs/providers`
+- added operational runbooks for migration cutover, rollback recovery, and security incidents under `packages/apps/lms/infra/docs/runbooks`
+- added post-deploy smoke and security hardening checklists under `packages/apps/lms/infra/docs/checklists`
+- added hosted deployment smoke evidence template under `docs/evidence/templates/hosted-deploy-smoke-template.md`
+- linked new checklists/runbooks into self-host overview, orchestration docs, and production deployment setup docs
+
+### Slice: self-host public smoke automation
+
+- added `packages/apps/lms/infra/scripts/selfhost-smoke-public.mjs` to validate key public routes and OpenAPI endpoint behavior
+- added infra scripts `selfhost:smoke:public` and `selfhost:verify:full` in `packages/apps/lms/infra/package.json`
+- integrated the new smoke command into infra docs command surface and production deployment workflow
+- updated post-deploy smoke checklist to include the automated public smoke gate
+
+### Slice: CI gate normalization and hosted smoke procedure
+
+- simplified CI test execution in `.github/workflows/ci.yml` to use the root `pnpm test` orchestration only
+- added CI baseline note documenting the intentionally validated profile (postgres + memory cache + local media)
+- removed stale `db:push` guidance from root `README.md` package DB command list
+- extended `docs/setup/environment.md` with smoke env var documentation and a clear dev command matrix
+- added detailed hosted smoke operator flow in `packages/apps/lms/infra/docs/checklists/hosted-smoke-run-procedure.md`
+- linked the new hosted smoke procedure across deployment docs, infra docs, and smoke checklist guidance
+- added hosted smoke artifact naming and checklist-to-evidence mapping in `docs/evidence/README.md`
+
+### Slice: CI smoke runtime hardening
+
+- added a dedicated CI smoke job in `.github/workflows/ci.yml` that builds the app, waits for `/health`, and runs `selfhost:verify:full`
+- switched the smoke startup command to `node apps/lms-web/.output/server/index.mjs` so CI uses the same Nitro runtime shape as production
+
+### Slice: hosted smoke evidence scaffolding
+
+- added `selfhost:evidence:init` command in `@de100/apps-lms-infra` to scaffold dated hosted-smoke evidence files from template
+- wired the new command into infra docs, hosted smoke procedure, and production deployment flow for one-step evidence initialization
+- removed the final historical `db:push` migration note from root `README.md` for consistency with current package-owned DB command guidance
+
+### Slice: final readiness polish
+
+- removed the remaining active `db:push` historical note from `apps/lms-web/README.md` and aligned its deploy command list with `selfhost:verify:full` plus `selfhost:evidence:init`
+- hardened `.github/workflows/ci.yml` Turbo env expressions with empty-string fallbacks so optional remote-cache secrets and vars do not block CI in repositories without Turbo remote caching configured
+- documented `APP_LMS_EVIDENCE_ENV` in `docs/setup/environment.md` so evidence scaffolding defaults are visible in the env contract
+
+### Slice: hosted smoke one-shot orchestration
+
+- added `selfhost:smoke:hosted` in `@de100/apps-lms-infra` to run `selfhost:verify:full` and scaffold evidence in one command for a target origin
+- wired the one-shot hosted smoke path through infra docs, hosted smoke procedure, production deployment setup, and evidence index mapping
+- aligned root and app README command examples to include the new hosted smoke orchestration command
+- switched the CI smoke job to execute `selfhost:smoke:hosted` with `--skip-evidence-init`, so CI validates the same hosted smoke orchestration path used for deploy operations

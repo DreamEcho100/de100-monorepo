@@ -15,8 +15,8 @@ concurrency:
 # @link https://turborepo.com/docs/core-concepts/remote-caching#remote-caching-on-vercel-builds
 env:
   FORCE_COLOR: 3
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM || '' }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN || '' }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
@@ -83,6 +83,7 @@ jobs:
         run: pnpm type:check
 
   test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -108,9 +109,69 @@ jobs:
           APP_LMS_SERVER_PORT=3000
           EOF
 
+      # CI baseline intentionally validates one deterministic runtime profile:
+      # postgres + memory cache + local media storage. Hosted paths (redis,
+      # upstash, r2, and production-origin smoke) are validated through the
+      # self-host deployment checklists and evidence workflow.
       - name: Test
+        run: pnpm test
+
+  smoke:
+    name: Smoke
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./tooling/github/setup
+
+      - name: Write CI env.local
+        shell: bash
         run: |
-          pnpm -F @de100/apps-lms-web test
-          pnpm -F @de100/apps-lms-api test
-          pnpm -F @de100/apps-lms-auth test
-          pnpm -F @de100/apps-lms-db test
+          cat <<'EOF' > .env.local
+          APP_LMS_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/de100_lms
+          APP_LMS_DATABASE_DRIVER=postgres
+          APP_LMS_BETTER_AUTH_SECRET=de100-lms-ci-local-secret-please-change
+          APP_LMS_BETTER_AUTH_URL=http://127.0.0.1:3000/api/auth
+          APP_LMS_CORS_ORIGIN=http://127.0.0.1:3000
+          VITE_APP_LMS_SERVER_URL=http://127.0.0.1:3000
+          APP_LMS_CACHE_DRIVER=memory
+          APP_LMS_CACHE_KEY_PREFIX=de100:lms:ci
+          APP_LMS_MEDIA_STORAGE_DRIVER=local
+          APP_LMS_MEDIA_LOCAL_ROOT=./apps/lms-web/.local/media
+          APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
+          APP_LMS_SERVER_PORT=3000
+          APP_LMS_HEALTHCHECK_URL=http://127.0.0.1:3000/health
+          APP_LMS_SMOKE_BASE_URL=http://127.0.0.1:3000
+          APP_LMS_SMOKE_TIMEOUT_MS=15000
+          EOF
+
+      - name: Build app
+        run: pnpm -F @de100/apps-lms-web build
+
+      - name: Start built app server
+        shell: bash
+        run: |
+          node apps/lms-web/.output/server/index.mjs > /tmp/lms-web.log 2>&1 &
+          echo $! > /tmp/lms-web.pid
+
+      - name: Wait for health
+        shell: bash
+        run: |
+          curl --retry 20 --retry-all-errors --retry-delay 1 --silent --show-error --fail http://127.0.0.1:3000/health >/tmp/lms-health.json
+
+      - name: Run hosted smoke orchestration (CI)
+        run: pnpm -F @de100/apps-lms-infra selfhost:smoke:hosted -- --url http://127.0.0.1:3000 --env ci --skip-evidence-init
+
+      - name: Show app logs on failure
+        if: failure()
+        run: cat /tmp/lms-web.log || true
+
+      - name: Stop app
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f /tmp/lms-web.pid ]]; then
+            kill "$(cat /tmp/lms-web.pid)" || true
+          fi

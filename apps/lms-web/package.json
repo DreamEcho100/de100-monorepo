@@ -30,7 +30,6 @@
 		"@de100/apps-lms-config": "workspace:*",
 		"@de100/apps-lms-db": "workspace:*",
 		"@de100/apps-lms-env": "workspace:*",
-		"@de100/apps-lms-infra": "workspace:*",
 		"@de100/apps-lms-validators": "workspace:*",
 		"@de100/i18n-core": "workspace:*",
 		"@de100/i18n-domains-solidjs": "workspace:*",

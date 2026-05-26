@@ -1,5 +1,6 @@
 import { LOCALE_COOKIE_NAME, PREFERENCE_COOKIE_MAX_AGE } from "@de100/i18n-core/shared";
 import { createMiddleware } from "@solidjs/start/middleware";
+import type { ResponseStub } from "@solidjs/start/server";
 
 import {
 	createLocalizedPath,
@@ -41,7 +42,7 @@ function readCookie(request: Request, cookieName: string) {
 	return undefined;
 }
 
-function appendLocaleCookie(response: Response, locale: string) {
+function appendLocaleCookie(response: ResponseStub, locale: string) {
 	const encodedLocale = encodeURIComponent(locale);
 	response.headers.append(
 		"set-cookie",

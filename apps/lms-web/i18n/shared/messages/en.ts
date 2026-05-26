@@ -12,11 +12,11 @@ export const enMessages = {
 		includedDescription:
 			"These are the starter slices that are already wired through the active app package.",
 		includedTitle: "Included today",
-		lede: "The current app is meant to validate the platform slices before the full LMS product build starts: authentication, seeded local data, user-owned todos, and Cloudflare-aware media management.",
+		lede: "The current app is meant to validate the platform slices before the full LMS product build starts: authentication, seeded local data, user-owned todos, and managed media flows.",
 		metaTitle: "About",
 		starterSlices: {
 			auth: "Email/password auth with Better Auth and seeded demo accounts",
-			media: "Cloudflare-ready media flows with draft confirmation and owner-managed cleanup",
+			media: "Managed media flows with draft confirmation and owner-managed cleanup",
 			storage: "Drizzle migrations and repeatable local reset, migrate, and seed commands",
 			transport: "Typed oRPC queries and mutations for dashboard, todos, and media metadata",
 		},
@@ -225,7 +225,7 @@ export const enMessages = {
 			todos: "Open todos",
 		},
 		description:
-			"This is the active SolidStart app for auth, shared API access, user-scoped todos, and Cloudflare deployment primitives inside the monorepo.",
+			"This is the active SolidStart app for auth, shared API access, user-scoped todos, and self-host deployment primitives inside the monorepo.",
 		eyebrow: "Unified runtime",
 		features: {
 			description:
@@ -260,7 +260,7 @@ export const enMessages = {
 		},
 		driver: {
 			local: "Local files",
-			r2: "Cloudflare R2",
+			r2: "R2 object storage",
 		},
 		fields: {
 			file: "File",
@@ -272,7 +272,7 @@ export const enMessages = {
 		page: {
 			description:
 				"Upload files into a draft library, confirm the ones you want to keep, and delete the rest.",
-			eyebrow: "Cloudflare storage",
+			eyebrow: "Managed storage",
 			sessionPrefix: "Uploads are scoped to",
 			sessionSuffix:
 				"Public files only expose direct URLs after confirmation, while private objects stay behind the authenticated route.",
@@ -287,7 +287,7 @@ export const enMessages = {
 			readyDescription: "Confirmed items can be reopened and managed from here.",
 			readyTitle: "Ready media library",
 			uploadDescription:
-				"These routes depend on Cloudflare request bindings. Use the Cloudflare-backed dev runtime when testing uploads end to end.",
+				"These routes depend on runtime media bindings. Use a runtime that provides storage bindings when testing uploads end to end.",
 			uploadTitle: "Upload file",
 		},
 		status: {

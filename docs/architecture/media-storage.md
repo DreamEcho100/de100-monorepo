@@ -4,16 +4,15 @@
 
 The media layer now supports two storage drivers behind one shared server abstraction:
 
-- `r2`: the default deployed path backed by Cloudflare R2 bindings
+- `r2`: the managed object-storage path backed by runtime bucket bindings
 - `local`: a Node-only local filesystem fallback for local development and testing
 
-The Cloudflare infra package provisions three storage-related primitives for the `r2` driver:
+The active self-host deployment guidance expects three storage-related primitives for the `r2` driver:
 
 - `PUBLIC_MEDIA_BUCKET`: R2 bucket for public or cache-friendly assets
 - `PRIVATE_MEDIA_BUCKET`: R2 bucket for authenticated or owner-scoped objects
-- `IMAGES`: Cloudflare Images binding for image transformation inside the deployed app runtime
 
-These are provisioned in `packages/apps/lms/infra/alchemy.run.ts` and bound into the deployed web app.
+These bindings are described by the current infra docs under `packages/apps/lms/infra/docs`.
 
 For the end-to-end production deployment path, see `docs/setup/production-deployment.md`.
 
@@ -31,9 +30,9 @@ The split keeps those concerns separate from the start:
 ## Current delivery model
 
 - R2 is the generic object store for files and raw media blobs in deployed environments
+- the `r2` read/write adapter resolves request runtime bucket bindings first, then falls back to hosted `APP_LMS_MEDIA_S3_*` configuration
 - local storage mirrors the same public/private bucket split on disk for development and test flows
-- Cloudflare Images is available for image transformation and delivery helpers
-- video-specific Cloudflare Stream delivery is still a follow-up step, because it is product- and account-specific beyond the current repo-safe baseline
+- image and video transformation layers are follow-up work, because they are product-specific beyond the current repo-safe baseline
 
 ## Current access flows
 
@@ -64,10 +63,8 @@ That lets the `/media` page adapt its actions without hard-coding environment as
 - `PRIVATE_MEDIA_BUCKET_NAME`
 - `PUBLIC_MEDIA_DEV_DOMAIN`
 
-The current Alchemy stack injects those bindings through the `Vite("lms-web", ...)` resource in `packages/apps/lms/infra/alchemy.run.ts`.
-
 ## Current gaps
 
 - image optimization and variant generation are not implemented yet
-- Cloudflare Images and Stream are provisioned foundations, not full product flows yet
+- managed image and video pipelines are not full product flows yet
 - large-file resumable or multipart uploads are still a follow-up if the starter grows beyond simple form uploads

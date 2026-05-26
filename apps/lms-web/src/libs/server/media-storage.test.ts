@@ -40,26 +40,36 @@ function createEvent(options?: {
 }) {
 	const privateBucket = options?.privateBucket;
 	const publicBucket = options?.publicBucket;
-
-	return {
-		request: Object.assign(new Request(options?.url ?? "https://lms.local/dashboard"), {
-			runtime: {
-				cloudflare: {
-					env: {
-						PRIVATE_MEDIA_BUCKET: privateBucket,
-						PRIVATE_MEDIA_BUCKET_NAME: options?.privateBucketName,
-						PUBLIC_MEDIA_BUCKET: publicBucket,
-						PUBLIC_MEDIA_BUCKET_NAME: options?.publicBucketName,
-						PUBLIC_MEDIA_DEV_DOMAIN: options?.publicDevDomain,
-					},
+	const request = {
+		headers: new Headers(),
+		runtime: {
+			cloudflare: {
+				env: {
+					PRIVATE_MEDIA_BUCKET: privateBucket,
+					PRIVATE_MEDIA_BUCKET_NAME: options?.privateBucketName,
+					PUBLIC_MEDIA_BUCKET: publicBucket,
+					PUBLIC_MEDIA_BUCKET_NAME: options?.publicBucketName,
+					PUBLIC_MEDIA_DEV_DOMAIN: options?.publicDevDomain,
 				},
 			},
-		}),
+		},
+		url: options?.url ?? "https://lms.local/dashboard",
+	} as unknown as Request;
+
+	return {
+		request,
 	} as const;
 }
 
 const originalMediaStorageDriver = process.env.APP_LMS_MEDIA_STORAGE_DRIVER;
 const originalMediaLocalRoot = process.env.APP_LMS_MEDIA_LOCAL_ROOT;
+const originalMediaS3AccessKeyId = process.env.APP_LMS_MEDIA_S3_ACCESS_KEY_ID;
+const originalMediaS3Endpoint = process.env.APP_LMS_MEDIA_S3_ENDPOINT;
+const originalMediaS3ForcePathStyle = process.env.APP_LMS_MEDIA_S3_FORCE_PATH_STYLE;
+const originalMediaS3PrivateBucket = process.env.APP_LMS_MEDIA_S3_PRIVATE_BUCKET;
+const originalMediaS3PublicBucket = process.env.APP_LMS_MEDIA_S3_PUBLIC_BUCKET;
+const originalMediaS3Region = process.env.APP_LMS_MEDIA_S3_REGION;
+const originalMediaS3SecretAccessKey = process.env.APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY;
 
 describe("media-storage", () => {
 	let localMediaRoot: string | null = null;
@@ -87,6 +97,48 @@ describe("media-storage", () => {
 			delete process.env.APP_LMS_MEDIA_LOCAL_ROOT;
 		} else {
 			process.env.APP_LMS_MEDIA_LOCAL_ROOT = originalMediaLocalRoot;
+		}
+
+		if (originalMediaS3AccessKeyId == null) {
+			delete process.env.APP_LMS_MEDIA_S3_ACCESS_KEY_ID;
+		} else {
+			process.env.APP_LMS_MEDIA_S3_ACCESS_KEY_ID = originalMediaS3AccessKeyId;
+		}
+
+		if (originalMediaS3Endpoint == null) {
+			delete process.env.APP_LMS_MEDIA_S3_ENDPOINT;
+		} else {
+			process.env.APP_LMS_MEDIA_S3_ENDPOINT = originalMediaS3Endpoint;
+		}
+
+		if (originalMediaS3ForcePathStyle == null) {
+			delete process.env.APP_LMS_MEDIA_S3_FORCE_PATH_STYLE;
+		} else {
+			process.env.APP_LMS_MEDIA_S3_FORCE_PATH_STYLE = originalMediaS3ForcePathStyle;
+		}
+
+		if (originalMediaS3PrivateBucket == null) {
+			delete process.env.APP_LMS_MEDIA_S3_PRIVATE_BUCKET;
+		} else {
+			process.env.APP_LMS_MEDIA_S3_PRIVATE_BUCKET = originalMediaS3PrivateBucket;
+		}
+
+		if (originalMediaS3PublicBucket == null) {
+			delete process.env.APP_LMS_MEDIA_S3_PUBLIC_BUCKET;
+		} else {
+			process.env.APP_LMS_MEDIA_S3_PUBLIC_BUCKET = originalMediaS3PublicBucket;
+		}
+
+		if (originalMediaS3Region == null) {
+			delete process.env.APP_LMS_MEDIA_S3_REGION;
+		} else {
+			process.env.APP_LMS_MEDIA_S3_REGION = originalMediaS3Region;
+		}
+
+		if (originalMediaS3SecretAccessKey == null) {
+			delete process.env.APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY;
+		} else {
+			process.env.APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY = originalMediaS3SecretAccessKey;
 		}
 
 		vi.restoreAllMocks();
@@ -172,6 +224,26 @@ describe("media-storage", () => {
 		const event = createEvent();
 
 		expect(getPublicMediaDirectUrl(event, "user_42/asset.png")).toBeNull();
+	});
+
+	it("falls back to S3 bucket names and direct URL when runtime bindings are unavailable", () => {
+		process.env.APP_LMS_MEDIA_STORAGE_DRIVER = "r2";
+		process.env.APP_LMS_MEDIA_S3_ENDPOINT = "https://s3.example.test";
+		process.env.APP_LMS_MEDIA_S3_PUBLIC_BUCKET = "public-media";
+		process.env.APP_LMS_MEDIA_S3_PRIVATE_BUCKET = "private-media";
+		process.env.APP_LMS_MEDIA_S3_FORCE_PATH_STYLE = "true";
+
+		const event = createEvent();
+		const provider = getMediaStorageProvider(event);
+
+		expect(provider.driver).toBe("r2");
+		expect(provider.getBucketName("public")).toBe("public-media");
+		expect(provider.getBucketName("private")).toBe("private-media");
+		expect(getMediaBucketName(event, "public")).toBe("public-media");
+		expect(getMediaBucketName(event, "private")).toBe("private-media");
+		expect(getPublicMediaDirectUrl(event, "user_42/asset.png")).toBe(
+			"https://s3.example.test/public-media/user_42/asset.png",
+		);
 	});
 
 	it("persists local object metadata for the configured local driver", async () => {

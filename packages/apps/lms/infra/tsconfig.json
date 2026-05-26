@@ -3,5 +3,5 @@
 	"compilerOptions": {
 		"strictNullChecks": true
 	},
-	"include": ["alchemy.run.ts"]
+	"include": ["src/**/*.ts"]
 }

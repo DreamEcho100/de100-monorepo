@@ -34,8 +34,6 @@ docker compose up -d lms-redis
 pnpm -F @de100/apps-lms-db db:migrate
 ```
 
-If your local database was created earlier with `db:push` before migrations were generated, run `pnpm -F @de100/apps-lms-db db:reset` once and then rerun `pnpm -F @de100/apps-lms-db db:migrate`.
-
 5. Seed the local database with Better Auth users plus demo todo and media metadata fixtures.
 
 ```bash
@@ -53,7 +51,7 @@ pnpm dev
 - Creates known email/password users through Better Auth's own `signUpEmail` API so password hashing matches the real auth flow.
 - Seeds mixed todo states for manual CRUD testing.
 - Seeds representative media metadata states for management UI testing.
-- Leaves real binary media object creation to the runtime upload flow because R2 bucket writes require Cloudflare request bindings that are not available in the plain Node seed script.
+- Leaves real binary media object creation to the runtime upload flow because seed runs in plain Node and does not perform live object-storage writes.
 
 ## Manual testing
 
@@ -71,9 +69,9 @@ pnpm dev
 This README now separates implemented behavior from proven behavior.
 
 - `implemented-and-evidenced`: Phase 3 provider-boundary validation and guardrails
-	- Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
+  - Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
 - `implemented-and-evidenced`: Phase 4 frontend standardization regression on home/about/media in `en` and `ar`
-	- Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
+  - Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
 - `implemented-and-unverified`: full browser matrix from Phase 1 (all four flows in both locales with evidence artifacts for each flow)
 - `implemented-and-unverified`: hosted smoke pass (deployed Better Auth, Resend, Upstash-backed secondary storage, R2 media upload/read/signed access, production migration rehearsal)
 
@@ -81,7 +79,7 @@ Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
 
 ## Deployment
 
-Production deployment for the LMS starter goes through the infra package and Alchemy, not a separate Wrangler-first app config.
+Production deployment for the LMS starter now goes through the self-host infra package command surface.
 
 - Infra package: `packages/apps/lms/infra`
 - Deploy guide: `docs/setup/production-deployment.md`
@@ -89,13 +87,16 @@ Production deployment for the LMS starter goes through the infra package and Alc
 Typical commands from the repo root:
 
 ```bash
-pnpm --dir packages/apps/lms/infra exec alchemy configure
-pnpm --dir packages/apps/lms/infra exec alchemy login
-pnpm -F @de100/apps-lms-infra deploy
-pnpm -F @de100/apps-lms-infra destroy
+pnpm -F @de100/apps-lms-infra selfhost:preflight
+pnpm -F @de100/apps-lms-infra selfhost:health
+pnpm -F @de100/apps-lms-infra selfhost:verify
+pnpm -F @de100/apps-lms-infra selfhost:smoke:public
+pnpm -F @de100/apps-lms-infra selfhost:smoke:hosted -- --url https://your-app-domain.example --env staging
+pnpm -F @de100/apps-lms-infra selfhost:verify:full
+pnpm -F @de100/apps-lms-infra selfhost:evidence:init -- staging
 ```
 
-Alchemy provisions the Cloudflare-side resources defined in `packages/apps/lms/infra/alchemy.run.ts`, including the deployed Vite app plus the public/private R2 buckets and Images binding used by the LMS media layer.
+Legacy deployment references are archived under `_old/backup-v1` for historical rollback context only.
 
 ## More docs
 
@@ -111,11 +112,13 @@ Typical commands from the repo root:
 pnpm -F @de100/apps-lms-db db:up
 pnpm -F @de100/apps-lms-db db:logs
 pnpm -F @de100/apps-lms-db db:migrate
-pnpm -F @de100/apps-lms-db db:push
 pnpm -F @de100/apps-lms-db db:generate
 pnpm -F @de100/apps-lms-db db:studio
 pnpm -F @de100/apps-lms-db db:down
 pnpm -F @de100/apps-lms-db db:reset
 pnpm -F @de100/apps-lms-web db:seed
-pnpm -F @de100/apps-lms-infra deploy
+pnpm -F @de100/apps-lms-infra selfhost:verify
+pnpm -F @de100/apps-lms-infra selfhost:smoke:hosted -- --url https://your-app-domain.example --env staging
+pnpm -F @de100/apps-lms-infra selfhost:verify:full
+pnpm -F @de100/apps-lms-infra selfhost:evidence:init -- staging
 ```

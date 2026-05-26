@@ -25,7 +25,6 @@
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",
 		"@de100/apps-lms-config": "workspace:*",
-		"@de100/apps-lms-infra": "workspace:*",
 		"@de100/biome-config": "workspace:*",
 		"@de100/tsconfig": "workspace:*",
 		"@types/node": "catalog:",

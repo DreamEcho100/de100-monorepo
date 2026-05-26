@@ -6,17 +6,10 @@ import { defineConfig } from "vite";
 
 const isTraceModeEnabled =
 	env.LMS_APP_VITE_TRACE_MODE === "1" || env.LMS_APP_VITE_TRACE_MODE === "true";
-const isAlchemyDeploy = Boolean(env.ALCHEMY_ROOT ?? process.env.ALCHEMY_ROOT);
-const nitroPreset =
-	env.NITRO_PRESET ??
-	process.env.NITRO_PRESET ??
-	(isAlchemyDeploy ? "cloudflare_module" : undefined);
+const nitroPreset = env.NITRO_PRESET ?? process.env.NITRO_PRESET;
 const nitroConfig = nitroPreset
 	? {
 			preset: nitroPreset,
-			cloudflare: {
-				nodeCompat: true,
-			},
 		}
 	: undefined;
 console.log("___ nitroPreset", nitroPreset);
@@ -24,15 +17,15 @@ console.log("___ nitroPreset", nitroPreset);
 const solidWorkspaceDeps = ["@de100/i18n-domains-solidjs", "@de100/ui-solidjs"];
 
 const depsToOptimize = [
-	"@de100/apps-i18n",
 	"@de100/apps-lms-api",
 	"@de100/apps-lms-auth",
 	// "@de100/apps-lms-config",
 	"@de100/apps-lms-db",
 	// "@de100/apps-lms-env",
-	"@de100/apps-lms-infra",
 	"@de100/apps-lms-validators",
-	"@de100/i18n-core",
+	"@de100/i18n-core/client",
+	"@de100/i18n-core/server",
+	"@de100/i18n-core/shared",
 ];
 
 export default defineConfig({

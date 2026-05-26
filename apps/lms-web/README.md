@@ -23,8 +23,6 @@ If you switch `.env.local` to `APP_LMS_CACHE_DRIVER=redis`, also start the local
 docker compose up -d lms-redis
 ```
 
-If this local database was originally bootstrapped with `db:push` before the checked-in migrations existed, run `pnpm -F @de100/apps-lms-db db:reset` once and then repeat the migrate and seed steps.
-
 The app expects the default local origin from `.env.local`:
 
 - app: `http://127.0.0.1:3000`
@@ -75,7 +73,7 @@ Page routes are canonical under `/en/...` and `/ar/...`. The locale middleware w
 - todos: completed and incomplete fixtures for CRUD testing
 - media: representative metadata states across public/private and draft/ready
 
-Important: seeded media behavior now depends on the active storage driver. With `APP_LMS_MEDIA_STORAGE_DRIVER=local`, `pnpm -F @de100/apps-lms-web db:seed` writes real fixture objects under `APP_LMS_MEDIA_LOCAL_ROOT`, so the seeded media links on `/media` open real content in local development. With `APP_LMS_MEDIA_STORAGE_DRIVER=r2`, the seed still creates metadata rows only because the script does not run with live Cloudflare bucket bindings.
+Important: seeded media behavior now depends on the active storage driver. With `APP_LMS_MEDIA_STORAGE_DRIVER=local`, `pnpm -F @de100/apps-lms-web db:seed` writes real fixture objects under `APP_LMS_MEDIA_LOCAL_ROOT`, so the seeded media links on `/media` open real content in local development. With `APP_LMS_MEDIA_STORAGE_DRIVER=r2`, the seed still creates metadata rows only because the script does not run with live runtime storage bindings.
 
 ## Why media uses both oRPC and routes
 
@@ -90,7 +88,7 @@ That is why media is still not package-only oRPC end to end, even though app-fac
 
 The media layer supports two drivers behind one shared API surface:
 
-- `APP_LMS_MEDIA_STORAGE_DRIVER=r2`: use Cloudflare R2 bindings and direct public URLs when available
+- `APP_LMS_MEDIA_STORAGE_DRIVER=r2`: use runtime-managed object storage bindings and direct public URLs when available
 - `APP_LMS_MEDIA_STORAGE_DRIVER=local`: store media on disk under `APP_LMS_MEDIA_LOCAL_ROOT` for local development and testing, including real seeded fixture objects created by `pnpm -F @de100/apps-lms-web db:seed`
 
 Signed delivery works on both drivers. Direct public bucket URLs are only available on `r2`, so the UI exposes both capability flags on the `/media` page.
@@ -108,8 +106,11 @@ pnpm -F @de100/apps-lms-db db:generate
 docker compose up -d lms-redis
 pnpm -F @de100/apps-lms-web db:seed
 pnpm dev
-pnpm -F @de100/apps-lms-infra deploy
-pnpm -F @de100/apps-lms-infra destroy
+pnpm -F @de100/apps-lms-infra selfhost:preflight
+pnpm -F @de100/apps-lms-infra selfhost:verify
+pnpm -F @de100/apps-lms-infra selfhost:smoke:public
+pnpm -F @de100/apps-lms-infra selfhost:smoke:hosted -- --url https://your-app-domain.example --env staging
+pnpm -F @de100/apps-lms-infra selfhost:verify:full
 ```
 
 From this package:
@@ -145,11 +146,11 @@ Use these labels when reading this file:
 Current status matrix:
 
 - Browser regression after shared UI cleanup (`home`, `about`, `media`, locale + theme checks): `implemented-and-evidenced`
-	- Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
+  - Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
 - Media provider boundary + guardrails: `implemented-and-evidenced`
-	- Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
+  - Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
 - Driver and service proof matrix (`memory`, `redis`, `upstash`, `local`, `r2`, `log`, `resend`): `implemented-and-unverified`
-	- Note: this matrix remains documented and supported in code/config, but direct per-driver evidence files are still pending.
+  - Note: this matrix remains documented and supported in code/config, but direct per-driver evidence files are still pending.
 
 Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
 
@@ -201,15 +202,17 @@ Use the shared VS Code browser or your normal browser. Playwright is not require
 
 ## Production deploy
 
-The production Cloudflare deployment path is defined by `packages/apps/lms/infra/alchemy.run.ts` and documented in `docs/setup/production-deployment.md`.
+The active deployment track is self-hosted and documented in `docs/deployment/self-hosted/overview.md` and `packages/apps/lms/infra/docs/README.md`.
 
 Common commands from the repo root:
 
 ```bash
-pnpm --dir packages/apps/lms/infra exec alchemy configure
-pnpm --dir packages/apps/lms/infra exec alchemy login
-pnpm -F @de100/apps-lms-infra deploy
-pnpm -F @de100/apps-lms-infra destroy
+pnpm -F @de100/apps-lms-infra selfhost:preflight
+pnpm -F @de100/apps-lms-infra selfhost:health
+pnpm -F @de100/apps-lms-infra selfhost:verify
+pnpm -F @de100/apps-lms-infra selfhost:smoke:hosted -- --url https://your-app-domain.example --env staging
+pnpm -F @de100/apps-lms-infra selfhost:verify:full
+pnpm -F @de100/apps-lms-infra selfhost:evidence:init -- staging
 ```
 
-Use `APP_LMS_MEDIA_STORAGE_DRIVER=r2` plus the production database/auth/cache env settings before deploying. Leave `VITE_APP_LMS_SERVER_URL` unset for same-origin deployments unless you intentionally split browser and server origins.
+Use the mode matrix from `packages/apps/lms/env/src/server.ts` to choose database, cache, media, and email drivers before deployment.

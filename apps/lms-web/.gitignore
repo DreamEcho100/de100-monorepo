@@ -1,5 +1,4 @@
 dist
-.wrangler
 .output
 .vercel
 .netlify

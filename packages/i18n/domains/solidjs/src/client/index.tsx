@@ -13,7 +13,7 @@ import type {
 } from "@de100/i18n-core/shared";
 import {
 	generateI18nConfig,
-	getMessage,
+	// getMessage,
 	LOCALE_COOKIE_NAME,
 	THEME_COOKIE_NAME,
 } from "@de100/i18n-core/shared";

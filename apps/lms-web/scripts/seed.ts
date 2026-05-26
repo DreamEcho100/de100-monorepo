@@ -417,7 +417,7 @@ async function main() {
 			);
 		} else {
 			console.log(
-				"Media fixtures remain metadata-only when APP_LMS_MEDIA_STORAGE_DRIVER=r2 because db:seed does not run with live Cloudflare bucket bindings.",
+				"Media fixtures remain metadata-only when APP_LMS_MEDIA_STORAGE_DRIVER=r2 because db:seed does not run with live runtime bucket bindings.",
 			);
 		}
 	} finally {

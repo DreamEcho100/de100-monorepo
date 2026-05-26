@@ -2,6 +2,6 @@
 	"root": false,
 	"extends": ["@de100/biome-config/base.json"],
 	"files": {
-		"includes": ["!dist", "!.alchemy"]
+		"includes": ["!dist"]
 	}
 }

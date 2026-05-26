@@ -11,10 +11,16 @@
 		}
 	},
 	"scripts": {
-		"dev": "alchemy dev",
-		"deploy": "alchemy deploy",
-		"destroy": "alchemy destroy",
-		"smoke:deploy": "alchemy deploy alchemy.run.ts",
+		"dev": "pnpm selfhost:preflight",
+		"deploy": "pnpm selfhost:verify",
+		"destroy": "node ./scripts/selfhost-destroy-help.mjs",
+		"selfhost:preflight": "node ./scripts/selfhost-preflight.mjs",
+		"selfhost:health": "node ./scripts/selfhost-healthcheck.mjs",
+		"selfhost:smoke:public": "node ./scripts/selfhost-smoke-public.mjs",
+		"selfhost:smoke:hosted": "node ./scripts/selfhost-smoke-hosted.mjs",
+		"selfhost:verify": "pnpm selfhost:preflight && pnpm selfhost:health",
+		"selfhost:verify:full": "pnpm selfhost:verify && pnpm selfhost:smoke:public",
+		"selfhost:evidence:init": "node ./scripts/selfhost-evidence-init.mjs",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
 		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
@@ -33,7 +39,6 @@
 		"@de100/apps-lms-config": "workspace:*",
 		"@de100/biome-config": "workspace:*",
 		"@de100/tsconfig": "workspace:*",
-		"alchemy": "catalog:",
 		"typescript": "catalog:"
 	}
 }
