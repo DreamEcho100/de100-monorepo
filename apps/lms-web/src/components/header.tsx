@@ -1,6 +1,8 @@
 import { useI18n } from "@de100/i18n-domains-solidjs/client";
-import { createMemo, For } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 
+import AppLink from "~/components/app-link";
+import AuthAppLink from "~/components/auth-app-link";
 import PreferencesToolbar from "~/components/preferences-toolbar";
 import UserMenu from "~/components/user-menu";
 
@@ -11,9 +13,13 @@ export default function Header() {
 	const links = createMemo(() => [
 		{ href: createLocalizedPath(locale(), "/"), label: t("header.nav.home") },
 		{ href: createLocalizedPath(locale(), "/login"), label: t("header.nav.login") },
-		{ href: createLocalizedPath(locale(), "/dashboard"), label: t("header.nav.dashboard") },
-		{ href: createLocalizedPath(locale(), "/media"), label: t("header.nav.media") },
-		{ href: createLocalizedPath(locale(), "/todos"), label: t("header.nav.todos") },
+		{
+			gated: true,
+			href: createLocalizedPath(locale(), "/dashboard"),
+			label: t("header.nav.dashboard"),
+		},
+		{ gated: true, href: createLocalizedPath(locale(), "/media"), label: t("header.nav.media") },
+		{ gated: true, href: createLocalizedPath(locale(), "/todos"), label: t("header.nav.todos") },
 	]);
 
 	return (
@@ -28,12 +34,24 @@ export default function Header() {
 				<nav aria-label={t("header.primaryNavigation")} class="flex flex-wrap gap-2">
 					<For each={links()}>
 						{(link) => (
-							<a
-								class="inline-flex items-center rounded-full border border-transparent px-3 py-2 font-medium text-muted-foreground text-sm transition-colors hover:border-border/70 hover:bg-accent hover:text-accent-foreground"
-								href={link.href}
+							<Show
+								fallback={
+									<AppLink
+										class="inline-flex items-center rounded-full border border-transparent px-3 py-2 font-medium text-muted-foreground text-sm transition-colors hover:border-border/70 hover:bg-accent hover:text-accent-foreground"
+										href={link.href}
+									>
+										{link.label}
+									</AppLink>
+								}
+								when={link.gated}
 							>
-								{link.label}
-							</a>
+								<AuthAppLink
+									class="inline-flex items-center rounded-full border border-transparent px-3 py-2 font-medium text-muted-foreground text-sm transition-colors hover:border-border/70 hover:bg-accent hover:text-accent-foreground"
+									href={link.href}
+								>
+									{link.label}
+								</AuthAppLink>
+							</Show>
 						)}
 					</For>
 				</nav>

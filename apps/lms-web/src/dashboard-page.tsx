@@ -7,7 +7,8 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@de100/ui-solidjs";
+	P,
+} from "@de100/ui-domains-solidjs";
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createQuery } from "@tanstack/solid-query";
@@ -67,9 +68,12 @@ export default function DashboardPage() {
 				<CardHeader class="space-y-4">
 					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div class="space-y-2">
-							<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+							<P
+								class="font-semibold text-primary text-xs uppercase tracking-[0.24em]"
+								tone="accent"
+							>
 								{t("dashboard.page.eyebrow")}
-							</p>
+							</P>
 							<CardTitle>{t("dashboard.page.title")}</CardTitle>
 							<CardDescription>{t("dashboard.page.description")}</CardDescription>
 						</div>
@@ -79,19 +83,20 @@ export default function DashboardPage() {
 					</div>
 					<Show when={isHydrated() && !session().isPending && session().data}>
 						{(currentSession) => (
-							<p class="max-w-[60ch] text-base text-muted-foreground leading-7">
+							<P class="max-w-[60ch] text-base text-muted-foreground leading-7">
 								{t("dashboard.page.welcomePrefix")} {currentSession().user.name}.{" "}
 								{t("dashboard.page.welcomeSuffix")}
-							</p>
+							</P>
 						)}
 					</Show>
 					<Show when={!isHydrated() || session().isPending}>
-						<p
+						<P
 							class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
 							role="status"
+							tone="info"
 						>
 							{t("dashboard.status.loadingPage")}
-						</p>
+						</P>
 					</Show>
 					<Button onClick={() => navigate(createLocalizedPath(locale(), "/todos"))} type="button">
 						{t("dashboard.page.openTodos")}
@@ -106,32 +111,35 @@ export default function DashboardPage() {
 				</CardHeader>
 				<CardContent>
 					<Show when={!canLoadPrivateData() || privateData.isPending}>
-						<p
+						<P
 							class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
 							role="status"
+							tone="info"
 						>
 							{t("dashboard.status.loadingPrivateData")}
-						</p>
+						</P>
 					</Show>
 					<Show when={privateData.data}>
 						{(data) => (
-							<p
+							<P
 								class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-emerald-700 text-sm leading-6 dark:text-emerald-300"
 								role="status"
+								tone="success"
 							>
 								{data().message}
-							</p>
+							</P>
 						)}
 					</Show>
 					<Show when={canLoadPrivateData() && privateData.isError}>
-						<p
+						<P
 							class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
 							role="alert"
+							tone="danger"
 						>
 							{privateData.error instanceof Error
 								? privateData.error.message
 								: t("dashboard.status.privateDataError")}
-						</p>
+						</P>
 					</Show>
 				</CardContent>
 			</Card>
@@ -155,34 +163,36 @@ export default function DashboardPage() {
 				</CardHeader>
 				<CardContent class="space-y-4">
 					<Show when={!canLoadPrivateData() || todos.isPending}>
-						<p
+						<P
 							class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
 							role="status"
+							tone="info"
 						>
 							{t("dashboard.status.loadingSummary")}
-						</p>
+						</P>
 					</Show>
 					<Show when={canLoadPrivateData() && todos.isError}>
-						<p
+						<P
 							class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
 							role="alert"
+							tone="danger"
 						>
 							{todos.error instanceof Error
 								? todos.error.message
 								: t("dashboard.status.summaryError")}
-						</p>
+						</P>
 					</Show>
 					<Show
 						when={
 							canLoadPrivateData() && !todos.isPending && !todos.isError && todoStats().total === 0
 						}
 					>
-						<p
+						<P
 							class="rounded-xl border border-border/70 bg-muted/40 px-4 py-3 text-muted-foreground text-sm leading-6"
 							role="status"
 						>
 							{t("dashboard.status.empty")}
-						</p>
+						</P>
 					</Show>
 					<Show when={todoStats().recent.length > 0}>
 						<ul class="space-y-3">

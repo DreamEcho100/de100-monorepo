@@ -1,5 +1,5 @@
 import { I18nProvider } from "@de100/i18n-domains-solidjs/client";
-import { Toaster } from "@de100/ui-solidjs";
+import { Toaster } from "@de100/ui-domains-solidjs";
 import { QueryClientProvider } from "@tanstack/solid-query";
 import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
 import type { ParentProps } from "solid-js";

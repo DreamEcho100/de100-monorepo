@@ -8,7 +8,8 @@ import {
 	CardHeader,
 	CardTitle,
 	Input,
-} from "@de100/ui-solidjs";
+	P,
+} from "@de100/ui-domains-solidjs";
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createMutation, createQuery, useQueryClient } from "@tanstack/solid-query";
@@ -158,9 +159,12 @@ export default function TodosPage() {
 				<CardHeader>
 					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div class="space-y-2">
-							<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+							<P
+								class="font-semibold text-primary text-xs uppercase tracking-[0.24em]"
+								tone="accent"
+							>
 								{t("todos.page.eyebrow")}
-							</p>
+							</P>
 							<CardTitle>{t("todos.page.title")}</CardTitle>
 							<CardDescription>{t("todos.page.description")}</CardDescription>
 						</div>
@@ -209,42 +213,45 @@ export default function TodosPage() {
 
 					<Show when={todoError()}>
 						{(message) => (
-							<p
+							<P
 								class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
 								role="alert"
+								tone="danger"
 							>
 								{message()}
-							</p>
+							</P>
 						)}
 					</Show>
 
 					<Show when={!canLoadTodos() || todos.isPending}>
-						<p
+						<P
 							class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
 							role="status"
+							tone="info"
 						>
 							{t("todos.status.loading")}
-						</p>
+						</P>
 					</Show>
 
 					<Show when={todos.isError}>
-						<p
+						<P
 							class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
 							role="alert"
+							tone="danger"
 						>
 							{localizeOrpcError(todos.error, t) ?? t("todos.status.loadError")}
-						</p>
+						</P>
 					</Show>
 
 					<Show
 						when={canLoadTodos() && !todos.isPending && !todos.isError && todoStats().total === 0}
 					>
-						<p
+						<P
 							class="rounded-xl border border-border/70 bg-muted/40 px-4 py-3 text-muted-foreground text-sm leading-6"
 							role="status"
 						>
 							{t("todos.status.empty")}
-						</p>
+						</P>
 					</Show>
 
 					<Show

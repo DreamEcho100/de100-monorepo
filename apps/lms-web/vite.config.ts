@@ -14,7 +14,11 @@ const nitroConfig = nitroPreset
 	: undefined;
 console.log("___ nitroPreset", nitroPreset);
 
-const solidWorkspaceDeps = ["@de100/i18n-domains-solidjs", "@de100/ui-solidjs"];
+const solidWorkspaceDeps = [
+	"@de100/i18n-domains-solidjs",
+	"@de100/ui-domains-solidjs",
+	"@de100/ui-shared",
+];
 
 const depsToOptimize = [
 	"@de100/apps-lms-api",

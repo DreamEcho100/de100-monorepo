@@ -1,4 +1,5 @@
 import { useI18n } from "@de100/i18n-domains-solidjs/client";
+import { H1, H2, H3, P } from "@de100/ui-domains-solidjs";
 import { Title } from "@solidjs/meta";
 import { createQuery } from "@tanstack/solid-query";
 import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
@@ -69,43 +70,48 @@ export default function ApiReferencePage() {
 			<Title>{t("apiReference.metaTitle")}</Title>
 			<section class="grid gap-6 rounded-2xl border border-border/70 bg-card p-6 shadow-black/5 shadow-sm">
 				<header class="grid gap-3">
-					<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+					<P class="font-semibold text-primary text-xs uppercase tracking-[0.24em]" tone="accent">
 						{t("apiReference.title")}
-					</p>
-					<h1 class="text-balance font-semibold text-3xl text-foreground tracking-tight">
+					</P>
+					<H1
+						class="text-balance font-semibold text-3xl text-foreground tracking-tight"
+						variant="title-lg"
+					>
 						{openApiSpecQuery.data?.info?.title ?? t("apiReference.fallbackTitle")}
-					</h1>
-					<p class="text-muted-foreground text-sm leading-6">
+					</H1>
+					<P class="text-muted-foreground text-sm leading-6">
 						{t("apiReference.labels.version")} {openApiSpecQuery.data?.info?.version ?? "0.0.0"}{" "}
 						{t("apiReference.subtitle")}
-					</p>
+					</P>
 					<Show when={openApiSpecQuery.data?.servers?.[0]?.url}>
 						{(serverUrl) => (
-							<p class="text-muted-foreground text-sm leading-6">
+							<P class="text-muted-foreground text-sm leading-6">
 								{t("apiReference.labels.server")}: {serverUrl()}
-							</p>
+							</P>
 						)}
 					</Show>
 				</header>
 
 				<Switch>
 					<Match when={!isHydrated() || openApiSpecQuery.isPending}>
-						<p
+						<P
 							class="rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-700 text-sm leading-6 dark:text-sky-300"
 							role="status"
+							tone="info"
 						>
 							{t("apiReference.status.loading")}
-						</p>
+						</P>
 					</Match>
 					<Match when={openApiSpecQuery.isError}>
-						<p
+						<P
 							class="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-sm leading-6"
 							role="alert"
+							tone="danger"
 						>
 							{openApiSpecQuery.error instanceof Error && openApiSpecQuery.error.message
 								? `${t("apiReference.status.loadError")} (${openApiSpecQuery.error.message})`
 								: t("apiReference.status.loadError")}
-						</p>
+						</P>
 					</Match>
 					<Match when={openApiSpecQuery.data}>
 						<div class="grid gap-3">
@@ -117,11 +123,15 @@ export default function ApiReferencePage() {
 												{routeOperation.method}
 											</span>
 											<div class="grid gap-3">
-												<h2>{routeOperation.operation.operationId ?? routeOperation.path}</h2>
-												<p class="font-mono text-muted-foreground text-xs">{routeOperation.path}</p>
+												<H2 variant="body-md">
+													{routeOperation.operation.operationId ?? routeOperation.path}
+												</H2>
+												<P class="font-mono text-muted-foreground text-xs" variant="caption-sm">
+													{routeOperation.path}
+												</P>
 												<Show when={routeOperation.operation.description}>
 													{(description) => (
-														<p class="text-muted-foreground text-sm leading-6">{description()}</p>
+														<P class="text-muted-foreground text-sm leading-6">{description()}</P>
 													)}
 												</Show>
 											</div>
@@ -130,15 +140,15 @@ export default function ApiReferencePage() {
 										<Show when={routeOperation.operation.requestBody?.content}>
 											{(requestBody) => (
 												<section class="grid gap-3">
-													<h3 class="font-semibold text-foreground text-sm">
+													<H3 class="font-semibold text-foreground text-sm" variant="caption-sm">
 														{t("apiReference.labels.requestBody")}
-													</h3>
-													<p class="text-muted-foreground text-sm leading-6">
+													</H3>
+													<P class="text-muted-foreground text-sm leading-6">
 														{t("apiReference.labels.required")}:{" "}
 														{routeOperation.operation.requestBody?.required
 															? t("apiReference.labels.yes")
 															: t("apiReference.labels.no")}
-													</p>
+													</P>
 													<pre class="overflow-x-auto rounded-xl border border-border/70 bg-background p-4 text-foreground text-xs leading-6">
 														{JSON.stringify(requestBody(), null, 2)}
 													</pre>
@@ -147,9 +157,9 @@ export default function ApiReferencePage() {
 										</Show>
 
 										<section class="grid gap-3">
-											<h3 class="font-semibold text-foreground text-sm">
+											<H3 class="font-semibold text-foreground text-sm" variant="caption-sm">
 												{t("apiReference.labels.responses")}
-											</h3>
+											</H3>
 											<ul class="grid gap-3">
 												<For each={Object.entries(routeOperation.operation.responses ?? {})}>
 													{([statusCode, response]) => (

@@ -1,6 +1,7 @@
 import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import { createSignal, Show } from "solid-js";
 
+import AppLink from "~/components/app-link";
 import { authClient } from "~/libs/apis/auth-client";
 
 import { createLocalizedPath } from "../../i18n/routing";
@@ -17,12 +18,12 @@ export default function UserMenu() {
 			</Show>
 
 			<Show when={!(session().isPending || session().data)}>
-				<a
+				<AppLink
 					class="inline-flex items-center justify-center rounded-lg border border-border/70 bg-card px-4 py-2 font-medium text-foreground text-sm no-underline transition-colors hover:bg-accent hover:text-accent-foreground"
 					href={createLocalizedPath(locale(), "/login")}
 				>
 					{t("userMenu.signIn")}
-				</a>
+				</AppLink>
 			</Show>
 
 			<Show when={!session().isPending && session().data}>

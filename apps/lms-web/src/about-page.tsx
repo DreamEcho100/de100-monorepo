@@ -7,7 +7,8 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@de100/ui-solidjs";
+	P,
+} from "@de100/ui-domains-solidjs";
 import { Title } from "@solidjs/meta";
 import { A } from "@solidjs/router";
 
@@ -35,15 +36,18 @@ export default function AboutPage() {
 				<CardHeader class="space-y-4">
 					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div class="space-y-2">
-							<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+							<P
+								class="font-semibold text-primary text-xs uppercase tracking-[0.24em]"
+								tone="accent"
+							>
 								{t("about.eyebrow")}
-							</p>
+							</P>
 							<CardTitle>{t("about.title")}</CardTitle>
 							<CardDescription>{t("about.description")}</CardDescription>
 						</div>
 						<Badge variant="secondary">{t("about.badge")}</Badge>
 					</div>
-					<p class="max-w-[60ch] text-base text-muted-foreground leading-7">{t("about.lede")}</p>
+					<P class="max-w-[60ch] text-base text-muted-foreground leading-7">{t("about.lede")}</P>
 				</CardHeader>
 			</Card>
 

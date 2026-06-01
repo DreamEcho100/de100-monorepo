@@ -1,8 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "../../../tooling/tailwind/theme.css";
-/* Extending the styles from "@de100/ui-solidjs/styles/base.css" */
-@import "@de100/ui-solidjs/styles/base.css";
+/* Shared token and utility baseline for UI packages. */
+@import "@de100/ui-shared/styles/base.css";
+/* Domain-specific component styles. */
+@import "@de100/ui-domains-solidjs/styles/base.css";
 
 #app {
 	display: contents;

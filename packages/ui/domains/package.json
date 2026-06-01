@@ -1,0 +1,6 @@
+{
+	"name": "@de100/ui-domains",
+	"private": true,
+	"version": "1.0.0",
+	"description": "UI domain package container"
+}

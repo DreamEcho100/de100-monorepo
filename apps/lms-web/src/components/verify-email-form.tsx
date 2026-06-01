@@ -13,7 +13,8 @@ import {
 	FieldError,
 	FieldLabel,
 	Input,
-} from "@de100/ui-solidjs";
+	P,
+} from "@de100/ui-domains-solidjs";
 import { A, useLocation } from "@solidjs/router";
 import { createForm } from "@tanstack/solid-form";
 import { createSignal } from "solid-js";
@@ -64,9 +65,9 @@ export default function VerifyEmailForm() {
 	return (
 		<Card class="w-full border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 			<CardHeader class="grid gap-3">
-				<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+				<P class="font-semibold text-primary text-xs uppercase tracking-[0.24em]" tone="accent">
 					{t("auth.verifyEmail.eyebrow")}
-				</p>
+				</P>
 				<CardTitle class="text-balance font-semibold text-3xl text-foreground tracking-tight">
 					{t("auth.verifyEmail.title")}
 				</CardTitle>
@@ -120,12 +121,13 @@ export default function VerifyEmailForm() {
 						</FieldError>
 					) : null}
 					{successMessage() ? (
-						<p
+						<P
 							class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-emerald-700 text-sm leading-6 dark:text-emerald-300"
 							role="status"
+							tone="success"
 						>
 							{successMessage()}
-						</p>
+						</P>
 					) : null}
 
 					<form.Subscribe>

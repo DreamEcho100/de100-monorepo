@@ -13,7 +13,8 @@ import {
 	FieldError,
 	FieldLabel,
 	Input,
-} from "@de100/ui-solidjs";
+	P,
+} from "@de100/ui-domains-solidjs";
 import { A, useLocation, useNavigate } from "@solidjs/router";
 import { createForm } from "@tanstack/solid-form";
 import { createSignal } from "solid-js";
@@ -67,9 +68,9 @@ export default function ResetPasswordForm() {
 	return (
 		<Card class="w-full border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 			<CardHeader class="grid gap-3">
-				<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+				<P class="font-semibold text-primary text-xs uppercase tracking-[0.24em]" tone="accent">
 					{t("auth.resetPassword.eyebrow")}
-				</p>
+				</P>
 				<CardTitle class="text-balance font-semibold text-3xl text-foreground tracking-tight">
 					{t("auth.resetPassword.title")}
 				</CardTitle>

@@ -9,7 +9,8 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@de100/ui-solidjs";
+	P,
+} from "@de100/ui-domains-solidjs";
 import { Title } from "@solidjs/meta";
 import { A } from "@solidjs/router";
 import { createQuery } from "@tanstack/solid-query";
@@ -68,9 +69,12 @@ export default function HomePage() {
 				<CardHeader class="space-y-4">
 					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div class="space-y-2">
-							<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+							<P
+								class="font-semibold text-primary text-xs uppercase tracking-[0.24em]"
+								tone="accent"
+							>
 								{t("home.eyebrow")}
-							</p>
+							</P>
 							<CardTitle class="text-balance text-4xl tracking-tight">{t("home.title")}</CardTitle>
 							<CardDescription class="max-w-[72ch] text-base leading-7">
 								{t("home.description")}
@@ -78,7 +82,7 @@ export default function HomePage() {
 						</div>
 						<Badge variant="secondary">{t("home.stackBadge")}</Badge>
 					</div>
-					<p class="max-w-[70ch] text-muted-foreground text-sm leading-6">{t("home.lede")}</p>
+					<P class="max-w-[70ch] text-muted-foreground text-sm leading-6">{t("home.lede")}</P>
 					<div class="flex flex-wrap gap-3">
 						<Button as={A} href={createLocalizedPath(locale(), "/login")} variant="secondary">
 							{t("home.ctas.auth")}
@@ -159,13 +163,15 @@ export default function HomePage() {
 						<For each={demoAccounts}>
 							{(account) => (
 								<section class="rounded-xl border border-border/70 bg-muted/20 px-4 py-4">
-									<p class="font-medium text-foreground text-sm">{account.email}</p>
-									<p class="mt-2 text-muted-foreground text-sm leading-6">
+									<P class="font-medium text-foreground text-sm" tone="info" variant="caption-sm">
+										{account.email}
+									</P>
+									<P class="mt-2 text-muted-foreground text-sm leading-6">
 										{t(account.descriptionKey)}
-									</p>
-									<p class="mt-3 font-mono text-muted-foreground text-xs">
+									</P>
+									<P class="mt-3 font-mono text-muted-foreground text-xs" variant="caption-sm">
 										{t("home.accounts.passwordLabel")}: SeedDemo123!
-									</p>
+									</P>
 								</section>
 							)}
 						</For>

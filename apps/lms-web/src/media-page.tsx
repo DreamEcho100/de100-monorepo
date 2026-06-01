@@ -1,7 +1,9 @@
 import { useI18n } from "@de100/i18n-domains-solidjs/client";
+import type { UploaderRecordVisibility } from "@de100/ui-domains-solidjs";
 import {
 	Alert,
 	AlertDescription,
+	ArtDirectedImage,
 	Badge,
 	Button,
 	Card,
@@ -13,10 +15,12 @@ import {
 	FieldContent,
 	FieldDescription,
 	FieldLabel,
-	Input,
+	Image,
 	NativeSelect,
 	NativeSelectOption,
-} from "@de100/ui-solidjs";
+	P,
+	Uploader,
+} from "@de100/ui-domains-solidjs";
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createMutation, createQuery, useQueryClient } from "@tanstack/solid-query";
@@ -26,6 +30,7 @@ import { createEffect, createMemo, createSignal, For, onMount, Show } from "soli
 
 import { authClient } from "~/libs/apis/auth-client";
 import { orpc } from "~/libs/apis/orpc";
+import { createMediaUploaderRuntimeFactory } from "~/libs/media-uploader-runtime";
 import { localizeOrpcError } from "~/libs/orpc-errors";
 
 import { createLocalizedPath } from "../i18n/routing";
@@ -79,12 +84,12 @@ function MediaStatusAlert(props: {
 function MediaList(props: MediaListProps) {
 	if (props.items.length === 0) {
 		return (
-			<p
+			<P
 				class="rounded-xl border border-border/70 bg-muted/40 px-4 py-3 text-muted-foreground text-sm leading-6"
 				role="status"
 			>
 				{props.emptyMessage}
-			</p>
+			</P>
 		);
 	}
 
@@ -116,6 +121,46 @@ function MediaList(props: MediaListProps) {
 								</Badge>
 							</div>
 						</div>
+						{item.contentType.startsWith("image/") ? (
+							<div class="max-w-xs overflow-hidden rounded-xl border border-border/70 bg-muted/20">
+								<Show
+									fallback={
+										<Image
+											alt={item.fileName}
+											class="h-28 w-full"
+											height={112}
+											imgClass="h-full w-full object-cover"
+											placeholder="skeleton"
+											src={item.directUrl ?? item.accessUrl}
+											width={200}
+										/>
+									}
+									when={item.status === "ready"}
+								>
+									<ArtDirectedImage
+										alt={item.fileName}
+										class="h-28 w-full"
+										fallbackSrc={item.accessUrl}
+										height={112}
+										imgClass="h-full w-full object-cover"
+										placeholder="blur"
+										placeholderColor="hsl(var(--muted))"
+										sources={[
+											{
+												media: "(min-width: 1024px)",
+												src: item.directUrl ?? item.accessUrl,
+											},
+											{
+												media: "(max-width: 1023px)",
+												src: item.accessUrl,
+											},
+										]}
+										src={item.directUrl ?? item.accessUrl}
+										width={200}
+									/>
+								</Show>
+							</div>
+						) : null}
 						<p class="break-all text-muted-foreground text-sm">{item.key}</p>
 						<p class="text-muted-foreground text-sm">
 							{props.t("media.status.bucketLabel")}:{" "}
@@ -218,13 +263,12 @@ export default function MediaPage() {
 	const queryClient = useQueryClient();
 	const { locale, t } = useI18n();
 	const session = authClient.useSession();
-	const [file, setFile] = createSignal<File | null>(null);
 	const [isHydrated, setIsHydrated] = createSignal(false);
 	const [uploadError, setUploadError] = createSignal<string | null>(null);
 	const [uploadNotice, setUploadNotice] = createSignal<string | null>(null);
 	const [signedAccessLink, setSignedAccessLink] = createSignal<string | null>(null);
 	const [signedAccessMediaId, setSignedAccessMediaId] = createSignal<string | null>(null);
-	const [visibility, setVisibility] = createSignal<"public" | "private">("private");
+	const [visibility, setVisibility] = createSignal<UploaderRecordVisibility>("private");
 	const canLoadMedia = () => isHydrated() && !session().isPending && !!session().data;
 	const mediaCapabilities = createQuery(() => ({
 		...orpc.media.getCapabilities.queryOptions(),
@@ -240,9 +284,20 @@ export default function MediaPage() {
 				setUploadError(localizeOrpcError(error, t) ?? t("media.status.uploadFailed"));
 			},
 			onSuccess: async () => {
-				setFile(null);
 				setUploadNotice(t("media.status.storedDraftNotice"));
 				await refreshMedia();
+			},
+		}),
+	);
+	const mediaUploaderRuntimeFactory = createMemo(() =>
+		createMediaUploaderRuntimeFactory({
+			uploadFile: async ({ file, visibility: uploadVisibility }) => {
+				setUploadError(null);
+				setUploadNotice(null);
+				await uploadMediaMutation.mutateAsync({
+					file,
+					visibility: uploadVisibility,
+				});
 			},
 		}),
 	);
@@ -318,28 +373,6 @@ export default function MediaPage() {
 		return issueSignedAccessMutation.isPending && issueSignedAccessMutation.variables?.id === id;
 	}
 
-	async function handleSubmit(event: SubmitEvent) {
-		event.preventDefault();
-
-		const currentFile = file();
-		if (!currentFile) {
-			setUploadError(t("media.status.missingFile"));
-			return;
-		}
-
-		setUploadError(null);
-		setUploadNotice(null);
-
-		try {
-			await uploadMediaMutation.mutateAsync({
-				file: currentFile,
-				visibility: visibility(),
-			});
-		} catch {
-			// handled by mutation options
-		}
-	}
-
 	async function handleConfirmMedia(id: string) {
 		setUploadError(null);
 		setUploadNotice(null);
@@ -391,9 +424,13 @@ export default function MediaPage() {
 				<CardHeader class="space-y-4">
 					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div class="space-y-2">
-							<p class="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+							<P
+								class="font-semibold text-primary text-xs uppercase tracking-[0.24em]"
+								tone="accent"
+								variant="caption-sm"
+							>
 								{t("media.page.eyebrow")}
-							</p>
+							</P>
 							<CardTitle>{t("media.page.title")}</CardTitle>
 							<CardDescription>{t("media.page.description")}</CardDescription>
 						</div>
@@ -401,10 +438,10 @@ export default function MediaPage() {
 					</div>
 					<Show when={isHydrated() && !session().isPending && session().data}>
 						{(currentSession) => (
-							<p class="max-w-[60ch] text-base text-muted-foreground leading-7">
+							<P class="max-w-[60ch] text-base text-muted-foreground leading-7">
 								{t("media.page.sessionPrefix")} {currentSession().user.email}.{" "}
 								{t("media.page.sessionSuffix")}
-							</p>
+							</P>
 						)}
 					</Show>
 				</CardHeader>
@@ -481,67 +518,70 @@ export default function MediaPage() {
 								<CardTitle>{t("media.sections.uploadTitle")}</CardTitle>
 								<CardDescription>{t("media.sections.uploadDescription")}</CardDescription>
 							</CardHeader>
-							<CardContent>
-								<form class="grid gap-4" onSubmit={handleSubmit}>
-									<Field class="grid gap-4">
-										<FieldLabel for="media-file">{t("media.fields.file")}</FieldLabel>
-										<FieldContent>
-											<Input
-												accept="image/*,video/*,.pdf,.txt,.csv,.json"
-												id="media-file"
-												onChange={(inputEvent) =>
-													setFile(inputEvent.currentTarget.files?.[0] ?? null)
-												}
-												type="file"
-											/>
-											<FieldDescription>{t("media.fields.visibilityDescription")}</FieldDescription>
-										</FieldContent>
-									</Field>
-
-									<Field class="grid gap-4">
-										<FieldLabel for="media-visibility">{t("media.fields.visibility")}</FieldLabel>
-										<FieldContent>
-											<NativeSelect
-												class="w-full"
-												id="media-visibility"
-												onChange={(changeEvent) =>
-													setVisibility(
-														changeEvent.currentTarget.value === "public" ? "public" : "private",
-													)
-												}
-												value={visibility()}
-											>
-												<NativeSelectOption value="private">
-													{t("media.visibility.private")}
-												</NativeSelectOption>
-												<NativeSelectOption value="public">
-													{t("media.visibility.public")}
-												</NativeSelectOption>
-											</NativeSelect>
-										</FieldContent>
-									</Field>
-
-									<Show when={uploadNotice()}>
-										{(message) => <MediaStatusAlert role="status">{message()}</MediaStatusAlert>}
-									</Show>
-
-									<Show when={uploadError()}>
-										{(message) => (
-											<MediaStatusAlert role="alert" variant="destructive">
-												{message()}
-											</MediaStatusAlert>
-										)}
-									</Show>
-
-									<Button disabled={!file() || uploadMediaMutation.isPending} type="submit">
-										<Show
-											fallback={<span>{t("media.actions.uploadFile")}</span>}
-											when={uploadMediaMutation.isPending}
+							<CardContent class="grid gap-4">
+								<Field class="grid gap-4">
+									<FieldLabel for="media-visibility">{t("media.fields.visibility")}</FieldLabel>
+									<FieldContent>
+										<NativeSelect
+											class="w-full"
+											id="media-visibility"
+											onChange={(changeEvent) =>
+												setVisibility(
+													changeEvent.currentTarget.value === "public" ? "public" : "private",
+												)
+											}
+											value={visibility()}
 										>
-											<Loader2 class="animate-spin" size={18} />
-										</Show>
-									</Button>
-								</form>
+											<NativeSelectOption value="private">
+												{t("media.visibility.private")}
+											</NativeSelectOption>
+											<NativeSelectOption value="public">
+												{t("media.visibility.public")}
+											</NativeSelectOption>
+										</NativeSelect>
+										<FieldDescription>{t("media.fields.visibilityDescription")}</FieldDescription>
+									</FieldContent>
+								</Field>
+
+								<Uploader
+									class="rounded-xl border border-border/70 bg-muted/15 p-4"
+									controllerDependencies={{
+										createRuntime: mediaUploaderRuntimeFactory(),
+									}}
+									disabled={!canLoadMedia() || uploadMediaMutation.isPending}
+									helperText={t("media.fields.file")}
+									i18n={{
+										browseCta: t("media.actions.uploadFile"),
+										dropzoneHint: t("media.fields.file"),
+										uploadSuccess: t("media.status.storedDraftNotice"),
+									}}
+									persistence={{ enabled: false }}
+									restrictions={{
+										allowedMimeTypes: [
+											"image/*",
+											"video/*",
+											"application/pdf",
+											"text/plain",
+											"text/csv",
+											"application/json",
+										],
+										maxFileBytes: 25 * 1024 * 1024,
+										maxFiles: 5,
+									}}
+									visibility={visibility()}
+								/>
+
+								<Show when={uploadNotice()}>
+									{(message) => <MediaStatusAlert role="status">{message()}</MediaStatusAlert>}
+								</Show>
+
+								<Show when={uploadError()}>
+									{(message) => (
+										<MediaStatusAlert role="alert" variant="destructive">
+											{message()}
+										</MediaStatusAlert>
+									)}
+								</Show>
 							</CardContent>
 						</Card>
 

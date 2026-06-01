@@ -12,6 +12,8 @@ Current entry points:
 
 - `onboarding.md`: repo layout, active packages, and first commands
 - `setup/environment.md`: environment variables and local setup expectations
+- `setup/ui-domains-migration.md`: migration guide for UI package rename, boundary realignment, and app prefetch architecture updates
+- `setup/phase10-release-checklist.md`: ordered automation/manual QA checklist for release-gate execution
 - `setup/production-deployment.md`: self-host production deployment workflow and service configuration
 - `deployment/self-hosted/overview.md`: active self-host deployment direction, goals, and decision boundaries
 - `deployment/self-hosted/orchestration/coolify-primary.md`: primary orchestration path for single-VPS-first rollout
@@ -20,6 +22,7 @@ Current entry points:
 - `evidence/templates/hosted-deploy-smoke-template.md`: standardized artifact format for hosted smoke validation
 - `architecture/database.md`: how DB driver selection works across local Postgres and Neon
 - `architecture/frontend-styling.md`: how the shared Tailwind token layer, app CSS, and UI base styles fit together
+- `architecture/link-preview-security.md`: link preview URL policy model (allowlist, protocol, SSRF, and decision reasons)
 - `architecture/media-storage.md`: media storage primitives and the current public/private split
 - `flows/media-flow.md`: how uploads and public/private reads move through the app runtime
 - `flows/todo-flow.md`: how the app reads and mutates user-owned todos end to end

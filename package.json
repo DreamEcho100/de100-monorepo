@@ -20,8 +20,8 @@
 		"lint:media-storage-coupling": "node ./scripts/check-media-storage-coupling.mjs",
 		"lint:fix": "turbo run lint:fix --continue --",
 		"lint:ws": "pnpm dlx sherif@latest",
-		"test": "turbo run test --continue --filter=@de100/apps-lms-web --filter=@de100/apps-lms-api --filter=@de100/apps-lms-auth --filter=@de100/apps-lms-db --filter=@de100/apps-lms-cache --filter=@de100/apps-lms-validators --filter=@de100/i18n-domains-solidjs --filter=@de100/ui-solidjs",
-		"test:watch": "turbo run test:watch --continue --filter=@de100/apps-lms-web --filter=@de100/apps-lms-api --filter=@de100/apps-lms-auth --filter=@de100/apps-lms-db --filter=@de100/apps-lms-cache --filter=@de100/apps-lms-validators --filter=@de100/i18n-domains-solidjs --filter=@de100/ui-solidjs",
+		"test": "turbo run test --continue --filter=@de100/apps-lms-web --filter=@de100/apps-lms-api --filter=@de100/apps-lms-auth --filter=@de100/apps-lms-db --filter=@de100/apps-lms-cache --filter=@de100/apps-lms-validators --filter=@de100/i18n-domains-solidjs --filter=@de100/ui-domains-solidjs --filter=@de100/ui-shared",
+		"test:watch": "turbo run test:watch --continue --filter=@de100/apps-lms-web --filter=@de100/apps-lms-api --filter=@de100/apps-lms-auth --filter=@de100/apps-lms-db --filter=@de100/apps-lms-cache --filter=@de100/apps-lms-validators --filter=@de100/i18n-domains-solidjs --filter=@de100/ui-domains-solidjs --filter=@de100/ui-shared",
 		"type:check": "turbo run type:check --continue --",
 		"postinstall": "pnpm lint:ws",
 		"ui-add": "turbo run ui-add"
@@ -29,9 +29,9 @@
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",
 		"@de100/biome-config": "workspace:*",
-		"@turbo/gen": "^2.9.14",
+		"@turbo/gen": "^2.9.16",
 		"dotenv-cli": "catalog:",
-		"turbo": "^2.9.14",
+		"turbo": "^2.9.16",
 		"typescript": "catalog:",
 		"ultracite": "catalog:"
 	}
