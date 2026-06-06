@@ -23,7 +23,6 @@
 		"test:ci": "vitest run",
 		"build": "tsc",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
-		"dev": "tsc",
 		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
 		"format:check": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",

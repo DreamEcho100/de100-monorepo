@@ -3,6 +3,8 @@ packages:
   - packages/*
   - packages/apps/*
   - packages/apps/lms/*
+  - packages/files/*
+  - packages/files/domains/*
   - packages/ui/*
   - packages/ui/domains/*
   - packages/i18n/*
@@ -11,6 +13,7 @@ packages:
 
 catalog:
   "@aws-sdk/client-s3": ^3.940.0
+  "@aws-sdk/s3-request-presigner": ^3.940.0
   "@better-auth/cli": 1.4.0-beta.9
   "@better-auth/expo": 1.4.0-beta.9
   "@biomejs/biome": 2.4.15

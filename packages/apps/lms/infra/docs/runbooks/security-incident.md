@@ -19,7 +19,7 @@ Use this runbook for suspected credential leakage, unauthorized access, or malic
 
 1. Rotate exposed secrets immediately:
    - APP_LMS_BETTER_AUTH_SECRET
-   - APP_LMS_MEDIA_SIGNING_SECRET
+   - APP_LMS_FILES_SIGNING_SECRET
    - cache and storage credentials
 2. Revoke compromised access tokens or API keys.
 3. Restrict inbound access if active exploitation is suspected.

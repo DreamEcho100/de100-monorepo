@@ -21,6 +21,8 @@ app.config.timestamp_*.js
 
 # Temp
 gitignore
+test-results
+playwright-report
 
 # System Files
 .DS_Store

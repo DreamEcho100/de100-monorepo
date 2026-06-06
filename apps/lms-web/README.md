@@ -26,7 +26,10 @@ docker compose up -d lms-redis
 The app expects the default local origin from `.env.local`:
 
 - app: `http://127.0.0.1:3000`
+- browser URL: `http://127.0.0.1:3000/en` or `http://localhost:3000/en`
 - auth base URL: `http://127.0.0.1:3000/api/auth`
+
+The default dev server binds to all local interfaces and fails loudly if port `3000` is already in use. If a sandboxed tool or Codex-run command prints Vite's ready message but the browser still reports `ERR_CONNECTION_REFUSED`, start `pnpm dev` from a normal VS Code/local terminal instead; sandboxed network namespaces can make that server unreachable from the host browser.
 
 `.env.local` is the preferred local developer file. `.env` still works as a temporary fallback for older workflows, but the checked-in `.env.example` is now a template only and is no longer loaded at runtime.
 
@@ -63,7 +66,7 @@ Page routes are canonical under `/en/...` and `/ar/...`. The locale middleware w
 
 | Account           | Password       | Intended use                                                |
 | ----------------- | -------------- | ----------------------------------------------------------- |
-| `owner@lms.test`  | `SeedDemo123!` | Main demo user with mixed todos and media metadata fixtures |
+| `owner@lms.test`  | `SeedDemo123!` | Main demo user with mixed todos and files metadata fixtures |
 | `viewer@lms.test` | `SeedDemo123!` | Secondary user for cross-account checks                     |
 | `empty@lms.test`  | `SeedDemo123!` | Baseline user with auth only and no seeded records          |
 
@@ -71,27 +74,27 @@ Page routes are canonical under `/en/...` and `/ar/...`. The locale middleware w
 
 - users: Better Auth email/password accounts
 - todos: completed and incomplete fixtures for CRUD testing
-- media: representative metadata states across public/private and draft/ready
+- files: representative metadata states across public/private and draft/ready
 
-Important: seeded media behavior now depends on the active storage driver. With `APP_LMS_MEDIA_STORAGE_DRIVER=local`, `pnpm -F @de100/apps-lms-web db:seed` writes real fixture objects under `APP_LMS_MEDIA_LOCAL_ROOT`, so the seeded media links on `/media` open real content in local development. With `APP_LMS_MEDIA_STORAGE_DRIVER=r2`, the seed still creates metadata rows only because the script does not run with live runtime storage bindings.
+Important: seeded files behavior depends on the active storage driver. With `APP_LMS_FILES_STORAGE_DRIVER=local`, `pnpm -F @de100/apps-lms-web db:seed` writes real fixture objects under `APP_LMS_FILES_LOCAL_ROOT`, so the seeded files links on `/files` open real content in local development. With `APP_LMS_FILES_STORAGE_DRIVER=s3`, the seed still creates metadata rows only because the script does not run with live runtime storage bindings.
 
-## Why media uses both oRPC and routes
+## Why files support Hybrid and HTTP-native paths
 
-The media slice is intentionally split at the transport boundary:
+The files slice intentionally keeps two scalable API approaches:
 
-- oRPC now handles media upload, listing, confirm, delete, capability reads, and signed-link issuance, with the `/media` page using TanStack Query `queryOptions()` and `mutationOptions()` throughout.
-- app routes remain only for public/private/signed object reads because those paths return binary responses and need the live request runtime for object access.
+- Hybrid is the recommended default: oRPC handles typed control-plane work, `orpc-direct` remains available for small first-party flows, and HTTP/provider routes handle binary, range, and provider-native paths.
+- HTTP-native is maintained as the full route-first second path for Uppy, browser playback, and external-tool compatibility.
 
-That is why media is still not package-only oRPC end to end, even though app-facing management is now oRPC-first.
+The comparison shell lives at `/en/files-lab`, with concrete labs at `/en/files-lab/hybrid` and `/en/files-lab/http`.
 
-## Media storage configuration
+## Files storage configuration
 
-The media layer supports two drivers behind one shared API surface:
+The files layer supports two drivers behind one shared API surface:
 
-- `APP_LMS_MEDIA_STORAGE_DRIVER=r2`: use runtime-managed object storage bindings and direct public URLs when available
-- `APP_LMS_MEDIA_STORAGE_DRIVER=local`: store media on disk under `APP_LMS_MEDIA_LOCAL_ROOT` for local development and testing, including real seeded fixture objects created by `pnpm -F @de100/apps-lms-web db:seed`
+- `APP_LMS_FILES_STORAGE_DRIVER=s3`: use S3-compatible object storage. Select `APP_LMS_FILES_S3_PROVIDER=r2|minio|aws|custom`.
+- `APP_LMS_FILES_STORAGE_DRIVER=local`: store files on disk under `APP_LMS_FILES_LOCAL_ROOT` for local development and testing, including real seeded fixture objects created by `pnpm -F @de100/apps-lms-web db:seed`.
 
-Signed delivery works on both drivers. Direct public bucket URLs are only available on `r2`, so the UI exposes both capability flags on the `/media` page.
+Signed delivery works on both drivers. Provider/public URLs are available on configured S3-compatible profiles, so the UI exposes capability flags on the `/files` page.
 
 ## Useful commands
 
@@ -106,6 +109,7 @@ pnpm -F @de100/apps-lms-db db:generate
 docker compose up -d lms-redis
 pnpm -F @de100/apps-lms-web db:seed
 pnpm dev
+curl -I http://127.0.0.1:3000/
 pnpm -F @de100/apps-lms-infra selfhost:preflight
 pnpm -F @de100/apps-lms-infra selfhost:verify
 pnpm -F @de100/apps-lms-infra selfhost:smoke:public
@@ -145,11 +149,11 @@ Use these labels when reading this file:
 
 Current status matrix:
 
-- Browser regression after shared UI cleanup (`home`, `about`, `media`, locale + theme checks): `implemented-and-evidenced`
+- Browser regression after shared UI cleanup (`home`, `about`, files, locale + theme checks): `implemented-and-evidenced`
   - Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
-- Media provider boundary + guardrails: `implemented-and-evidenced`
+- Files provider boundary + guardrails: `implemented-and-evidenced`
   - Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
-- Driver and service proof matrix (`memory`, `redis`, `upstash`, `local`, `r2`, `log`, `resend`): `implemented-and-unverified`
+- Driver and service proof matrix (`memory`, `redis`, `upstash`, `local`, `s3`, `r2/minio/aws/custom`, `log`, `resend`): `implemented-and-unverified`
   - Note: this matrix remains documented and supported in code/config, but direct per-driver evidence files are still pending.
 
 Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
@@ -164,7 +168,7 @@ Use the shared VS Code browser or your normal browser. Playwright is not require
 2. Sign in with `owner@lms.test` and `SeedDemo123!`.
 3. Use the sign-up toggle on the same page to confirm the restored auth UI exposes both sign-in and sign-up states.
 4. Sign out and sign back in with `viewer@lms.test`.
-5. Confirm each account only sees its own dashboard, todos, and media records.
+5. Confirm each account only sees its own dashboard, todos, and files records.
 6. Switch locale to Arabic and confirm the route changes to `/ar/...` while the form copy and `dir` update.
 7. When `APP_LMS_EMAIL_DRIVER=log`, trigger sign-up or password-reset flows and verify the server logs print the generated Better Auth email links.
 
@@ -177,9 +181,9 @@ Use the shared VS Code browser or your normal browser. Playwright is not require
 5. Delete a todo and confirm the list refreshes without a full reload.
 6. Repeat the same checks with `empty@lms.test` to validate the empty state.
 
-### Media management
+### Files management
 
-1. Open `/en/media` while signed in.
+1. Open `/en/files` while signed in.
 2. Confirm the backend card shows the active storage driver and delivery capabilities.
 3. Confirm the seeded metadata fixtures render with the expected visibility and status badges.
 4. Use the form to upload a small local file and confirm the request completes through the shared oRPC surface.
@@ -188,16 +192,17 @@ Use the shared VS Code browser or your normal browser. Playwright is not require
 7. Open the generated app access URL for the uploaded object.
 8. If signed delivery is available, generate a signed URL for a ready item and open it.
 9. Delete the uploaded object and confirm the list refreshes.
+10. Open `/en/files-lab`, `/en/files-lab/hybrid`, and `/en/files-lab/http` to compare API approach behavior.
 
 ### Landing page and API reference
 
-1. Open `/en` and confirm the landing page shows the seeded accounts, shared API health card, and direct entry points into auth, dashboard, todos, media, and API reference.
+1. Open `/en` and confirm the landing page shows the seeded accounts, shared API health card, and direct entry points into auth, dashboard, todos, files, and API reference.
 2. Open `/en/api/reference` and confirm the generated OpenAPI UI loads from `/api/reference/spec.json`.
 
-### Notes about seeded media
+### Notes about seeded files
 
-- With `APP_LMS_MEDIA_STORAGE_DRIVER=local`, seeded media rows include real local objects, so you can validate seeded public/private reads directly from the `/media` page after running `db:seed`.
-- With `APP_LMS_MEDIA_STORAGE_DRIVER=r2`, seeded media rows remain metadata-only until you upload real objects through the UI in a live bound runtime.
+- With `APP_LMS_FILES_STORAGE_DRIVER=local`, seeded files rows include real local objects, so you can validate seeded public/private reads directly from the `/files` page after running `db:seed`.
+- With `APP_LMS_FILES_STORAGE_DRIVER=s3`, seeded files rows remain metadata-only until you upload real objects through the UI in a live bound runtime.
 - Deleting a seeded row is safe in either mode because the bucket delete path is tolerant of a missing object.
 
 ## Production deploy
@@ -215,4 +220,4 @@ pnpm -F @de100/apps-lms-infra selfhost:verify:full
 pnpm -F @de100/apps-lms-infra selfhost:evidence:init -- staging
 ```
 
-Use the mode matrix from `packages/apps/lms/env/src/server.ts` to choose database, cache, media, and email drivers before deployment.
+Use the mode matrix from `packages/apps/lms/env/src/server.ts` to choose database, cache, files, and email drivers before deployment.

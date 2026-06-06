@@ -98,7 +98,7 @@ pnpm -F @de100/apps-lms-infra selfhost:evidence:init -- <environment>
 3. Record:
    - command outputs and pass/fail status
    - route checks
-   - auth/media checks
+   - auth/files checks
    - unresolved issues and mitigation owners
 
 ## Completion Gate

@@ -1,0 +1,87 @@
+{
+	"name": "@de100/files-server",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./orpc": {
+			"default": "./src/orpc.ts"
+		},
+		"./pipeline": {
+			"default": "./src/pipeline.ts"
+		},
+		"./router": {
+			"default": "./src/router.ts"
+		},
+		"./storage": {
+			"default": "./src/storage.ts"
+		},
+		"./temp-files": {
+			"default": "./src/temp-files.ts"
+		},
+		"./worker": {
+			"default": "./src/worker.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"imports": {
+		"#*": "./src/*"
+	},
+	"license": "MIT",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ci": "vitest run",
+		"build": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"format:check": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"type:check": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "catalog:",
+		"@aws-sdk/s3-request-presigner": "catalog:",
+		"@de100/files-shared": "workspace:*",
+		"zod": "catalog:"
+	},
+	"peerDependencies": {
+		"@tus/server": "*",
+		"exifr": "*",
+		"file-type": "*",
+		"music-metadata": "*",
+		"sharp": "*"
+	},
+	"peerDependenciesMeta": {
+		"@tus/server": {
+			"optional": true
+		},
+		"exifr": {
+			"optional": true
+		},
+		"file-type": {
+			"optional": true
+		},
+		"music-metadata": {
+			"optional": true
+		},
+		"sharp": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@de100/biome-config": "workspace:*",
+		"@de100/tsconfig": "workspace:*",
+		"@types/node": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

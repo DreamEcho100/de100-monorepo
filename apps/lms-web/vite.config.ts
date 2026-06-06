@@ -12,7 +12,6 @@ const nitroConfig = nitroPreset
 			preset: nitroPreset,
 		}
 	: undefined;
-console.log("___ nitroPreset", nitroPreset);
 
 const solidWorkspaceDeps = [
 	"@de100/i18n-domains-solidjs",
@@ -34,12 +33,14 @@ const depsToOptimize = [
 
 export default defineConfig({
 	server: {
+		host: "0.0.0.0",
 		sourcemapIgnoreList: isTraceModeEnabled ? false : undefined,
 		port: env.APP_LMS_SERVER_PORT ?? 3000,
+		strictPort: true,
 	},
 	css: {
 		// Tailwind/Vite dev CSS sourcemaps currently pull source-map-js into the browser
-		// as a raw CommonJS module, which breaks the media page in local dev.
+		// as a raw CommonJS module, which breaks local app pages in dev.
 		// devSourcemap: false,
 	},
 	esbuild: {

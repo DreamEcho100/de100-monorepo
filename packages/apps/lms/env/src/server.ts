@@ -29,17 +29,18 @@ const baseEnv = createEnv({
 		APP_LMS_DATABASE_DRIVER: z.enum(["auto", "postgres", "neon-http"]).default("auto"),
 		APP_LMS_CACHE_DRIVER: z.enum(["memory", "redis", "upstash"]).default("memory"),
 		APP_LMS_CACHE_KEY_PREFIX: z.string().min(1).default("de100:lms"),
-		APP_LMS_MEDIA_STORAGE_DRIVER: z.enum(["r2", "local"]).default("r2"),
-		APP_LMS_MEDIA_LOCAL_ROOT: z.string().min(1).default("./.local/media"),
-		APP_LMS_MEDIA_S3_ENDPOINT: z.url().optional(),
-		APP_LMS_MEDIA_S3_REGION: z.string().min(1).default("auto"),
-		APP_LMS_MEDIA_S3_ACCESS_KEY_ID: z.string().min(1).optional(),
-		APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
-		APP_LMS_MEDIA_S3_PUBLIC_BUCKET: z.string().min(1).optional(),
-		APP_LMS_MEDIA_S3_PRIVATE_BUCKET: z.string().min(1).optional(),
-		APP_LMS_MEDIA_S3_FORCE_PATH_STYLE: z.boolean().default(true),
-		APP_LMS_MEDIA_SIGNING_SECRET: z.string().min(32).optional(),
-		APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS: z.coerce.number().int().positive().default(3600),
+		APP_LMS_FILES_STORAGE_DRIVER: z.enum(["s3", "local"]).default("s3"),
+		APP_LMS_FILES_LOCAL_ROOT: z.string().min(1).default("./.local/files"),
+		APP_LMS_FILES_S3_PROVIDER: z.enum(["r2", "minio", "aws", "custom"]).default("r2"),
+		APP_LMS_FILES_S3_ENDPOINT: z.url().optional(),
+		APP_LMS_FILES_S3_REGION: z.string().min(1).default("auto"),
+		APP_LMS_FILES_S3_ACCESS_KEY_ID: z.string().min(1).optional(),
+		APP_LMS_FILES_S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+		APP_LMS_FILES_S3_PUBLIC_BUCKET: z.string().min(1).optional(),
+		APP_LMS_FILES_S3_PRIVATE_BUCKET: z.string().min(1).optional(),
+		APP_LMS_FILES_S3_FORCE_PATH_STYLE: z.boolean().default(true),
+		APP_LMS_FILES_SIGNING_SECRET: z.string().min(32).optional(),
+		APP_LMS_FILES_SIGNED_URL_TTL_SECONDS: z.coerce.number().int().positive().default(3600),
 		REDIS_URL: z.url().optional(),
 		APP_LMS_UPSTASH_REDIS_URL: z.url().optional(),
 		APP_LMS_UPSTASH_REDIS_TOKEN: z.string().min(1).optional(),
@@ -142,12 +143,13 @@ const emailModeSchema = z.discriminatedUnion("type", [
 	}),
 ]);
 
-const mediaS3ModeSchema = z
+const filesS3ModeSchema = z
 	.object({
 		accessKeyId: z.string().min(1).optional(),
 		endpoint: z.url().optional(),
 		forcePathStyle: z.boolean(),
 		privateBucket: z.string().min(1).optional(),
+		provider: z.enum(["r2", "minio", "aws", "custom"]),
 		publicBucket: z.string().min(1).optional(),
 		region: z.string().min(1),
 		secretAccessKey: z.string().min(1).optional(),
@@ -160,7 +162,7 @@ const mediaS3ModeSchema = z
 			ctx.addIssue({
 				code: "custom",
 				message:
-					"APP_LMS_MEDIA_S3_ACCESS_KEY_ID and APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY must be set together when using r2 mode.",
+					"APP_LMS_FILES_S3_ACCESS_KEY_ID and APP_LMS_FILES_S3_SECRET_ACCESS_KEY must be set together when using s3 mode.",
 			});
 		}
 
@@ -171,27 +173,27 @@ const mediaS3ModeSchema = z
 			ctx.addIssue({
 				code: "custom",
 				message:
-					"APP_LMS_MEDIA_S3_PUBLIC_BUCKET and APP_LMS_MEDIA_S3_PRIVATE_BUCKET must be set together when using r2 mode.",
+					"APP_LMS_FILES_S3_PUBLIC_BUCKET and APP_LMS_FILES_S3_PRIVATE_BUCKET must be set together when using s3 mode.",
 			});
 		}
 	});
 
-const mediaStorageModeSchema = z.discriminatedUnion("type", [
+const filesStorageModeSchema = z.discriminatedUnion("type", [
 	z.object({
 		type: z.literal("local"),
 		localRoot: z.string().min(1),
 	}),
 	z.object({
-		type: z.literal("r2"),
+		type: z.literal("s3"),
 		localRoot: z.string().min(1),
-		s3: mediaS3ModeSchema,
+		s3: filesS3ModeSchema,
 	}),
 ]);
 
 export type DatabaseMode = z.infer<typeof databaseModeSchema>;
 export type CacheMode = z.infer<typeof cacheModeSchema>;
 export type EmailMode = z.infer<typeof emailModeSchema>;
-export type MediaStorageMode = z.infer<typeof mediaStorageModeSchema>;
+export type FilesStorageMode = z.infer<typeof filesStorageModeSchema>;
 
 const modeProjectionSchema = z
 	.object({
@@ -202,15 +204,16 @@ const modeProjectionSchema = z
 		APP_LMS_EMAIL_DRIVER: z.enum(["log", "resend"]),
 		APP_LMS_EMAIL_FROM: z.string().min(1),
 		APP_LMS_EMAIL_REPLY_TO: z.string().min(1).optional(),
-		APP_LMS_MEDIA_LOCAL_ROOT: z.string().min(1),
-		APP_LMS_MEDIA_S3_ACCESS_KEY_ID: z.string().min(1).optional(),
-		APP_LMS_MEDIA_S3_ENDPOINT: z.url().optional(),
-		APP_LMS_MEDIA_S3_FORCE_PATH_STYLE: z.boolean(),
-		APP_LMS_MEDIA_S3_PRIVATE_BUCKET: z.string().min(1).optional(),
-		APP_LMS_MEDIA_S3_PUBLIC_BUCKET: z.string().min(1).optional(),
-		APP_LMS_MEDIA_S3_REGION: z.string().min(1),
-		APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
-		APP_LMS_MEDIA_STORAGE_DRIVER: z.enum(["r2", "local"]),
+		APP_LMS_FILES_LOCAL_ROOT: z.string().min(1),
+		APP_LMS_FILES_S3_ACCESS_KEY_ID: z.string().min(1).optional(),
+		APP_LMS_FILES_S3_ENDPOINT: z.url().optional(),
+		APP_LMS_FILES_S3_FORCE_PATH_STYLE: z.boolean(),
+		APP_LMS_FILES_S3_PRIVATE_BUCKET: z.string().min(1).optional(),
+		APP_LMS_FILES_S3_PROVIDER: z.enum(["r2", "minio", "aws", "custom"]),
+		APP_LMS_FILES_S3_PUBLIC_BUCKET: z.string().min(1).optional(),
+		APP_LMS_FILES_S3_REGION: z.string().min(1),
+		APP_LMS_FILES_S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+		APP_LMS_FILES_STORAGE_DRIVER: z.enum(["s3", "local"]),
 		APP_LMS_RESEND_API_KEY: z.string().min(1).optional(),
 		APP_LMS_UPSTASH_REDIS_TOKEN: z.string().min(1).optional(),
 		APP_LMS_UPSTASH_REDIS_URL: z.url().optional(),
@@ -265,29 +268,28 @@ const modeProjectionSchema = z
 						resendApiKey: value.APP_LMS_RESEND_API_KEY,
 					},
 		),
-		mediaStorage: mediaStorageModeSchema.parse(
-			value.APP_LMS_MEDIA_STORAGE_DRIVER === "local"
+		filesStorage: filesStorageModeSchema.parse(
+			value.APP_LMS_FILES_STORAGE_DRIVER === "local"
 				? {
 						type: "local",
-						localRoot: value.APP_LMS_MEDIA_LOCAL_ROOT,
+						localRoot: value.APP_LMS_FILES_LOCAL_ROOT,
 					}
 				: {
-						type: "r2",
-						localRoot: value.APP_LMS_MEDIA_LOCAL_ROOT,
+						type: "s3",
+						localRoot: value.APP_LMS_FILES_LOCAL_ROOT,
 						s3: {
-							accessKeyId: value.APP_LMS_MEDIA_S3_ACCESS_KEY_ID,
-							endpoint: value.APP_LMS_MEDIA_S3_ENDPOINT,
-							forcePathStyle: value.APP_LMS_MEDIA_S3_FORCE_PATH_STYLE,
-							privateBucket: value.APP_LMS_MEDIA_S3_PRIVATE_BUCKET,
-							publicBucket: value.APP_LMS_MEDIA_S3_PUBLIC_BUCKET,
-							region: value.APP_LMS_MEDIA_S3_REGION,
-							secretAccessKey: value.APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY,
+							accessKeyId: value.APP_LMS_FILES_S3_ACCESS_KEY_ID,
+							endpoint: value.APP_LMS_FILES_S3_ENDPOINT,
+							forcePathStyle: value.APP_LMS_FILES_S3_FORCE_PATH_STYLE,
+							privateBucket: value.APP_LMS_FILES_S3_PRIVATE_BUCKET,
+							provider: value.APP_LMS_FILES_S3_PROVIDER,
+							publicBucket: value.APP_LMS_FILES_S3_PUBLIC_BUCKET,
+							region: value.APP_LMS_FILES_S3_REGION,
+							secretAccessKey: value.APP_LMS_FILES_S3_SECRET_ACCESS_KEY,
 						},
 					},
 		),
 	}));
-
-type ModeProjection = z.infer<typeof modeProjectionSchema>;
 
 export const env = Object.freeze({
 	...baseEnv,
@@ -297,4 +299,4 @@ export const env = Object.freeze({
 export const databaseMode: DatabaseMode = env.database;
 export const cacheMode: CacheMode = env.cache;
 export const emailMode: EmailMode = env.email;
-export const mediaStorageMode: MediaStorageMode = env.mediaStorage;
+export const filesStorageMode: FilesStorageMode = env.filesStorage;

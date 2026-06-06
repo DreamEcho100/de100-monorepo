@@ -13,7 +13,7 @@ Complete this checklist before every production deploy.
 - [ ] `.env.deploy.local` (or provider secret store) includes required production values.
 - [ ] `APP_LMS_BETTER_AUTH_URL` and `APP_LMS_CORS_ORIGIN` match final public domain.
 - [ ] Cache driver choice (`memory`, `redis`, `upstash`) matches provisioned service.
-- [ ] Media driver choice (`local`, `r2`) matches runtime capability and storage availability.
+- [ ] Files driver choice (`local`, `s3`) and S3 provider (`r2`, `minio`, `aws`, or `custom`) match runtime capability and storage availability.
 - [ ] Secrets are sourced from secure storage and not committed.
 
 ## Data And Service Readiness
@@ -21,7 +21,7 @@ Complete this checklist before every production deploy.
 - [ ] Database is reachable from target runtime.
 - [ ] `pnpm -F @de100/apps-lms-db db:migrate` dry run or migration plan reviewed.
 - [ ] Cache endpoint connectivity validated (if not using `memory`).
-- [ ] Object storage endpoint and bucket names validated (if using `r2`).
+- [ ] Object storage endpoint and bucket names validated (if using `s3`).
 
 ## Infrastructure Readiness
 

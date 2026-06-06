@@ -1,10 +1,12 @@
+import type { FileKind } from "@de100/files-shared";
+
 type SeedTodoFixture = {
 	id: number;
 	text: string;
 	completed: boolean;
 };
 
-type SeedMediaFixture = {
+type SeedFilesFixture = {
 	id: string;
 	fileName: string;
 	bucketName: string;
@@ -14,7 +16,6 @@ type SeedMediaFixture = {
 	keySuffix: string;
 	createdAt: Date;
 	updatedAt: Date;
-	confirmedAt: Date | null;
 	deletedAt: Date | null;
 };
 
@@ -24,7 +25,7 @@ type SeedUserFixture = {
 	password: string;
 	description: string;
 	todos: SeedTodoFixture[];
-	media: SeedMediaFixture[];
+	files: SeedFilesFixture[];
 };
 
 type DatabaseClient = Awaited<ReturnType<typeof import("@de100/apps-lms-db")["createDb"]>>;
@@ -48,16 +49,16 @@ const seedUsers: SeedUserFixture[] = [
 		email: "owner@lms.test",
 		name: "Seed Owner",
 		password: defaultPassword,
-		description: "Primary demo account with mixed todo states and media metadata fixtures.",
+		description: "Primary demo account with mixed todo states and files metadata fixtures.",
 		todos: [
 			{ id: -101, text: "Review the seeded dashboard state", completed: true },
 			{ id: -102, text: "Create a brand new todo from the form", completed: false },
 			{ id: -103, text: "Edit one todo and toggle its completed status", completed: false },
 			{ id: -104, text: "Delete a todo after checking the loading state", completed: true },
 		],
-		media: [
+		files: [
 			{
-				id: "seed-media-owner-ready-public",
+				id: "seed-files-owner-ready-public",
 				fileName: "course-handbook.txt",
 				bucketName: "seed-public-metadata",
 				contentType: "text/plain",
@@ -66,11 +67,10 @@ const seedUsers: SeedUserFixture[] = [
 				keySuffix: "seed/public/course-handbook.txt",
 				createdAt: daysAgo(6),
 				updatedAt: daysAgo(5),
-				confirmedAt: daysAgo(5),
 				deletedAt: null,
 			},
 			{
-				id: "seed-media-owner-ready-private",
+				id: "seed-files-owner-ready-private",
 				fileName: "grading-notes.json",
 				bucketName: "seed-private-metadata",
 				contentType: "application/json",
@@ -79,11 +79,10 @@ const seedUsers: SeedUserFixture[] = [
 				keySuffix: "seed/private/grading-notes.json",
 				createdAt: daysAgo(4),
 				updatedAt: daysAgo(4),
-				confirmedAt: daysAgo(4),
 				deletedAt: null,
 			},
 			{
-				id: "seed-media-owner-draft-private",
+				id: "seed-files-owner-draft-private",
 				fileName: "upload-awaiting-review.svg",
 				bucketName: "seed-private-metadata",
 				contentType: "image/svg+xml",
@@ -92,7 +91,6 @@ const seedUsers: SeedUserFixture[] = [
 				keySuffix: "seed/private/upload-awaiting-review.svg",
 				createdAt: daysAgo(1),
 				updatedAt: daysAgo(1),
-				confirmedAt: null,
 				deletedAt: null,
 			},
 		],
@@ -110,9 +108,9 @@ const seedUsers: SeedUserFixture[] = [
 				completed: false,
 			},
 		],
-		media: [
+		files: [
 			{
-				id: "seed-media-viewer-draft-public",
+				id: "seed-files-viewer-draft-public",
 				fileName: "shared-syllabus.txt",
 				bucketName: "seed-public-metadata",
 				contentType: "text/plain",
@@ -121,7 +119,6 @@ const seedUsers: SeedUserFixture[] = [
 				keySuffix: "seed/public/shared-syllabus.txt",
 				createdAt: daysAgo(2),
 				updatedAt: daysAgo(2),
-				confirmedAt: null,
 				deletedAt: null,
 			},
 		],
@@ -130,9 +127,9 @@ const seedUsers: SeedUserFixture[] = [
 		email: "empty@lms.test",
 		name: "Seed Empty",
 		password: defaultPassword,
-		description: "Baseline account with auth only and no todo or media fixtures.",
+		description: "Baseline account with auth only and no todo or files fixtures.",
 		todos: [],
-		media: [],
+		files: [],
 	},
 ];
 
@@ -145,18 +142,18 @@ function createSeedStorageKey(userId: string, keySuffix: string) {
 	return `${userId}/${keySuffix}`;
 }
 
-function createSeedMediaBody(fixture: SeedMediaFixture) {
+function createSeedFilesBody(fixture: SeedFilesFixture) {
 	switch (fixture.contentType) {
 		case "application/json":
 			return JSON.stringify(
 				{
 					checklist: [
-						"Verify seeded private media routes",
-						"Issue a signed URL from the media page",
+						"Verify seeded private files routes",
+						"Issue a signed URL from the files page",
 						"Confirm local storage serves real fixture bodies",
 					],
 					fileName: fixture.fileName,
-					seed: "lms-media-fixture",
+					seed: "lms-files-fixture",
 					status: fixture.status,
 					visibility: fixture.visibility,
 				},
@@ -167,10 +164,10 @@ function createSeedMediaBody(fixture: SeedMediaFixture) {
 			return [
 				'<svg xmlns="http://www.w3.org/2000/svg" width="480" height="320" viewBox="0 0 480 320" role="img" aria-labelledby="seed-title seed-desc">',
 				`<title id="seed-title">${fixture.fileName}</title>`,
-				`<desc id="seed-desc">${fixture.visibility} ${fixture.status} media fixture for local development.</desc>`,
+				`<desc id="seed-desc">${fixture.visibility} ${fixture.status} files fixture for local development.</desc>`,
 				'<rect width="480" height="320" fill="#0f172a" rx="24" ry="24"/>',
 				'<rect x="24" y="24" width="432" height="272" fill="#e2e8f0" rx="18" ry="18"/>',
-				'<text x="48" y="112" fill="#0f172a" font-family="system-ui, sans-serif" font-size="24" font-weight="700">LMS seeded media fixture</text>',
+				'<text x="48" y="112" fill="#0f172a" font-family="system-ui, sans-serif" font-size="24" font-weight="700">LMS seeded files fixture</text>',
 				`<text x="48" y="156" fill="#334155" font-family="system-ui, sans-serif" font-size="18">${fixture.fileName}</text>`,
 				`<text x="48" y="196" fill="#475569" font-family="system-ui, sans-serif" font-size="16">Visibility: ${fixture.visibility}</text>`,
 				`<text x="48" y="228" fill="#475569" font-family="system-ui, sans-serif" font-size="16">Status: ${fixture.status}</text>`,
@@ -178,17 +175,17 @@ function createSeedMediaBody(fixture: SeedMediaFixture) {
 			].join("");
 		default:
 			return [
-				"LMS seeded media fixture",
+				"LMS seeded files fixture",
 				`File: ${fixture.fileName}`,
 				`Visibility: ${fixture.visibility}`,
 				`Status: ${fixture.status}`,
-				"This file is written during db:seed so local media routes have real content to serve.",
+				"This file is written during db:seed so local files routes have real content to serve.",
 			].join("\n");
 	}
 }
 
-function createSeedMediaAsset(fixture: SeedMediaFixture) {
-	const body = createSeedMediaBody(fixture);
+function createSeedFilesAsset(fixture: SeedFilesFixture) {
+	const body = createSeedFilesBody(fixture);
 
 	return {
 		body,
@@ -202,6 +199,30 @@ function createSeedMediaAsset(fixture: SeedMediaFixture) {
 		},
 		size: new TextEncoder().encode(body).byteLength,
 	};
+}
+
+function inferSeedFileKind(contentType: string): FileKind {
+	if (contentType.startsWith("image/")) {
+		return "image";
+	}
+
+	if (contentType.startsWith("video/")) {
+		return "video";
+	}
+
+	if (contentType.startsWith("audio/")) {
+		return "audio";
+	}
+
+	if (
+		contentType === "application/json" ||
+		contentType === "application/pdf" ||
+		contentType.startsWith("text/")
+	) {
+		return "document";
+	}
+
+	return "file";
 }
 
 async function ensureSeedUser(
@@ -279,46 +300,46 @@ async function syncSeedTodos(db: DatabaseClient, userId: string, fixtures: SeedT
 	);
 }
 
-async function syncSeedMedia(db: DatabaseClient, userId: string, fixtures: SeedMediaFixture[]) {
+async function syncSeedFiles(db: DatabaseClient, userId: string, fixtures: SeedFilesFixture[]) {
 	const { inArray } = await import("drizzle-orm");
-	const { media } = await import("@de100/apps-lms-db/schema/media");
-	const { getConfiguredMediaBucket } = await import("@de100/apps-lms-api/media-storage");
+	const { files } = await import("@de100/apps-lms-db/schema/files");
+	const { getConfiguredFilesBucket } = await import("@de100/apps-lms-api/files-storage");
 
 	if (fixtures.length === 0) {
 		return 0;
 	}
 
-	const seededMediaEntries = fixtures.map((fixture) => ({
-		asset: createSeedMediaAsset(fixture),
+	const seededFilesEntries = fixtures.map((fixture) => ({
+		asset: createSeedFilesAsset(fixture),
 		fixture,
 		key: createSeedStorageKey(userId, fixture.keySuffix),
 	}));
 	const localBuckets = {
-		private: getConfiguredMediaBucket("private"),
-		public: getConfiguredMediaBucket("public"),
+		private: getConfiguredFilesBucket("private"),
+		public: getConfiguredFilesBucket("public"),
 	} as const;
 
-	for (const entry of seededMediaEntries) {
+	for (const entry of seededFilesEntries) {
 		await localBuckets[entry.fixture.visibility]?.delete(entry.key);
 	}
 
-	await db.delete(media).where(
+	await db.delete(files).where(
 		inArray(
-			media.id,
+			files.id,
 			fixtures.map((fixture) => fixture.id),
 		),
 	);
 
-	await db.insert(media).values(
-		seededMediaEntries.map(({ asset, fixture, key }) => ({
+	await db.insert(files).values(
+		seededFilesEntries.map(({ asset, fixture, key }) => ({
 			bucketName: fixture.bucketName,
-			confirmedAt: fixture.confirmedAt,
 			contentType: fixture.contentType,
 			createdAt: fixture.createdAt,
 			deletedAt: fixture.deletedAt,
 			fileName: fixture.fileName,
 			id: fixture.id,
 			key,
+			kind: inferSeedFileKind(fixture.contentType),
 			size: asset.size,
 			status: fixture.status,
 			updatedAt: fixture.updatedAt,
@@ -329,7 +350,7 @@ async function syncSeedMedia(db: DatabaseClient, userId: string, fixtures: SeedM
 
 	let writtenObjectCount = 0;
 
-	for (const entry of seededMediaEntries) {
+	for (const entry of seededFilesEntries) {
 		if (entry.fixture.deletedAt) {
 			continue;
 		}
@@ -351,24 +372,24 @@ async function syncSeedMedia(db: DatabaseClient, userId: string, fixtures: SeedM
 async function main() {
 	process.env.NODE_ENV ??= "production";
 
-	const [{ createAuth }, { createDb }, { getConfiguredMediaStorageDriver }] = await Promise.all([
+	const [{ createAuth }, { createDb }, { getConfiguredFilesStorageDriver }] = await Promise.all([
 		import("@de100/apps-lms-auth"),
 		import("@de100/apps-lms-db"),
-		import("@de100/apps-lms-api/media-storage"),
+		import("@de100/apps-lms-api/files-storage"),
 	]);
 
 	const db = createDb();
 	const auth = createAuth();
-	const mediaStorageDriver = getConfiguredMediaStorageDriver();
+	const filesStorageDriver = getConfiguredFilesStorageDriver();
 
 	try {
 		const seededUsers: SeededUserRecord[] = [];
-		let writtenMediaObjects = 0;
+		let writtenFilesObjects = 0;
 
 		for (const fixtures of seedUsers) {
 			const currentUser = await ensureSeedUser(db, auth, fixtures);
 			await syncSeedTodos(db, currentUser.id, fixtures.todos);
-			writtenMediaObjects += await syncSeedMedia(db, currentUser.id, fixtures.media);
+			writtenFilesObjects += await syncSeedFiles(db, currentUser.id, fixtures.files);
 
 			seededUsers.push({
 				description: fixtures.description,
@@ -381,26 +402,26 @@ async function main() {
 
 		const { inArray } = await import("drizzle-orm");
 		const { todo } = await import("@de100/apps-lms-db/schema/todo");
-		const { media } = await import("@de100/apps-lms-db/schema/media");
+		const { files } = await import("@de100/apps-lms-db/schema/files");
 
 		const seededTodoIds = seedUsers.flatMap((fixtures) =>
 			fixtures.todos.map((todoFixture) => todoFixture.id),
 		);
-		const seededMediaIds = seedUsers.flatMap((fixtures) =>
-			fixtures.media.map((mediaFixture) => mediaFixture.id),
+		const seededFilesIds = seedUsers.flatMap((fixtures) =>
+			fixtures.files.map((filesFixture) => filesFixture.id),
 		);
 
 		const persistedTodos =
 			seededTodoIds.length > 0
 				? await db.select({ id: todo.id }).from(todo).where(inArray(todo.id, seededTodoIds))
 				: [];
-		const persistedMedia =
-			seededMediaIds.length > 0
-				? await db.select({ id: media.id }).from(media).where(inArray(media.id, seededMediaIds))
+		const persistedFiles =
+			seededFilesIds.length > 0
+				? await db.select({ id: files.id }).from(files).where(inArray(files.id, seededFilesIds))
 				: [];
 
 		console.log(
-			`Seeded ${seededUsers.length} users, ${persistedTodos.length} todos, and ${persistedMedia.length} media metadata records.`,
+			`Seeded ${seededUsers.length} users, ${persistedTodos.length} todos, and ${persistedFiles.length} files metadata records.`,
 		);
 		console.table(
 			seededUsers.map((user) => ({
@@ -411,13 +432,13 @@ async function main() {
 			})),
 		);
 
-		if (mediaStorageDriver === "local") {
+		if (filesStorageDriver === "local") {
 			console.log(
-				`Seeded ${writtenMediaObjects} local media objects under ${process.env.APP_LMS_MEDIA_LOCAL_ROOT || "./.local/media"}.`,
+				`Seeded ${writtenFilesObjects} local files objects under ${process.env.APP_LMS_FILES_LOCAL_ROOT || "./.local/files"}.`,
 			);
 		} else {
 			console.log(
-				"Media fixtures remain metadata-only when APP_LMS_MEDIA_STORAGE_DRIVER=r2 because db:seed does not run with live runtime bucket bindings.",
+				"Files fixtures remain metadata-only for S3-backed storage because db:seed does not run with live runtime bucket bindings.",
 			);
 		}
 	} finally {

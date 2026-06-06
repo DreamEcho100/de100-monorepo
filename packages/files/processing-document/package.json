@@ -1,0 +1,37 @@
+{
+	"name": "@de100/files-processing-document",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"imports": {
+		"#*": "./src/*"
+	},
+	"license": "MIT",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ci": "vitest run",
+		"build": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"type:check": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@de100/files-shared": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@de100/biome-config": "workspace:*",
+		"@de100/tsconfig": "workspace:*",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

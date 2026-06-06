@@ -57,7 +57,11 @@ const databaseDriver = assertEnumValue("APP_LMS_DATABASE_DRIVER", [
 	"neon-http",
 ]);
 const cacheDriver = assertEnumValue("APP_LMS_CACHE_DRIVER", ["memory", "redis", "upstash"]);
-const mediaDriver = assertEnumValue("APP_LMS_MEDIA_STORAGE_DRIVER", ["local", "r2"]);
+const filesDriver = assertEnumValue("APP_LMS_FILES_STORAGE_DRIVER", ["local", "s3"]);
+const filesS3Provider =
+	filesDriver === "s3"
+		? assertEnumValue("APP_LMS_FILES_S3_PROVIDER", ["r2", "minio", "aws", "custom"])
+		: undefined;
 const emailDriver = assertEnumValue("APP_LMS_EMAIL_DRIVER", ["log", "resend"]);
 
 requireEnvValue("APP_LMS_DATABASE_URL");
@@ -82,20 +86,20 @@ if (cacheDriver === "upstash") {
 	requireEnvValue("APP_LMS_UPSTASH_REDIS_TOKEN");
 }
 
-if (mediaDriver === "local") {
-	requireEnvValue("APP_LMS_MEDIA_LOCAL_ROOT");
+if (filesDriver === "local") {
+	requireEnvValue("APP_LMS_FILES_LOCAL_ROOT");
 }
 
-if (mediaDriver === "r2") {
-	requireEnvValue("APP_LMS_MEDIA_S3_ENDPOINT");
-	requireEnvValue("APP_LMS_MEDIA_S3_PUBLIC_BUCKET");
-	requireEnvValue("APP_LMS_MEDIA_S3_PRIVATE_BUCKET");
+if (filesDriver === "s3") {
+	requireEnvValue("APP_LMS_FILES_S3_ENDPOINT");
+	requireEnvValue("APP_LMS_FILES_S3_PUBLIC_BUCKET");
+	requireEnvValue("APP_LMS_FILES_S3_PRIVATE_BUCKET");
 
-	const accessKeyId = getEnvValue("APP_LMS_MEDIA_S3_ACCESS_KEY_ID");
-	const secretAccessKey = getEnvValue("APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY");
+	const accessKeyId = getEnvValue("APP_LMS_FILES_S3_ACCESS_KEY_ID");
+	const secretAccessKey = getEnvValue("APP_LMS_FILES_S3_SECRET_ACCESS_KEY");
 	if (Boolean(accessKeyId) !== Boolean(secretAccessKey)) {
 		errors.push(
-			"APP_LMS_MEDIA_S3_ACCESS_KEY_ID and APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY must be set together when media driver is r2.",
+			"APP_LMS_FILES_S3_ACCESS_KEY_ID and APP_LMS_FILES_S3_SECRET_ACCESS_KEY must be set together when files driver is s3.",
 		);
 	}
 }
@@ -110,7 +114,10 @@ console.log(
 );
 console.log(`- Database driver: ${databaseDriver ?? "unresolved"}`);
 console.log(`- Cache driver: ${cacheDriver ?? "unresolved"}`);
-console.log(`- Media driver: ${mediaDriver ?? "unresolved"}`);
+console.log(`- Files driver: ${filesDriver ?? "unresolved"}`);
+if (filesDriver === "s3") {
+	console.log(`- Files S3 provider: ${filesS3Provider ?? "unresolved"}`);
+}
 console.log(`- Email driver: ${emailDriver ?? "unresolved"}`);
 
 if (warnings.length > 0) {

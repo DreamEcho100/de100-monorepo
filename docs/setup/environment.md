@@ -39,17 +39,18 @@ Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
 - `APP_LMS_EMAIL_FROM`: sender value for Better Auth emails
 - `APP_LMS_EMAIL_REPLY_TO`: optional reply-to value for Better Auth emails
 - `APP_LMS_RESEND_API_KEY`: required when `APP_LMS_EMAIL_DRIVER=resend`
-- `APP_LMS_MEDIA_STORAGE_DRIVER`: one of `r2` or `local`
-- `APP_LMS_MEDIA_LOCAL_ROOT`: filesystem root used when `APP_LMS_MEDIA_STORAGE_DRIVER=local`
-- `APP_LMS_MEDIA_S3_ENDPOINT`: optional S3-compatible endpoint URL for hosted object storage adapters
-- `APP_LMS_MEDIA_S3_REGION`: optional S3-compatible region, defaults to `auto`
-- `APP_LMS_MEDIA_S3_ACCESS_KEY_ID`: optional access key ID for S3-compatible adapters
-- `APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY`: optional secret access key for S3-compatible adapters
-- `APP_LMS_MEDIA_S3_PUBLIC_BUCKET`: optional public bucket name for S3-compatible adapters
-- `APP_LMS_MEDIA_S3_PRIVATE_BUCKET`: optional private bucket name for S3-compatible adapters
-- `APP_LMS_MEDIA_S3_FORCE_PATH_STYLE`: optional S3 path-style toggle, defaults to `true`
-- `APP_LMS_MEDIA_SIGNING_SECRET`: optional dedicated HMAC secret for signed media URLs; falls back to `APP_LMS_BETTER_AUTH_SECRET`
-- `APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS`: signed media URL lifetime in seconds, defaults to `3600`
+- `APP_LMS_FILES_STORAGE_DRIVER`: one of `s3` or `local`
+- `APP_LMS_FILES_LOCAL_ROOT`: filesystem root used when `APP_LMS_FILES_STORAGE_DRIVER=local`
+- `APP_LMS_FILES_S3_PROVIDER`: one of `r2`, `minio`, `aws`, or `custom` when `APP_LMS_FILES_STORAGE_DRIVER=s3`
+- `APP_LMS_FILES_S3_ENDPOINT`: optional S3-compatible endpoint URL for hosted object storage adapters
+- `APP_LMS_FILES_S3_REGION`: optional S3-compatible region, defaults to `auto`
+- `APP_LMS_FILES_S3_ACCESS_KEY_ID`: optional access key ID for S3-compatible adapters
+- `APP_LMS_FILES_S3_SECRET_ACCESS_KEY`: optional secret access key for S3-compatible adapters
+- `APP_LMS_FILES_S3_PUBLIC_BUCKET`: optional public bucket name for S3-compatible adapters
+- `APP_LMS_FILES_S3_PRIVATE_BUCKET`: optional private bucket name for S3-compatible adapters
+- `APP_LMS_FILES_S3_FORCE_PATH_STYLE`: optional S3 path-style toggle, defaults to `true`
+- `APP_LMS_FILES_SIGNING_SECRET`: optional dedicated HMAC secret for signed files URLs; falls back to `APP_LMS_BETTER_AUTH_SECRET`
+- `APP_LMS_FILES_SIGNED_URL_TTL_SECONDS`: signed files URL lifetime in seconds, defaults to `3600`
 - `REDIS_URL`: required when `APP_LMS_CACHE_DRIVER=redis`
 - `APP_LMS_UPSTASH_REDIS_URL`: required when `APP_LMS_CACHE_DRIVER=upstash`
 - `APP_LMS_UPSTASH_REDIS_TOKEN`: required when `APP_LMS_CACHE_DRIVER=upstash`
@@ -87,15 +88,17 @@ The env package in `packages/apps/lms/env/src/server.ts` also loads `.env.local`
 For a repeatable local run without manual shell exports:
 
 ```sh
-pnpm --dir apps/lms-web with-env vite dev --host 127.0.0.1 --port 3000
+pnpm -F @de100/apps-lms-web dev
 ```
 
-Use locale-prefixed page routes in examples and checks, for example `/en`, `/en/login`, and `/ar/login`.
+Use locale-prefixed page routes in examples and checks, for example `http://127.0.0.1:3000/en`, `http://localhost:3000/en/login`, and `/ar/login`.
+
+The default web dev server binds to all local interfaces and uses `strictPort`, so it fails when `APP_LMS_SERVER_PORT` is unavailable instead of silently selecting another port. If a sandboxed tool or Codex-run command prints Vite's ready message but `curl -I http://127.0.0.1:3000/` or the browser reports `ERR_CONNECTION_REFUSED`, start the dev command from a normal local terminal. Sandboxed network namespaces can make a tool-started server unreachable from the host browser.
 
 For a trace-friendly local runtime, create `.env.trace.local` from `.env.trace.local.example` and run:
 
 ```bash
-pnpm --dir apps/lms-web dev:trace --host 127.0.0.1 --port 3000
+pnpm -F @de100/apps-lms-web dev:trace
 ```
 
 That mode enables Vite dev sourcemaps, disables build minification, preserves function and class names, and includes dependency sourcemaps during local debugging.
@@ -105,8 +108,8 @@ Create or edit `.env.local` when you need local secrets, non-default URLs, or a 
 ### Dev command matrix
 
 - `pnpm dev`: run monorepo watch mode through Turbo for coordinated package development
-- `pnpm --dir apps/lms-web with-env vite dev --host 127.0.0.1 --port 3000`: run only the app dev server with explicit env loading
-- `pnpm --dir apps/lms-web dev:trace --host 127.0.0.1 --port 3000`: run app dev server with trace-friendly debugging defaults
+- `pnpm -F @de100/apps-lms-web dev`: run only the app dev server with explicit env loading
+- `pnpm -F @de100/apps-lms-web dev:trace`: run app dev server with trace-friendly debugging defaults
 
 ## Better Auth secondary storage
 
@@ -135,27 +138,28 @@ APP_LMS_EMAIL_FROM=LMS Starter <noreply@your-domain.example>
 APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-## Media storage and signed delivery
+## files storage and signed delivery
 
 The starter supports two storage backends:
 
-- `APP_LMS_MEDIA_STORAGE_DRIVER=r2` for managed R2 object storage
-- `APP_LMS_MEDIA_STORAGE_DRIVER=local` for a local filesystem fallback during development
+- `APP_LMS_FILES_STORAGE_DRIVER=s3` for S3-compatible object storage
+- `APP_LMS_FILES_STORAGE_DRIVER=local` for a local filesystem fallback during development
 
-When local storage is enabled, `APP_LMS_MEDIA_LOCAL_ROOT` controls where uploaded files are written.
+When local storage is enabled, `APP_LMS_FILES_LOCAL_ROOT` controls where uploaded files are written.
 
-The environment schema also includes optional S3-compatible fields (`APP_LMS_MEDIA_S3_*`) so hosted adapters can share one configuration contract across R2-style endpoints and other S3 APIs.
+The environment schema uses generic S3-compatible fields (`APP_LMS_FILES_S3_*`) so R2, MinIO, AWS S3, and custom S3-compatible endpoints share one configuration contract. Select the provider profile with `APP_LMS_FILES_S3_PROVIDER`.
 
 Current runtime note:
 
-- `r2` mode resolves buckets from runtime request bindings when available
-- when those bindings are unavailable, `r2` mode falls back to `APP_LMS_MEDIA_S3_*` hosted configuration
+- `s3` + `APP_LMS_FILES_S3_PROVIDER=r2` resolves buckets from runtime request bindings when available
+- when those bindings are unavailable, `s3` mode falls back to `APP_LMS_FILES_S3_*` hosted configuration
+- `APP_LMS_FILES_S3_PROVIDER=minio` is the recommended local production-parity profile when you need S3 behavior offline
 
-Private media sharing now uses signed app URLs. The signing flow uses:
+Private files sharing now uses signed app URLs. The signing flow uses:
 
-- `APP_LMS_MEDIA_SIGNING_SECRET` when you want a secret separate from Better Auth
-- `APP_LMS_BETTER_AUTH_SECRET` as the fallback signing secret when `APP_LMS_MEDIA_SIGNING_SECRET` is unset
-- `APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS` to control how long a signed media URL remains valid
+- `APP_LMS_FILES_SIGNING_SECRET` when you want a secret separate from Better Auth
+- `APP_LMS_BETTER_AUTH_SECRET` as the fallback signing secret when `APP_LMS_FILES_SIGNING_SECRET` is unset
+- `APP_LMS_FILES_SIGNED_URL_TTL_SECONDS` to control how long a signed files URL remains valid
 
 ## Local Docker Postgres and Redis
 
@@ -166,7 +170,8 @@ Typical local sequence:
 ```sh
 pnpm -F @de100/apps-lms-db db:up
 pnpm -F @de100/apps-lms-db db:migrate
-pnpm --dir apps/lms-web with-env vite dev --host 127.0.0.1 --port 3000
+pnpm -F @de100/apps-lms-web dev
+curl -I http://127.0.0.1:3000/
 ```
 
 If you switch to `APP_LMS_CACHE_DRIVER=redis`, start Redis too:
@@ -198,9 +203,9 @@ APP_LMS_EMAIL_DRIVER=log
 APP_LMS_EMAIL_FROM=LMS Starter <noreply@lms.local>
 APP_LMS_CACHE_DRIVER=memory
 APP_LMS_CACHE_KEY_PREFIX=de100:lms:local
-APP_LMS_MEDIA_STORAGE_DRIVER=local
-APP_LMS_MEDIA_LOCAL_ROOT=./.local/media
-APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
+APP_LMS_FILES_STORAGE_DRIVER=local
+APP_LMS_FILES_LOCAL_ROOT=./.local/files
+APP_LMS_FILES_SIGNED_URL_TTL_SECONDS=3600
 ```
 
 For local Redis-backed auth cache, update `.env.local` with:
@@ -208,6 +213,20 @@ For local Redis-backed auth cache, update `.env.local` with:
 ```env
 APP_LMS_CACHE_DRIVER=redis
 REDIS_URL=redis://127.0.0.1:6379
+```
+
+For local S3-compatible parity with MinIO, keep the same app/database values and switch files storage to:
+
+```env
+APP_LMS_FILES_STORAGE_DRIVER=s3
+APP_LMS_FILES_S3_PROVIDER=minio
+APP_LMS_FILES_S3_ENDPOINT=http://127.0.0.1:9000
+APP_LMS_FILES_S3_REGION=us-east-1
+APP_LMS_FILES_S3_ACCESS_KEY_ID=minioadmin
+APP_LMS_FILES_S3_SECRET_ACCESS_KEY=minioadmin
+APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
+APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
+APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
 ```
 
 For hosted Neon, replace the database settings in `.env.local` with:
@@ -218,7 +237,8 @@ APP_LMS_DATABASE_DRIVER=auto
 APP_LMS_EMAIL_DRIVER=resend
 APP_LMS_EMAIL_FROM=LMS Starter <noreply@your-domain.example>
 APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
-APP_LMS_MEDIA_STORAGE_DRIVER=r2
+APP_LMS_FILES_STORAGE_DRIVER=s3
+APP_LMS_FILES_S3_PROVIDER=r2
 ```
 
 For hosted Upstash, update `.env.local` with:
@@ -252,16 +272,17 @@ APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 APP_LMS_CACHE_DRIVER=upstash
 APP_LMS_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
 APP_LMS_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
-APP_LMS_MEDIA_STORAGE_DRIVER=r2
-APP_LMS_MEDIA_S3_ENDPOINT=https://your-s3-endpoint.example
-APP_LMS_MEDIA_S3_REGION=auto
-APP_LMS_MEDIA_S3_ACCESS_KEY_ID=replace-with-your-access-key-id
-APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY=replace-with-your-secret-access-key
-APP_LMS_MEDIA_S3_PUBLIC_BUCKET=public-media
-APP_LMS_MEDIA_S3_PRIVATE_BUCKET=private-media
-APP_LMS_MEDIA_S3_FORCE_PATH_STYLE=true
-APP_LMS_MEDIA_SIGNING_SECRET=replace-with-a-separate-32-character-secret
-APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
+APP_LMS_FILES_STORAGE_DRIVER=s3
+APP_LMS_FILES_S3_PROVIDER=r2
+APP_LMS_FILES_S3_ENDPOINT=https://your-s3-endpoint.example
+APP_LMS_FILES_S3_REGION=auto
+APP_LMS_FILES_S3_ACCESS_KEY_ID=replace-with-your-access-key-id
+APP_LMS_FILES_S3_SECRET_ACCESS_KEY=replace-with-your-secret-access-key
+APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
+APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
+APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
+APP_LMS_FILES_SIGNING_SECRET=replace-with-a-separate-32-character-secret
+APP_LMS_FILES_SIGNED_URL_TTL_SECONDS=3600
 ```
 
 Use Resend's onboarding sender for the first hosted rollout, then replace it with your verified sender domain once it exists.
@@ -271,5 +292,5 @@ Notes:
 - `APP_LMS_BETTER_AUTH_URL` must point at the deployed `/api/auth` base on the final public origin.
 - `APP_LMS_CORS_ORIGIN` must match the browser origin serving the app.
 - Leave `VITE_APP_LMS_SERVER_URL` unset when the browser talks to the same deployed origin.
-- `APP_LMS_MEDIA_STORAGE_DRIVER=local` is for local development only; use `r2` for shared self-host deployments.
+- `APP_LMS_FILES_STORAGE_DRIVER=local` is for local development only; use `s3` with `APP_LMS_FILES_S3_PROVIDER=r2|minio|aws|custom` for shared self-host deployments.
 - Choose `APP_LMS_CACHE_DRIVER=memory` only for single-instance or low-stakes environments. Use `redis` or `upstash` when you need durable shared auth secondary storage.

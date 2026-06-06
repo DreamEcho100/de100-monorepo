@@ -7,7 +7,7 @@ const { getSession, prefetchQuery } = vi.hoisted(() => ({
 
 vi.mock("~/home-page", () => ({ default: () => null }));
 vi.mock("~/dashboard-page", () => ({ default: () => null }));
-vi.mock("~/media-page", () => ({ default: () => null }));
+vi.mock("~/files-page", () => ({ default: () => null }));
 vi.mock("~/todos-page", () => ({ default: () => null }));
 vi.mock("~/api-reference-page", () => ({ default: () => null }));
 
@@ -31,6 +31,14 @@ vi.mock("~/libs/apis/orpc", () => ({
 		privateData: {
 			queryOptions: () => ({ queryKey: ["private-data"] }),
 		},
+		files: {
+			config: {
+				queryOptions: () => ({ queryKey: ["files-config"] }),
+			},
+			getAll: {
+				queryOptions: () => ({ queryKey: ["files"] }),
+			},
+		},
 		todo: {
 			getAll: {
 				queryOptions: () => ({ queryKey: ["todos"] }),
@@ -40,6 +48,7 @@ vi.mock("~/libs/apis/orpc", () => ({
 }));
 
 import { route as dashboardRoute } from "./dashboard";
+import { route as filesRoute } from "./files";
 import { route as homeRoute } from "./index";
 
 afterEach(() => {
@@ -82,5 +91,17 @@ describe("route preload behavior", () => {
 		await dashboardRoute.preload({ intent: "preload" });
 
 		expect(prefetchQuery).toHaveBeenCalledTimes(2);
+	});
+
+	it("prefetches files data only when the files route is preloaded for a session", async () => {
+		vi.stubGlobal("window", {});
+		getSession.mockResolvedValue({ data: { user: { id: "user-1" } } });
+		prefetchQuery.mockResolvedValue(undefined);
+
+		await filesRoute.preload({ intent: "preload" });
+
+		expect(prefetchQuery).toHaveBeenCalledTimes(2);
+		expect(prefetchQuery).toHaveBeenCalledWith({ queryKey: ["files-config"] });
+		expect(prefetchQuery).toHaveBeenCalledWith({ queryKey: ["files"] });
 	});
 });

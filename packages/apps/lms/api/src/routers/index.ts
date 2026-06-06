@@ -5,7 +5,7 @@ import {
 import type { RouterClient } from "@orpc/server";
 
 import { protectedProcedure, publicProcedure } from "../index";
-import { mediaRouter } from "./media";
+import { filesRouter } from "./files";
 import { todoRouter } from "./todo";
 
 export const appRouter = {
@@ -18,7 +18,7 @@ export const appRouter = {
 			tags: ["System"],
 		})
 		.handler(() => "OK"),
-	media: mediaRouter,
+	files: filesRouter,
 	privateData: protectedProcedure
 		.output(privateDataOutputSchema)
 		.route({

@@ -20,7 +20,7 @@ const starterSlices = [
 	"about.starterSlices.auth",
 	"about.starterSlices.transport",
 	"about.starterSlices.storage",
-	"about.starterSlices.media",
+	"about.starterSlices.files",
 ] as const;
 
 export default function AboutPage() {

@@ -93,8 +93,8 @@ export default function HomePage() {
 						<Button as={A} href={createLocalizedPath(locale(), "/todos")} variant="secondary">
 							{t("home.ctas.todos")}
 						</Button>
-						<Button as={A} href={createLocalizedPath(locale(), "/media")} variant="secondary">
-							{t("home.ctas.media")}
+						<Button as={A} href={createLocalizedPath(locale(), "/files")} variant="secondary">
+							{t("home.ctas.files")}
 						</Button>
 						<Button
 							as={A}

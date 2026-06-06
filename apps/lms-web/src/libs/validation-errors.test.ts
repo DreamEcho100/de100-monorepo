@@ -1,6 +1,6 @@
 import {
 	authValidationErrorKeys,
-	mediaValidationErrorKeys,
+	filesValidationErrorKeys,
 } from "@de100/apps-lms-validators/shared";
 import { describe, expect, it } from "vitest";
 
@@ -21,10 +21,10 @@ describe("validation error localization", () => {
 		expect(localizeValidationError("Server said no", t)).toBe("Server said no");
 	});
 
-	it("maps media validator error keys through the translator", () => {
+	it("maps files validator error keys through the translator", () => {
 		const t = (key: string) => `translated:${key}`;
 
-		expect(localizeValidationError(mediaValidationErrorKeys.expectedFileUpload, t)).toBe(
+		expect(localizeValidationError(filesValidationErrorKeys.expectedFileUpload, t)).toBe(
 			"translated:validation.expectedFileUpload",
 		);
 	});

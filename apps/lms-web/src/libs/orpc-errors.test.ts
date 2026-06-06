@@ -1,4 +1,4 @@
-import { appErrorCodes, mediaValidationErrorKeys } from "@de100/apps-lms-validators/shared";
+import { appErrorCodes, filesValidationErrorKeys } from "@de100/apps-lms-validators/shared";
 import { ORPCError } from "@orpc/client";
 import { describe, expect, it } from "vitest";
 
@@ -23,21 +23,21 @@ describe("oRPC error localization", () => {
 		expect(localizeOrpcError(new Error("Server said no"), t)).toBe("Server said no");
 	});
 
-	it("maps media app error codes from error data to translation keys", () => {
+	it("maps files app error codes from error data to translation keys", () => {
 		const error = new ORPCError("NOT_FOUND", {
-			data: { code: appErrorCodes.media.notFound },
+			data: { code: appErrorCodes.files.notFound },
 			defined: true,
-			message: appErrorCodes.media.notFound,
+			message: appErrorCodes.files.notFound,
 		});
 		const t = (key: string) => `translated:${key}`;
 
-		expect(getOrpcErrorTranslationKey(error)).toBe("media.status.notFound");
-		expect(localizeOrpcError(error, t)).toBe("translated:media.status.notFound");
+		expect(getOrpcErrorTranslationKey(error)).toBe("files.status.notFound");
+		expect(localizeOrpcError(error, t)).toBe("translated:files.status.notFound");
 	});
 
 	it("falls back to localized validation messages", () => {
 		const error = new ORPCError("BAD_REQUEST", {
-			message: mediaValidationErrorKeys.expectedFileUpload,
+			message: filesValidationErrorKeys.expectedFileUpload,
 		});
 		const t = (key: string) => `translated:${key}`;
 

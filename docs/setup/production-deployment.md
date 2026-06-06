@@ -14,11 +14,11 @@ Cloud-provider-era deployment artifacts are archived in `_old/backup-v1` and are
 
 ## Current proof status
 
-- `implemented-and-evidenced`: local provider-boundary and media guardrail validation
+- `implemented-and-evidenced`: local provider-boundary and files guardrail validation
   - Evidence: [docs/evidence/2026-05-25-phase3-provider-refactor-validation.md](docs/evidence/2026-05-25-phase3-provider-refactor-validation.md)
 - `implemented-and-evidenced`: local browser regression after shared UI standardization
   - Evidence: [docs/evidence/2026-05-25-phase4-ui-regression.md](docs/evidence/2026-05-25-phase4-ui-regression.md)
-- `implemented-and-unverified`: production-close hosted smoke pass on deployed origin (Better Auth, Resend, cache driver, media upload/read/signed access, migrations)
+- `implemented-and-unverified`: production-close hosted smoke pass on deployed origin (Better Auth, Resend, cache driver, files upload/read/signed access, migrations)
 
 Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
 
@@ -36,7 +36,7 @@ The app runtime depends on external services:
 - a Postgres-compatible database
 - Better Auth secret and public origin configuration
 - optional shared cache backend for Better Auth secondary storage
-- object storage when `APP_LMS_MEDIA_STORAGE_DRIVER=r2`
+- object storage when `APP_LMS_FILES_STORAGE_DRIVER=s3`
 
 Recommended production stack:
 
@@ -44,14 +44,14 @@ Recommended production stack:
 - Neon for `APP_LMS_DATABASE_URL`
 - Upstash for `APP_LMS_CACHE_DRIVER=upstash`
 - Resend for `APP_LMS_EMAIL_DRIVER=resend`
-- S3-compatible object storage for media when `APP_LMS_MEDIA_STORAGE_DRIVER=r2`
+- S3-compatible object storage for files when `APP_LMS_FILES_STORAGE_DRIVER=s3`
 
 Supported alternatives already in the codebase:
 
 - standard Postgres instead of Neon
 - `APP_LMS_CACHE_DRIVER=redis` instead of Upstash
 - `APP_LMS_CACHE_DRIVER=memory` for single-instance or low-stakes environments
-- `APP_LMS_MEDIA_STORAGE_DRIVER=local` for local-only or non-shared deployments
+- `APP_LMS_FILES_STORAGE_DRIVER=local` for local-only or non-shared deployments
 
 ## Prerequisites
 
@@ -90,16 +90,17 @@ APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 APP_LMS_CACHE_DRIVER=upstash
 APP_LMS_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
 APP_LMS_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
-APP_LMS_MEDIA_STORAGE_DRIVER=r2
-APP_LMS_MEDIA_S3_ENDPOINT=https://your-s3-endpoint.example
-APP_LMS_MEDIA_S3_REGION=auto
-APP_LMS_MEDIA_S3_ACCESS_KEY_ID=replace-with-your-access-key-id
-APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY=replace-with-your-secret-access-key
-APP_LMS_MEDIA_S3_PUBLIC_BUCKET=public-media
-APP_LMS_MEDIA_S3_PRIVATE_BUCKET=private-media
-APP_LMS_MEDIA_S3_FORCE_PATH_STYLE=true
-APP_LMS_MEDIA_SIGNING_SECRET=replace-with-a-separate-32-character-secret
-APP_LMS_MEDIA_SIGNED_URL_TTL_SECONDS=3600
+APP_LMS_FILES_STORAGE_DRIVER=s3
+APP_LMS_FILES_S3_PROVIDER=r2
+APP_LMS_FILES_S3_ENDPOINT=https://your-s3-endpoint.example
+APP_LMS_FILES_S3_REGION=auto
+APP_LMS_FILES_S3_ACCESS_KEY_ID=replace-with-your-access-key-id
+APP_LMS_FILES_S3_SECRET_ACCESS_KEY=replace-with-your-secret-access-key
+APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
+APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
+APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
+APP_LMS_FILES_SIGNING_SECRET=replace-with-a-separate-32-character-secret
+APP_LMS_FILES_SIGNED_URL_TTL_SECONDS=3600
 ```
 
 Start from the checked-in template:
@@ -108,10 +109,10 @@ Start from the checked-in template:
 cp .env.deploy.local.example .env.deploy.local
 ```
 
-If you use `APP_LMS_MEDIA_STORAGE_DRIVER=local`, replace S3 variables with:
+If you use `APP_LMS_FILES_STORAGE_DRIVER=local`, replace S3 variables with:
 
 ```env
-APP_LMS_MEDIA_LOCAL_ROOT=./.local/media
+APP_LMS_FILES_LOCAL_ROOT=./.local/files
 ```
 
 Optional healthcheck overrides:
@@ -121,7 +122,7 @@ APP_LMS_HEALTHCHECK_URL=https://your-app-domain.example/health
 APP_LMS_HEALTHCHECK_TIMEOUT_MS=10000
 ```
 
-If `APP_LMS_MEDIA_SIGNING_SECRET` is unset, the app falls back to `APP_LMS_BETTER_AUTH_SECRET`.
+If `APP_LMS_FILES_SIGNING_SECRET` is unset, the app falls back to `APP_LMS_BETTER_AUTH_SECRET`.
 
 ## Deploy workflow
 
@@ -193,27 +194,29 @@ Rules:
 
 If the public URL changes, update these values and redeploy.
 
-## Media configuration
+## Files configuration
 
 For multi-instance self-host deployment, use:
 
 ```env
-APP_LMS_MEDIA_STORAGE_DRIVER=r2
+APP_LMS_FILES_STORAGE_DRIVER=s3
+APP_LMS_FILES_S3_PROVIDER=r2
 ```
 
-With `r2`, preflight expects:
+With `s3`, preflight expects:
 
-- `APP_LMS_MEDIA_S3_ENDPOINT`
-- `APP_LMS_MEDIA_S3_PUBLIC_BUCKET`
-- `APP_LMS_MEDIA_S3_PRIVATE_BUCKET`
-- `APP_LMS_MEDIA_S3_ACCESS_KEY_ID` and `APP_LMS_MEDIA_S3_SECRET_ACCESS_KEY` together, if either is set
+- `APP_LMS_FILES_S3_PROVIDER`
+- `APP_LMS_FILES_S3_ENDPOINT`
+- `APP_LMS_FILES_S3_PUBLIC_BUCKET`
+- `APP_LMS_FILES_S3_PRIVATE_BUCKET`
+- `APP_LMS_FILES_S3_ACCESS_KEY_ID` and `APP_LMS_FILES_S3_SECRET_ACCESS_KEY` together, if either is set
 
 Runtime resolution order:
 
 - use request runtime bucket bindings when present
-- otherwise use `APP_LMS_MEDIA_S3_*` values for hosted S3-compatible access
+- otherwise use `APP_LMS_FILES_S3_*` values for hosted S3-compatible access
 
-Use `APP_LMS_MEDIA_STORAGE_DRIVER=local` only for local or single-node flows where shared object storage is not required.
+Use `APP_LMS_FILES_STORAGE_DRIVER=local` only for local or single-node flows where shared object storage is not required.
 
 ## Verification after deploy
 
@@ -229,7 +232,7 @@ After a successful deploy, verify:
 3. `/api/reference` redirects to `/en/api/reference`.
 4. `/api/reference/spec.json` returns JSON.
 5. Sign-in works with a real production user or seeded/demo environment.
-6. Media upload works and files can be read through public, private, and signed routes.
+6. Files upload works and files can be read through public, private, and signed routes.
 7. Verification and password-reset emails are delivered through Resend.
 
 ## Troubleshooting
@@ -237,7 +240,7 @@ After a successful deploy, verify:
 ### Preflight fails
 
 - Re-run `pnpm -F @de100/apps-lms-infra selfhost:preflight` and resolve reported missing variables.
-- If media driver is `r2`, ensure endpoint and bucket variables are present.
+- If files driver is `s3`, ensure provider, endpoint, and bucket variables are present.
 - If cache driver is `upstash` or `redis`, ensure matching driver variables are set.
 - Verify `APP_LMS_SMOKE_BASE_URL` only points to the intended hosted target for smoke runs.
 
@@ -257,15 +260,15 @@ Check these first:
 
 If the public URL changed, update values and redeploy.
 
-### Media routes fail after deploy
+### Files routes fail after deploy
 
 Check these first:
 
-- `APP_LMS_MEDIA_STORAGE_DRIVER`
-- S3 endpoint and bucket vars when using `r2`
-- runtime environment injection for all media variables
+- `APP_LMS_FILES_STORAGE_DRIVER`
+- S3 provider, endpoint, and bucket vars when using `s3`
+- runtime environment injection for all files variables
 
-Remember that seeded media is metadata-only. Real object checks should be done with files uploaded through the running app.
+Remember that seeded files is metadata-only. Real object checks should be done with files uploaded through the running app.
 
 ### Cache-backed auth records fail
 
@@ -289,7 +292,7 @@ For local development, switch back to `APP_LMS_EMAIL_DRIVER=log` and confirm gen
 ## Related docs
 
 - `docs/setup/environment.md`
-- `docs/architecture/media-storage.md`
+- `docs/architecture/files-storage.md`
 - `docs/deployment/self-hosted/overview.md`
 - `packages/apps/lms/infra/docs/README.md`
 - `packages/apps/lms/infra/docs/runbooks/migration-cutover.md`

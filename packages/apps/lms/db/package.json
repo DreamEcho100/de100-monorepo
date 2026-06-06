@@ -31,6 +31,7 @@
 	},
 	"dependencies": {
 		"@de100/apps-lms-env": "workspace:*",
+		"@de100/files-shared": "workspace:*",
 		"@neondatabase/serverless": "^1.0.2",
 		"dotenv": "catalog:",
 		"drizzle-orm": "catalog:",

@@ -62,7 +62,7 @@ Environment injection:
 
 1. Copy values from uncommitted `.env.deploy.local`.
 2. Do not set local-only values unless intentionally needed.
-3. For `APP_LMS_MEDIA_STORAGE_DRIVER=r2`, include all required `APP_LMS_MEDIA_S3_*` values.
+3. For `APP_LMS_FILES_STORAGE_DRIVER=s3`, include `APP_LMS_FILES_S3_PROVIDER` and all required `APP_LMS_FILES_S3_*` values.
 
 ## 4. Add Caddy As Edge Reverse Proxy
 

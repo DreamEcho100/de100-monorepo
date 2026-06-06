@@ -18,7 +18,7 @@ export default function Header() {
 			href: createLocalizedPath(locale(), "/dashboard"),
 			label: t("header.nav.dashboard"),
 		},
-		{ gated: true, href: createLocalizedPath(locale(), "/media"), label: t("header.nav.media") },
+		{ gated: true, href: createLocalizedPath(locale(), "/files"), label: t("header.nav.files") },
 		{ gated: true, href: createLocalizedPath(locale(), "/todos"), label: t("header.nav.todos") },
 	]);
 

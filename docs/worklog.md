@@ -297,3 +297,16 @@ This log is append-only. Each entry records a meaningful implementation slice.
   - `docs/architecture/link-preview-security.md`
   - `docs/setup/phase10-release-checklist.md`
   - deferred scope remains isolated under Phase 11 in `current-plan.md`
+
+### Slice: deferred backlog handoff completion (Phase 11)
+
+- added next-cycle custom chunk upload backend spec:
+  - `docs/setup/custom-xhr-chunk-upload-backend.md`
+  - keeps implementation deferred while defining session, part upload, complete, abort, resume, validation, storage, and adapter-mapping expectations
+- added next-cycle media status migration memo:
+  - `docs/setup/media-status-migration.md`
+  - defines `scanning`, `processing`, and `failed` rollout impact across DB enum changes, validators, API behavior, UI grouping, and tests
+- added next-cycle pinned preview persistence rollout playbook:
+  - `docs/setup/pinned-preview-persistence-rollout.md`
+  - keeps preview persistence optional, page-owned, auth-bound, and tied to the existing link-preview security policy
+- updated `docs/README.md` so all deferred Phase 11 artifacts are discoverable

@@ -1,17 +1,17 @@
 import type {
 	AuthValidationErrorKey,
-	MediaValidationErrorKey,
+	FilesValidationErrorKey,
 } from "@de100/apps-lms-validators/shared";
 import {
 	authValidationErrorKeys,
-	mediaValidationErrorKeys,
+	filesValidationErrorKeys,
 } from "@de100/apps-lms-validators/shared";
 
-type KnownValidationErrorKey = AuthValidationErrorKey | MediaValidationErrorKey;
+type KnownValidationErrorKey = AuthValidationErrorKey | FilesValidationErrorKey;
 
 const knownValidationErrorKeys = new Set<string>([
 	...Object.values(authValidationErrorKeys),
-	...Object.values(mediaValidationErrorKeys),
+	...Object.values(filesValidationErrorKeys),
 ]);
 
 export function localizeValidationError(error: unknown, t: (key: string) => string) {

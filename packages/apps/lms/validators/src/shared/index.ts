@@ -1,6 +1,6 @@
 export * from "./auth";
 export * from "./errors";
-export * from "./media";
+export * from "./files";
 
 export type SignInInput = {
 	email: string;
@@ -26,6 +26,6 @@ export type TodoDeleteInput = {
 	id: number;
 };
 
-export type MediaRecordIdInput = {
+export type FilesRecordIdInput = {
 	id: string;
 };

@@ -1,0 +1,48 @@
+{
+	"name": "@de100/files-domains-solidjs",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./client": {
+			"default": "./src/client/index.tsx"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"imports": {
+		"#*": "./src/*"
+	},
+	"license": "MIT",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ci": "vitest run",
+		"build": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"format:check": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"type:check": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@de100/files-client": "workspace:*",
+		"@de100/files-shared": "workspace:*",
+		"solid-js": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@de100/biome-config": "workspace:*",
+		"@de100/tsconfig": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vite-plugin-solid": "^2.11.12",
+		"vitest": "catalog:"
+	}
+}

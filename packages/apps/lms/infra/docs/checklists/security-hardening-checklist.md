@@ -21,7 +21,7 @@ Run this checklist before first production traffic and then quarterly.
 
 - [ ] Secrets are managed outside git.
 - [ ] APP_LMS_BETTER_AUTH_SECRET is strong and rotated on schedule.
-- [ ] APP_LMS_MEDIA_SIGNING_SECRET is set and rotated on schedule.
+- [ ] APP_LMS_FILES_SIGNING_SECRET is set and rotated on schedule when configured separately from Better Auth.
 - [ ] Production env access is restricted to required operators.
 
 ## TLS And Edge

@@ -1,0 +1,132 @@
+{
+	"name": "@de100/files-client",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./uppy": {
+			"default": "./src/uppy.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"imports": {
+		"#*": "./src/*"
+	},
+	"license": "MIT",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ci": "vitest run",
+		"build": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"format:check": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
+		"type:check": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@de100/files-shared": "workspace:*"
+	},
+	"peerDependencies": {
+		"@uppy/audio": "*",
+		"@uppy/aws-s3": "*",
+		"@uppy/companion-client": "*",
+		"@uppy/compressor": "*",
+		"@uppy/core": "*",
+		"@uppy/dashboard": "*",
+		"@uppy/drag-drop": "*",
+		"@uppy/drop-target": "*",
+		"@uppy/file-input": "*",
+		"@uppy/golden-retriever": "*",
+		"@uppy/image-editor": "*",
+		"@uppy/informer": "*",
+		"@uppy/progress-bar": "*",
+		"@uppy/remote-sources": "*",
+		"@uppy/screen-capture": "*",
+		"@uppy/status-bar": "*",
+		"@uppy/thumbnail-generator": "*",
+		"@uppy/transloadit": "*",
+		"@uppy/tus": "*",
+		"@uppy/webcam": "*",
+		"@uppy/xhr-upload": "*"
+	},
+	"peerDependenciesMeta": {
+		"@uppy/audio": {
+			"optional": true
+		},
+		"@uppy/aws-s3": {
+			"optional": true
+		},
+		"@uppy/companion-client": {
+			"optional": true
+		},
+		"@uppy/compressor": {
+			"optional": true
+		},
+		"@uppy/core": {
+			"optional": true
+		},
+		"@uppy/dashboard": {
+			"optional": true
+		},
+		"@uppy/drag-drop": {
+			"optional": true
+		},
+		"@uppy/drop-target": {
+			"optional": true
+		},
+		"@uppy/file-input": {
+			"optional": true
+		},
+		"@uppy/golden-retriever": {
+			"optional": true
+		},
+		"@uppy/image-editor": {
+			"optional": true
+		},
+		"@uppy/informer": {
+			"optional": true
+		},
+		"@uppy/progress-bar": {
+			"optional": true
+		},
+		"@uppy/remote-sources": {
+			"optional": true
+		},
+		"@uppy/screen-capture": {
+			"optional": true
+		},
+		"@uppy/status-bar": {
+			"optional": true
+		},
+		"@uppy/thumbnail-generator": {
+			"optional": true
+		},
+		"@uppy/transloadit": {
+			"optional": true
+		},
+		"@uppy/tus": {
+			"optional": true
+		},
+		"@uppy/webcam": {
+			"optional": true
+		},
+		"@uppy/xhr-upload": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@de100/biome-config": "workspace:*",
+		"@de100/tsconfig": "workspace:*",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

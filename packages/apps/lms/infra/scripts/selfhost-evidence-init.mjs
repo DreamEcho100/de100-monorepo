@@ -114,4 +114,4 @@ if (options.dryRun) {
 writeFileSync(outputPath, filledTemplate, "utf8");
 
 console.log(`Created hosted smoke evidence file: ${outputPath}`);
-console.log("Next: fill command outputs, route checks, auth/media checks, and final sign-off.");
+console.log("Next: fill command outputs, route checks, auth/files checks, and final sign-off.");
