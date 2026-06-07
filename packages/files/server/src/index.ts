@@ -2,6 +2,7 @@ export * from "./artifact-delivery";
 export * from "./entitlements";
 export * from "./events";
 export * from "./hls-playback";
+export * from "./hls-playback-source";
 export * from "./operations";
 export * from "./orpc";
 export * from "./pipeline";

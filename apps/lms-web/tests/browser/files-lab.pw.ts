@@ -54,3 +54,40 @@ test("renders the files lab shell and both approach pages for an authenticated u
 	await page.getByRole("button", { name: "Generate fixtures" }).click();
 	await expect(page.getByText("fixture-image.svg")).toBeVisible();
 });
+
+test("renders the course video lab and lesson player shell for an authenticated user", async ({
+	page,
+}) => {
+	await page.route("**/api/auth/**", async (route) => {
+		await route.fulfill({
+			contentType: "application/json",
+			json: {
+				session: {
+					id: "session-browser-course-video",
+					userId: "user-browser-course-video",
+				},
+				user: {
+					email: "browser-course-video@lms.test",
+					id: "user-browser-course-video",
+					name: "Browser Course Video",
+				},
+			},
+			status: 200,
+		});
+	});
+
+	await page.goto("/en/files-lab/course-video");
+
+	await expect(page.getByText("Course video lab", { exact: true })).toBeVisible();
+	await expect(page.getByLabel("Course slug")).toBeVisible();
+	await expect(page.getByLabel("Video file ID")).toBeVisible();
+	await expect(page.getByRole("button", { name: "Attach video" })).toBeVisible();
+	await expect(page.getByRole("button", { name: "Request playback" })).toBeVisible();
+	await expect(page.getByRole("link", { name: "Lesson" })).toBeVisible();
+
+	await page.goto("/en/courses/video-lab-course/intro/hls-preview");
+
+	await expect(page.getByText("hls-preview")).toBeVisible();
+	await expect(page.getByText("video-lab-course / intro")).toBeVisible();
+	await expect(page.getByRole("button", { name: "Request playback" })).toBeVisible();
+});

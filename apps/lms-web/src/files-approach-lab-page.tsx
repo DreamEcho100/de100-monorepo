@@ -95,7 +95,7 @@ export function FilesApproachLabShellPage() {
 							<Badge variant="secondary">Phase 9C</Badge>
 						</div>
 					</CardHeader>
-					<CardContent class="grid gap-3 sm:grid-cols-2">
+					<CardContent class="grid gap-3 sm:grid-cols-3">
 						<Button as="a" href={createLocalizedPath(locale(), "/files-lab/hybrid")}>
 							Hybrid lab
 						</Button>
@@ -105,6 +105,13 @@ export function FilesApproachLabShellPage() {
 							variant="outline"
 						>
 							HTTP-native lab
+						</Button>
+						<Button
+							as="a"
+							href={createLocalizedPath(locale(), "/files-lab/course-video")}
+							variant="outline"
+						>
+							Course video lab
 						</Button>
 					</CardContent>
 				</Card>

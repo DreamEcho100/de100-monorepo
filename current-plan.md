@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-07
 
-Current active phase: Phase 8 - Course admin/product integration and gated labs
+Current active phase: Phase 10 - HLS encryption and DRM prototypes
 
 Archived previous tracker:
 
@@ -103,9 +103,9 @@ Status legend: Not Started, In Progress, Done, Blocked, Paused.
 | 5     | LMS files worker with Redis and DB-polling adapters        | Done        |
 | 6     | HLS processing and storage-first artifact writer           | Done        |
 | 7     | MinIO/R2 upload defaults and S3 multipart course uploads   | Done        |
-| 8     | Course admin/product integration and gated labs            | In Progress |
-| 9     | Player prototypes, captions, QoE, browser evaluation       | Not Started |
-| 10    | HLS encryption and DRM prototypes                          | Not Started |
+| 8     | Course admin/product integration and gated labs            | Done        |
+| 9     | Player prototypes, captions, QoE, browser evaluation       | Done        |
+| 10    | HLS encryption and DRM prototypes                          | In Progress |
 | 11    | Docs, deployment guides, provider comparisons              | Not Started |
 | 12    | Final QA gates and DX/UX recommendation evidence           | Not Started |
 
@@ -270,69 +270,133 @@ Completed scope:
 
 ### Phase 8 - Course Integration and Labs
 
-Status: In Progress
+Status: Done
 
-Execution order:
+Completed scope:
 
-1. Reconcile current course DB tables, repositories, file records, artifact groups, playback sessions, route tree, i18n keys, and lab page structure.
-2. Add LMS API/repository operations for the MVP course model:
+1. Reconciled current course DB tables, repositories, file records, artifact groups, playback sessions, route tree, and lab page structure.
+2. Added LMS API/repository services for the MVP course model:
    - courses
    - chapters
    - lessons
    - course video assets
    - enrollments
-3. Add course video asset attachment flow:
-   - upload file through `lesson-video`
+3. Added course video asset attachment flow:
+   - accepts uploaded video files from files routes
    - enqueue or record `video-hls` processing job
-   - attach completed HLS artifact group to the lesson asset
+   - attach video file to the lesson asset
    - preserve original file retention policy
-4. Implement entitlement checks for course playback:
+4. Implemented entitlement checks for course playback:
    - preview lesson readable by policy
    - enrolled user readable for private lessons
-   - admin readable
+   - course owner/admin readable
    - unauthorized private lesson denied
-5. Add gated admin/product/lab routes:
-   - course admin upload/attach workflow
-   - product lesson playback shell using signed HLS session data when available
-   - Hybrid lab for storage-first upload and processing
+5. Added `appRouter.courses`:
+   - owner-scoped course/chapter/lesson creation
+   - current-user enrollment
+   - lesson video attachment
+   - signed HLS playback-session creation
+6. Added gated and product-shaped web routes:
+   - `/files-lab/course-video`
+   - `/courses/:courseSlug/:chapterSlug/:lessonSlug`
+7. Preserved existing comparison surfaces:
+   - Hybrid lab path retained as comparison surface
    - HTTP-native lab path retained as comparison surface
-   - S3 multipart execution path that consumes Phase 7 target fields and provider upload IDs
-   - local pre-process lab workflow using package planning helpers
-6. Keep player implementation minimal in Phase 8:
+8. Kept player implementation minimal in Phase 8:
    - show HLS/session/artifact data and basic video element placeholder
    - defer `hls.js`, captions, QoE, and player comparison details to Phase 9
-7. Add focused tests:
-   - course repository operations
+9. Added focused tests for:
    - preview/enrolled/admin/unauthorized entitlement outcomes
    - upload-to-asset attachment behavior
    - job enqueue/update behavior
-   - gated route/lab behavior that typecheck cannot catch
-8. Phase 8 exit gates:
-   - `pnpm -F @de100/apps-lms-db type:check`
-   - `pnpm -F @de100/apps-lms-db test`
-   - `pnpm -F @de100/apps-lms-api type:check`
-   - `pnpm -F @de100/apps-lms-api test`
-   - `pnpm -F @de100/apps-lms-web type:check`
-   - `pnpm -F @de100/apps-lms-web test`
-   - Global `pnpm format-and-lint:check`
-   - Global `pnpm type:check`
-   - Global `pnpm test`
+10. Passed focused DB/API/web gates and final global gates.
 
 ### Phase 9 - Player, Captions, Analytics, Browser Evaluation
 
-1. Add package player with native video + lazy `hls.js`.
-2. Add helper-only and external-player lab prototypes.
-3. Add manual VTT captions.
-4. Add auto-caption adapter docs.
-5. Add QoE analytics DB event adapter and telemetry hook adapter.
-6. Run VS Code browser/manual evaluation and headed Playwright unless one path fails after enough attempts.
+Status: Done
+
+Completed scope:
+
+1. Reconciled Phase 8 course routes, playback-session records, artifact groups, artifact delivery routes, package exports, and player dependencies.
+2. Added `hls.js` to `@de100/files-domains-solidjs`.
+3. Added server playback-source helpers for signed HLS sessions:
+   - token-scoped master manifest URL
+   - token-scoped caption track URLs
+   - artifact relative-path matching
+   - unsafe path rejection
+4. Added `/api/files/playback/hls/{token}/{path}` for signed HLS artifact delivery.
+5. Added the recommended reusable Solid player:
+   - native `<video>` shell
+   - native HLS when supported
+   - lazy `hls.js` fallback chunk
+   - caption tracks
+   - QoE events for play, pause, progress, buffering, stalled, complete, errors, and rendition changes
+6. Added helper-only and external-adapter prototypes to the course lesson page.
+7. Extended `orpc.courses.createPlaybackSession` to return playback-source URLs beside the signed session.
+8. Added `orpc.courses.recordPlaybackEvent` for signed-session QoE recording.
+9. Added browser coverage for the course-video lab and product lesson shell.
+10. Recorded DX/browser notes in `docs/files-platform-dx-evaluation.md`.
+11. Deferred intentionally:
+    - HLS AES-128 encryption
+    - DRM prototypes
+    - provider comparison docs
+    - deployment guides
+
+Exit gates:
+
+1. `pnpm -F @de100/files-server type:check`
+2. `pnpm -F @de100/files-server test`
+3. `pnpm -F @de100/apps-lms-api type:check`
+4. `pnpm -F @de100/apps-lms-api test`
+5. `pnpm -F @de100/apps-lms-web type:check`
+6. `pnpm -F @de100/apps-lms-web test`
+7. `pnpm -F @de100/apps-lms-web build`
+8. Global `pnpm format-and-lint:check`
+9. Global `pnpm type:check`
+10. Global `pnpm test`
 
 ### Phase 10 - Encryption and DRM Prototypes
 
-1. Add HLS AES-128 MVP.
-2. Add self-owned R2/Shaka-style DRM prototype.
-3. Add Cloudflare Stream managed DRM prototype.
-4. Document Mux, Bunny, and other managed provider tradeoffs.
+Status: In Progress
+
+Execution order:
+
+1. Reconcile current HLS artifact group model, signed playback route, worker output layout, and player URL contracts.
+2. Add HLS AES-128 encryption MVP:
+   - package-level encryption contract types
+   - key artifact/key-reference model
+   - worker-side ffmpeg command planning for encrypted HLS
+   - signed key delivery route with entitlement/session checks
+   - player/browser smoke for encrypted manifests where feasible
+3. Add self-owned R2/Shaka-style DRM prototype:
+   - document minimum Widevine/FairPlay/PlayReady moving parts
+   - keep implementation behind explicit lab/prototype flags
+   - avoid coupling core files packages to one DRM provider
+4. Add Cloudflare Stream managed DRM prototype:
+   - adapter boundary
+   - handoff and playback-token shape
+   - comparison against self-owned R2 HLS
+5. Record protection tradeoffs:
+   - signed HLS remains the product default until encryption/DRM evidence proves otherwise
+   - AES-128 improves link leakage resistance but is not DRM
+   - real DRM increases operational/provider complexity
+6. Keep broad provider comparison docs for Phase 11, but record implementation evidence here.
+
+Exit gates:
+
+1. `pnpm -F @de100/files-shared type:check`
+2. `pnpm -F @de100/files-server type:check`
+3. `pnpm -F @de100/files-server test`
+4. `pnpm -F @de100/files-processing-video type:check`
+5. `pnpm -F @de100/files-processing-video test`
+6. `pnpm -F @de100/apps-lms-api type:check`
+7. `pnpm -F @de100/apps-lms-api test`
+8. `pnpm -F @de100/apps-lms-web type:check`
+9. `pnpm -F @de100/apps-lms-web test`
+10. `pnpm -F @de100/apps-lms-web build`
+11. Global `pnpm format-and-lint:check`
+12. Global `pnpm type:check`
+13. Global `pnpm test`
 
 ### Phase 11 - Docs and Deployment Guides
 
@@ -427,27 +491,110 @@ Execution order:
 70. PASS: global `pnpm type:check`
 71. PASS: global `pnpm test`
 72. PASS: final global `pnpm format-and-lint:check` after updating Phase 8 tracker notes.
+73. PASS: `pnpm -F @de100/apps-lms-api format-and-lint:check` after adding LMS course file services.
+74. PASS: `pnpm -F @de100/apps-lms-api type:check` after adding LMS course file services.
+75. PASS: `pnpm -F @de100/apps-lms-api test` after adding LMS course file services.
+76. PASS: `pnpm -F @de100/apps-lms-api format-and-lint:fix` after adding the course oRPC router.
+77. FAIL then fixed: initial course-router API typecheck exposed nullable access-context narrowing in lesson video attach and playback-session handlers.
+78. PASS: `pnpm -F @de100/apps-lms-api format-and-lint:check`
+79. PASS: `pnpm -F @de100/apps-lms-api type:check`
+80. PASS: `pnpm -F @de100/apps-lms-api test`
+81. PASS: `pnpm -F @de100/apps-lms-web format-and-lint:fix` after adding course lab/product routes.
+82. PASS: `pnpm -F @de100/apps-lms-web type:check`
+83. PASS: `pnpm -F @de100/apps-lms-web test`
+84. PASS: `pnpm -F @de100/apps-lms-db type:check`
+85. PASS: `pnpm -F @de100/apps-lms-db test`
+86. PASS: global `pnpm format-and-lint:check`
+87. PASS: global `pnpm type:check`
+88. FAIL then fixed: global `pnpm test` exposed a timing-sensitive `@de100/apps-lms-cache` memory TTL test using a 1ms TTL.
+89. PASS: `pnpm -F @de100/apps-lms-cache format-and-lint:check`
+90. PASS: `pnpm -F @de100/apps-lms-cache type:check`
+91. PASS: `pnpm -F @de100/apps-lms-cache test`
+92. PASS: final global `pnpm format-and-lint:check`
+93. PASS: final global `pnpm type:check`
+94. PASS: final global `pnpm test`
+95. PASS: `pnpm -F @de100/files-domains-solidjs add hls.js` after pnpm store access was allowed.
+96. PASS: `pnpm -F @de100/files-server format-and-lint:check`
+97. PASS: `pnpm -F @de100/files-server type:check`
+98. PASS: `pnpm -F @de100/files-server test`
+99. PASS: `pnpm -F @de100/files-domains-solidjs format-and-lint:check`
+100. PASS: `pnpm -F @de100/files-domains-solidjs type:check`
+101. PASS: `pnpm -F @de100/files-domains-solidjs test`
+102. PASS: `pnpm -F @de100/apps-lms-api format-and-lint:check`
+103. PASS: `pnpm -F @de100/apps-lms-api type:check`
+104. PASS: `pnpm -F @de100/apps-lms-api test`
+105. PASS: `pnpm -F @de100/apps-lms-web format-and-lint:fix`
+106. PASS: `pnpm -F @de100/apps-lms-web type:check`
+107. PASS: `pnpm -F @de100/apps-lms-web test`
+108. PASS: `pnpm -F @de100/apps-lms-web build` with expected lazy `hls.js` chunk-size warning and existing esbuild bigint-target warnings.
+109. FAIL then fixed: first `pnpm -F @de100/apps-lms-web test:browser` course lesson smoke asserted the document title as visible UI.
+110. PASS: `pnpm -F @de100/apps-lms-web test:browser`; Chromium verified unauthenticated lab gating, Hybrid/HTTP labs, course-video lab, and lesson shell.
+111. PASS: `pnpm -F @de100/apps-lms-web test:browser:headed`; visible Chromium path passed the same browser suite.
+112. FAIL then fixed: first global `pnpm format-and-lint:check` picked up generated `apps/lms-web/test-results/.last-run.json` from Playwright.
+113. PASS: global `pnpm format-and-lint:check` after removing generated Playwright output.
+114. PASS: global `pnpm type:check`
+115. PASS: global `pnpm test`
+116. PASS: final global `pnpm format-and-lint:check` after Phase 9 tracker and DX report updates.
 
-## 7. Phase 8 Active Notes
+## 7. Phase 9 Completion Notes
 
-Phase 8 owns course integration and gated labs only. Do not build the final video player package, captions, QoE analytics, HLS encryption, DRM, or deployment docs in this phase.
+Phase 9 closed the playback experience slice. It intentionally did not build HLS AES-128 encryption, DRM prototypes, provider comparison docs, or deployment guides.
 
-Immediate reconciliation checklist:
+Phase 8 closure notes:
 
-1. Inspect LMS course/artifact/playback schema and repository coverage from Phase 2.
-2. Identify whether current seeded/test data needs a small course fixture for route and entitlement tests.
-3. Map existing `/files`, `/files-lab/hybrid`, and `/files-lab/http` surfaces to the new course-video workflow without removing the comparison labs.
-4. Decide where the admin-only course upload route should live in the current locale route tree.
-5. Keep signed HLS playback session generation server-owned and entitlement-checked.
+1. Reconciled existing course tables, artifact groups, playback sessions, files repositories, `/files`, `/files-lab/hybrid`, and `/files-lab/http`.
+2. Added LMS course file services for:
+   - course/chapter/lesson creation
+   - enrollment upsert
+   - video asset attachment
+   - `video-hls` processing job queueing
+   - signed HLS playback-session creation
+3. Added explicit course access policy:
+   - preview lessons are readable when published
+   - enrolled/completed users can read private lessons
+   - course owners can manage and read draft/private lessons
+   - admin role remains supported at the package/service boundary
+   - unauthorized private lessons are denied
+4. Added `appRouter.courses` with owner-scoped admin operations and public playback-session creation.
+5. Added gated `/files-lab/course-video` for course creation, lesson creation, uploaded-video attachment, and signed playback-session requests.
+6. Added product-shaped `/courses/:courseSlug/:chapterSlug/:lessonSlug` playback shell.
+7. Kept final player work minimal: the product route shows a video placeholder and signed token data; native video + lazy `hls.js` moves to Phase 9.
+8. Fixed an unrelated flaky cache TTL test discovered by global `pnpm test`.
+9. Focused DB/API/web checks and final global gates passed.
 
-Exit gates:
+Phase 9 completed scope:
 
-1. `pnpm -F @de100/apps-lms-db type:check`
-2. `pnpm -F @de100/apps-lms-db test`
-3. `pnpm -F @de100/apps-lms-api type:check`
-4. `pnpm -F @de100/apps-lms-api test`
-5. `pnpm -F @de100/apps-lms-web type:check`
-6. `pnpm -F @de100/apps-lms-web test`
-7. Global `pnpm format-and-lint:check`
-8. Global `pnpm type:check`
-9. Global `pnpm test`
+1. `hls.js` lives in `@de100/files-domains-solidjs`, not the LMS app directly.
+2. The package player exposes the reusable default:
+   - native `<video>`
+   - native HLS when available
+   - lazy `hls.js` fallback
+   - caption tracks
+   - QoE event callback
+3. The LMS lesson route compares:
+   - package player
+   - helper-only app-composed video element
+   - external-player adapter prototype
+4. HLS URLs are token-scoped through `/api/files/playback/hls/{token}/{path}`.
+5. Playback-session creation now returns a typed playback source for the player.
+6. QoE recording writes through the files telemetry event path.
+7. Browser evidence:
+   - no VS Code integrated browser tool is exposed in this execution environment
+   - headless Playwright passed
+   - headed Playwright passed
+8. Build evidence:
+   - the route chunk stays small
+   - `hls.js` is emitted as a separate lazy chunk and triggers a chunk-size warning, which is expected for this dependency
+   - existing Nitro/esbuild bigint-target warnings remain unrelated to Phase 9
+
+## 8. Phase 10 Active Notes
+
+Phase 10 owns protection prototypes only. Signed HLS remains the default until AES-128 and DRM evidence proves a better tradeoff.
+
+Immediate Phase 10 checklist:
+
+1. Confirm whether encrypted HLS needs new DB columns or can use artifact metadata/key artifacts for the MVP.
+2. Add package-level AES-128 contract names before app route wiring.
+3. Keep key delivery signed-session scoped; do not expose provider keys or bucket object keys.
+4. Keep DRM prototypes isolated behind lab/prototype flags.
+5. Update `docs/files-platform-dx-evaluation.md` with protection tradeoffs as evidence appears.

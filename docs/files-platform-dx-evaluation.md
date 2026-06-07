@@ -1,6 +1,6 @@
 # Files Platform DX Evaluation
 
-Last updated: 2026-06-06
+Last updated: 2026-06-07
 
 This report tracks the files API comparison after dropping RPC-native as a top-level approach. Hybrid is the recommended default candidate, HTTP-native is maintained as the full second path, and `orpc-direct` remains a small-file capability inside Hybrid.
 
@@ -24,6 +24,18 @@ Visible local runs are available with:
 pnpm -F @de100/apps-lms-web test:browser:headed
 pnpm -F @de100/apps-lms-web test:browser:ui
 ```
+
+## Course Video Player Prototypes
+
+| Prototype | Role | Current evidence | DX note |
+| --- | --- | --- | --- |
+| Package player | Recommended product default | `HlsVideoPlayer` in `@de100/files-domains-solidjs`; native HLS first, lazy `hls.js` fallback, caption tracks, QoE callback | Best default for LMS/product surfaces because playback, captions, and telemetry wiring are one component boundary |
+| Helper-only player | App-composed comparison path | LMS lesson page composes its own `<video>` with package QoE event helper | Useful when an app needs full markup control, but it repeats caption/QoE details quickly |
+| External adapter prototype | Integration boundary test | LMS lesson page wraps package player and annotates telemetry as an external-player adapter | Keeps a future Shaka/video.js/Mux-player adapter possible without coupling core packages to one player |
+
+Signed HLS playback currently uses `/api/files/playback/hls/{token}/{path}`. The oRPC course playback-session procedure returns a typed playback source containing the master manifest URL, caption tracks, token, session id, and master artifact id.
+
+The `hls.js` dependency is intentionally lazy-loaded by the package player. Production builds emit it as a separate large chunk; that warning is expected for the dependency and does not mean the lesson route eagerly bundles the player fallback.
 
 ## Running Notes
 
@@ -50,3 +62,7 @@ pnpm -F @de100/apps-lms-web test:browser:ui
 - 2026-06-06: DB-backed read smoke reached `/api/files/{id}` but returned 500 because the configured local/runtime database does not have the fresh `files` table. Release precondition: run the files DB migrations before DB-backed read/control smoke in target environments.
 - 2026-06-06: Final browser evaluation used Playwright because no VS Code integrated browser tool is exposed in this execution environment. Chromium passed unauthenticated lab gating and authenticated lab rendering for the comparison shell, Hybrid page, and HTTP-native page.
 - 2026-06-06: Final recommendation: keep Hybrid as the default scalable project template, keep HTTP-native as a maintained full second path, and keep `orpc-direct` only as a small-file Hybrid capability. Provider-backed Tus, S3 multipart, Companion, Transloadit, and full video transcode remain configured-service work rather than local default behavior.
+- 2026-06-07: Video-ready Phase 9 added the signed HLS playback route, reusable Solid `HlsVideoPlayer`, helper-only player prototype, external-adapter prototype, typed playback-source response, and QoE event recording.
+- 2026-06-07: Browser evaluation covered unauthenticated files-lab gating, authenticated Hybrid/HTTP labs, the course-video lab, and the product lesson shell. Headless `test:browser` passed, and headed `test:browser:headed` also passed. No VS Code integrated browser tool is exposed to Codex in this environment.
+- 2026-06-07: Player DX note: keep the package player as the product default. The helper-only path is useful proof that apps can compose their own player, but it repeats caption and telemetry details. The external-adapter path is the right future seam for Shaka/video.js/Mux-style integrations.
+- 2026-06-07: Protection remains signed HLS only. AES-128 and DRM prototypes move to the next phase; do not recommend them until implementation and browser evidence exist.

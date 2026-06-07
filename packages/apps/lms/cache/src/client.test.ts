@@ -1,18 +1,25 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createCacheClient, getCacheClient } from "./client";
 
+afterEach(() => {
+	vi.useRealTimers();
+});
+
 describe("cache client", () => {
 	it("creates an in-memory client with expiring entries", async () => {
+		const start = new Date("2026-06-07T08:00:00.000Z");
+		vi.useFakeTimers();
+		vi.setSystemTime(start);
 		const cacheClient = createCacheClient({
 			driver: "memory",
 			keyPrefix: "test-cache",
 		});
 
-		cacheClient.set("alpha", "value", 0.001);
+		cacheClient.set("alpha", "value", 1);
 		expect(await cacheClient.get("alpha")).toBe("value");
 
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		vi.setSystemTime(new Date(start.getTime() + 1001));
 		expect(await cacheClient.get("alpha")).toBeNull();
 	});
 

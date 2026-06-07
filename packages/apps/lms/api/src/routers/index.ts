@@ -5,6 +5,7 @@ import {
 import type { RouterClient } from "@orpc/server";
 
 import { protectedProcedure, publicProcedure } from "../index";
+import { coursesRouter } from "./courses";
 import { filesRouter } from "./files";
 import { todoRouter } from "./todo";
 
@@ -18,6 +19,7 @@ export const appRouter = {
 			tags: ["System"],
 		})
 		.handler(() => "OK"),
+	courses: coursesRouter,
 	files: filesRouter,
 	privateData: protectedProcedure
 		.output(privateDataOutputSchema)
