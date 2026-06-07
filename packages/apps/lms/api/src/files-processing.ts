@@ -1,13 +1,34 @@
 import type { DbInstance } from "@de100/apps-lms-db";
+import type {
+	FilesFfmpegCommand,
+	FilesVideoHlsGeneratedObject,
+	FilesVideoHlsPlan,
+	FilesVideoSourceMetadata,
+} from "@de100/files-processing-video";
+import {
+	assertFilesVideoHlsGeneratedObjects,
+	createFilesVideoFfmpegHlsCommands,
+	createFilesVideoHlsArtifactInputs,
+	createFilesVideoHlsMasterManifest,
+	createFilesVideoHlsMetadataObject,
+	createFilesVideoHlsPlan,
+	createFilesVideoHlsStagingPlan,
+	detectFilesVideoInputFormat,
+	promoteFilesVideoHlsGeneratedObjects,
+} from "@de100/files-processing-video";
 import type { FilesRequestContext } from "@de100/files-server/operations";
 import type { FilesPipeline, FilesPipelineStage } from "@de100/files-server/pipeline";
 import { createFilesPipeline, runFilesProcessingJob } from "@de100/files-server/pipeline";
 import type { FilesProcessingDependencyRegistry } from "@de100/files-server/processing-dependencies";
 import { createFilesProcessingDependencyRegistry } from "@de100/files-server/processing-dependencies";
+import {
+	createFilesArtifactPromotedPrefix,
+	createFilesArtifactStagingPrefix,
+} from "@de100/files-server/worker";
 import type { FileRecord } from "@de100/files-shared";
 
 import type { LmsFilesRepositories } from "./files-repositories";
-import type { FilesStorageProvider } from "./files-storage";
+import type { FilesStorageProvider, PutFilesObjectInput } from "./files-storage";
 import { getFilesStorageProvider } from "./files-storage";
 
 type LmsFilesContext = FilesRequestContext<{ db: DbInstance }>;
@@ -15,6 +36,8 @@ type LmsFilesContext = FilesRequestContext<{ db: DbInstance }>;
 type ProcessLmsUploadedFileInput = {
 	file: FileRecord;
 	filesContext: LmsFilesContext;
+	job?: Parameters<typeof runFilesProcessingJob<{ db: DbInstance }>>[0]["job"];
+	kind?: string;
 	pipeline?: FilesPipeline<{ db: DbInstance }>;
 	repositories: LmsFilesRepositories;
 };
@@ -37,7 +60,23 @@ type BinaryVariantOutput = {
 	width?: number | null;
 };
 
+type HlsGeneratedOutput = FilesVideoHlsGeneratedObject & {
+	value: PutFilesObjectInput["value"];
+};
+
+type FfmpegVariantMethod = "createPoster" | "createWaveform";
+
 type FfmpegAdapter = {
+	createHls?: (input: {
+		commands: FilesFfmpegCommand[];
+		file: FileRecord;
+		plan: FilesVideoHlsPlan;
+		source: {
+			bucketName: string | null;
+			key: string;
+			visibility: FileRecord["visibility"];
+		};
+	}) => Promise<HlsGeneratedOutput[]>;
 	createPoster?: (input: {
 		file: FileRecord;
 		sourceBytes: Uint8Array;
@@ -50,6 +89,7 @@ type FfmpegAdapter = {
 
 type CreateLmsFilesProcessingPipelineOptions = {
 	dependencies?: FilesProcessingDependencyRegistry;
+	repositories?: LmsFilesRepositories;
 	storageProvider?: FilesStorageProvider;
 };
 
@@ -57,12 +97,17 @@ export async function processLmsUploadedFile(input: ProcessLmsUploadedFileInput)
 	const result = await runFilesProcessingJob({
 		context: input.filesContext,
 		file: input.file,
-		kind: "upload-complete",
+		job: input.job,
+		kind: input.kind ?? "upload-complete",
 		operations: {
 			createContext: async () => input.filesContext,
 			...input.repositories,
 		},
-		pipeline: input.pipeline ?? createLmsFilesProcessingPipeline(input.filesContext),
+		pipeline:
+			input.pipeline ??
+			createLmsFilesProcessingPipeline(input.filesContext, {
+				repositories: input.repositories,
+			}),
 	});
 
 	const record = await input.repositories.files.getFile(input.file.id, input.filesContext.auth);
@@ -123,8 +168,19 @@ export function createLmsFilesProcessingPipeline(
 					};
 				}
 
-				const sourceBytes = await readStoredFileBytes(input.file, storageProvider);
 				if (input.file.kind === "video") {
+					if (input.job?.kind === "video-hls") {
+						return createVideoHlsArtifacts({
+							dependencies,
+							file: input.file,
+							jobId: input.job.id,
+							repositories: options.repositories,
+							stateAttempt: input.state.attempt,
+							storageProvider,
+						});
+					}
+
+					const sourceBytes = await readStoredFileBytes(input.file, storageProvider);
 					const ffmpegResult = await dependencies.load("ffmpeg");
 					const poster = await createFfmpegVariant({
 						file: input.file,
@@ -160,6 +216,7 @@ export function createLmsFilesProcessingPipeline(
 					};
 				}
 
+				const sourceBytes = await readStoredFileBytes(input.file, storageProvider);
 				if (input.file.kind === "audio") {
 					const ffmpegResult = await dependencies.load("ffmpeg");
 					const waveform = await createFfmpegVariant({
@@ -235,6 +292,173 @@ export function createLmsFilesProcessingPipeline(
 	});
 }
 
+async function createVideoHlsArtifacts(input: {
+	dependencies: FilesProcessingDependencyRegistry;
+	file: FileRecord;
+	jobId: string;
+	repositories?: LmsFilesRepositories;
+	stateAttempt: number;
+	storageProvider: FilesStorageProvider;
+}) {
+	const artifacts = input.repositories?.artifacts;
+	if (!artifacts) {
+		return {
+			metadata: {
+				videoHls: "repository-unavailable",
+			},
+			reason: "Video HLS generation requires artifact repositories.",
+			status: "skipped" as const,
+		};
+	}
+
+	const inputFormat = detectFilesVideoInputFormat({
+		contentType: input.file.contentType,
+		fileName: input.file.fileName,
+	});
+	if (!inputFormat) {
+		return {
+			metadata: {
+				contentType: input.file.contentType,
+				videoHls: "unsupported-input",
+			},
+			reason: "This video input format is not configured for LMS HLS processing.",
+			status: "skipped" as const,
+		};
+	}
+
+	const ffmpegResult = await input.dependencies.load("ffmpeg");
+	const adapter = resolveFfmpegAdapter(
+		ffmpegResult.status === "available" ? ffmpegResult.module : null,
+	);
+	if (!adapter?.createHls) {
+		return {
+			metadata: {
+				ffmpeg: ffmpegResult.status,
+				videoHls: "adapter-unavailable",
+			},
+			reason: "Video HLS generation requires an injected ffmpeg HLS adapter.",
+			status: "skipped" as const,
+		};
+	}
+
+	const groupId = crypto.randomUUID();
+	const revision = 1;
+	const stagingPrefix = createFilesArtifactStagingPrefix({
+		attempt: input.stateAttempt,
+		fileId: input.file.id,
+		groupId,
+		jobId: input.jobId,
+	});
+	const targetPrefix = createFilesArtifactPromotedPrefix({
+		fileId: input.file.id,
+		groupId,
+		revision,
+	});
+	const sourceMetadata = resolveVideoSourceMetadata(input.file.metadata);
+	const plan = createFilesVideoHlsPlan({
+		sourceMetadata,
+		stagingPrefix,
+		targetPrefix,
+	});
+	const stagingPlan = createFilesVideoHlsStagingPlan(plan);
+	const commands = createFilesVideoFfmpegHlsCommands({
+		inputPath: input.file.key,
+		plan: stagingPlan,
+	});
+	const generatedByAdapter = await adapter.createHls({
+		commands,
+		file: input.file,
+		plan: stagingPlan,
+		source: {
+			bucketName: input.file.bucketName,
+			key: input.file.key,
+			visibility: input.file.visibility,
+		},
+	});
+	const masterManifest = createFilesVideoHlsMasterManifest(stagingPlan);
+	const metadataObject = createFilesVideoHlsMetadataObject({
+		plan: stagingPlan,
+		sourceMetadata,
+	});
+	const stagingObjects: HlsGeneratedOutput[] = [
+		{
+			contentType: "application/vnd.apple.mpegurl",
+			key: stagingPlan.masterManifestKey,
+			size: new TextEncoder().encode(masterManifest).byteLength,
+			value: masterManifest,
+		},
+		...generatedByAdapter,
+		{
+			...metadataObject,
+			value: metadataObject.body,
+		},
+	];
+
+	try {
+		await writeHlsObjectsToStorage({
+			file: input.file,
+			objects: stagingObjects,
+			storageProvider: input.storageProvider,
+		});
+		assertFilesVideoHlsGeneratedObjects({
+			objects: stagingObjects,
+			plan: stagingPlan,
+		});
+
+		const promotedObjects = promoteFilesVideoHlsGeneratedObjects({
+			objects: stagingObjects,
+			plan,
+		}).map((object, index) => ({
+			...object,
+			value: stagingObjects[index]?.value ?? "",
+		}));
+
+		await writeHlsObjectsToStorage({
+			file: input.file,
+			objects: promotedObjects,
+			storageProvider: input.storageProvider,
+		});
+		await cleanupHlsObjects({
+			file: input.file,
+			objects: stagingObjects,
+			storageProvider: input.storageProvider,
+		});
+
+		const artifactPlan = createFilesVideoHlsArtifactInputs({
+			bucketName: input.storageProvider.getBucketName(input.file.visibility),
+			fileId: input.file.id,
+			groupId,
+			objects: promotedObjects,
+			plan,
+			revision,
+			visibility: input.file.visibility,
+		});
+		const artifactGroup = await artifacts.groups.createGroup(artifactPlan.group);
+		const artifactRecords = [];
+		for (const artifact of artifactPlan.artifacts) {
+			artifactRecords.push(await artifacts.items.createArtifact(artifact));
+		}
+
+		return {
+			metadata: {
+				artifactCount: artifactRecords.length,
+				artifactGroupId: artifactGroup.id,
+				ffmpeg: ffmpegResult.status,
+				inputFormat,
+				renditions: plan.renditions.map(({ rendition }) => rendition.label),
+				videoHls: "generated",
+			},
+		};
+	} catch (error) {
+		await cleanupHlsObjects({
+			file: input.file,
+			objects: stagingObjects,
+			storageProvider: input.storageProvider,
+		});
+		throw error;
+	}
+}
+
 async function createOptimizedImageVariant(input: {
 	file: FileRecord;
 	sharpModule: unknown;
@@ -272,7 +496,7 @@ async function createOptimizedImageVariant(input: {
 async function createFfmpegVariant(input: {
 	file: FileRecord;
 	kind: "poster" | "waveform";
-	method: keyof FfmpegAdapter;
+	method: FfmpegVariantMethod;
 	module: unknown;
 	sourceBytes: Uint8Array;
 }): Promise<(BinaryVariantOutput & { key: string; kind: "poster" | "waveform" }) | null> {
@@ -332,6 +556,43 @@ async function readStoredFileBytes(file: FileRecord, storageProvider: FilesStora
 	return new Uint8Array(await new Response(object.body).arrayBuffer());
 }
 
+async function writeHlsObjectsToStorage(input: {
+	file: FileRecord;
+	objects: HlsGeneratedOutput[];
+	storageProvider: FilesStorageProvider;
+}) {
+	for (const object of input.objects) {
+		await input.storageProvider.putObject({
+			httpMetadata: {
+				cacheControl:
+					input.file.visibility === "public"
+						? "public, max-age=31536000, immutable"
+						: "private, no-store, max-age=0",
+				contentDisposition: "inline",
+				contentType: object.contentType,
+			},
+			key: object.key,
+			value: object.value,
+			visibility: input.file.visibility,
+		});
+	}
+}
+
+async function cleanupHlsObjects(input: {
+	file: FileRecord;
+	objects: Pick<HlsGeneratedOutput, "key">[];
+	storageProvider: FilesStorageProvider;
+}) {
+	await Promise.allSettled(
+		input.objects.map((object) =>
+			input.storageProvider.deleteObject({
+				key: object.key,
+				visibility: input.file.visibility,
+			}),
+		),
+	);
+}
+
 async function putGeneratedVariant(input: {
 	file: FileRecord;
 	storageProvider: FilesStorageProvider;
@@ -387,4 +648,30 @@ function getFileExtension(file: FileRecord) {
 	}
 
 	return "bin";
+}
+
+function resolveVideoSourceMetadata(
+	metadata: FileRecord["metadata"],
+): FilesVideoSourceMetadata | undefined {
+	if (typeof metadata !== "object" || metadata === null) {
+		return undefined;
+	}
+
+	const height = readOptionalNumber(metadata, "height");
+	const width = readOptionalNumber(metadata, "width");
+	const durationMs = readOptionalNumber(metadata, "durationMs");
+	if (height === undefined && width === undefined && durationMs === undefined) {
+		return undefined;
+	}
+
+	return {
+		durationMs,
+		height,
+		width,
+	};
+}
+
+function readOptionalNumber(metadata: Record<string, unknown>, key: string) {
+	const value = metadata[key];
+	return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }

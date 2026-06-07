@@ -1,3 +1,4 @@
+import { appErrorCodes } from "@de100/apps-lms-validators/shared";
 import type { FilesDirectDownloadFile } from "@de100/files-server/orpc";
 import {
 	createUploadTargetInputSchema,
@@ -12,10 +13,10 @@ import {
 	processingJobStatusSchema,
 	uploadSessionStatusSchema,
 } from "@de100/files-shared";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod/v4";
 
 import type { Context } from "../context";
+import { createAppError } from "../errors";
 import { createLmsFilesOrpcHandlers } from "../files-orpc";
 import { protectedProcedure, publicProcedure } from "../index";
 
@@ -158,6 +159,7 @@ const filesConfigOutputSchema = z.object({
 					maxFileSizeBytes: z.number().int().nonnegative(),
 					minFileCount: z.number().int().positive(),
 					protocols: z.array(filesUploadProtocolPreferenceSchema),
+					requiresResumable: z.boolean(),
 				}),
 			),
 			options: z.object({
@@ -475,9 +477,7 @@ export const filesRouter = {
 
 function requireFilesRequest(context: Context) {
 	if (!context.request) {
-		throw new ORPCError("INTERNAL_SERVER_ERROR", {
-			message: "Files procedures require a request context.",
-		});
+		throw createAppError("INTERNAL_SERVER_ERROR", appErrorCodes.files.backendLoadFailed);
 	}
 
 	return context.request;

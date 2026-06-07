@@ -1,3 +1,4 @@
+import { normalizeFileRouteConfig, normalizeFileRouteOptions } from "@de100/files-shared";
 import { describe, expect, it, vi } from "vitest";
 
 import { createFilesEventBus } from "./events";
@@ -244,6 +245,77 @@ describe("createFilesOrpcHandlers", () => {
 			mode: "upload-target",
 			protocol: "tus",
 		});
+	});
+
+	it("uses route policy and S3-compatible storage when resolving upload mode", () => {
+		const handlers = createFilesOrpcHandlers({
+			async createUploadTarget() {
+				throw new Error("not used");
+			},
+			operations: createOperations(),
+			routes: [
+				{
+					config: normalizeFileRouteConfig({
+						video: {
+							maxFileSize: "2GB",
+							protocols: ["auto", "s3-multipart", "s3-put", "tus", "xhr"],
+							requiresResumable: true,
+						},
+					}),
+					options: normalizeFileRouteOptions(),
+					slug: "lesson-video",
+				},
+			],
+			storageBackend: "minio-s3",
+		});
+
+		expect(
+			handlers.resolveUploadMode({
+				contentType: "video/mp4",
+				fileSize: 8 * 1024 * 1024,
+				routeSlug: "lesson-video",
+			}),
+		).toMatchObject({
+			mode: "upload-target",
+			protocol: "s3-multipart",
+			reason: "s3-compatible-multipart",
+			storageBackend: "minio-s3",
+		});
+	});
+
+	it("rejects direct uploads when route policy requires resumable S3-compatible transfer", async () => {
+		const handlers = createFilesOrpcHandlers({
+			async createUploadTarget() {
+				throw new Error("not used");
+			},
+			directUpload: vi.fn(),
+			operations: createOperations(),
+			routes: [
+				{
+					config: normalizeFileRouteConfig({
+						video: {
+							maxFileSize: "2GB",
+							protocols: ["auto", "s3-multipart", "s3-put", "tus", "xhr"],
+							requiresResumable: true,
+						},
+					}),
+					options: normalizeFileRouteOptions(),
+					slug: "lesson-video",
+				},
+			],
+			storageBackend: "r2-s3",
+		});
+
+		await expect(
+			handlers.directUpload(
+				{
+					file: createFile({ name: "lesson.mp4", size: 8 * 1024 * 1024, type: "video/mp4" }),
+					routeSlug: "lesson-video",
+					visibility: "private",
+				},
+				request,
+			),
+		).rejects.toThrow("s3-compatible-multipart");
 	});
 
 	it("uses direct download callbacks and empty event iterator fallbacks", async () => {

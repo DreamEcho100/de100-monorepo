@@ -41,6 +41,11 @@ const baseEnv = createEnv({
 		APP_LMS_FILES_S3_FORCE_PATH_STYLE: z.boolean().default(true),
 		APP_LMS_FILES_SIGNING_SECRET: z.string().min(32).optional(),
 		APP_LMS_FILES_SIGNED_URL_TTL_SECONDS: z.coerce.number().int().positive().default(3600),
+		APP_LMS_FILES_WORKER_CONCURRENCY: z.coerce.number().int().positive().default(1),
+		APP_LMS_FILES_WORKER_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(5000),
+		APP_LMS_FILES_WORKER_QUEUE_DRIVER: z.enum(["auto", "db", "redis"]).default("auto"),
+		APP_LMS_FILES_WORKER_REDIS_KEY_PREFIX: z.string().min(1).default("de100:lms:files"),
+		APP_LMS_FILES_WORKER_STALE_AFTER_MS: z.coerce.number().int().positive().default(300000),
 		REDIS_URL: z.url().optional(),
 		APP_LMS_UPSTASH_REDIS_URL: z.url().optional(),
 		APP_LMS_UPSTASH_REDIS_TOKEN: z.string().min(1).optional(),
@@ -195,6 +200,17 @@ export type CacheMode = z.infer<typeof cacheModeSchema>;
 export type EmailMode = z.infer<typeof emailModeSchema>;
 export type FilesStorageMode = z.infer<typeof filesStorageModeSchema>;
 
+const filesWorkerModeSchema = z.object({
+	concurrency: z.number().int().positive(),
+	pollIntervalMs: z.number().int().positive(),
+	queueDriver: z.enum(["auto", "db", "redis"]),
+	redisKeyPrefix: z.string().min(1),
+	redisUrl: z.url().nullable(),
+	staleAfterMs: z.number().int().positive(),
+});
+
+export type FilesWorkerMode = z.infer<typeof filesWorkerModeSchema>;
+
 const modeProjectionSchema = z
 	.object({
 		APP_LMS_CACHE_DRIVER: z.enum(["memory", "redis", "upstash"]),
@@ -214,6 +230,11 @@ const modeProjectionSchema = z
 		APP_LMS_FILES_S3_REGION: z.string().min(1),
 		APP_LMS_FILES_S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
 		APP_LMS_FILES_STORAGE_DRIVER: z.enum(["s3", "local"]),
+		APP_LMS_FILES_WORKER_CONCURRENCY: z.number().int().positive(),
+		APP_LMS_FILES_WORKER_POLL_INTERVAL_MS: z.number().int().positive(),
+		APP_LMS_FILES_WORKER_QUEUE_DRIVER: z.enum(["auto", "db", "redis"]),
+		APP_LMS_FILES_WORKER_REDIS_KEY_PREFIX: z.string().min(1),
+		APP_LMS_FILES_WORKER_STALE_AFTER_MS: z.number().int().positive(),
 		APP_LMS_RESEND_API_KEY: z.string().min(1).optional(),
 		APP_LMS_UPSTASH_REDIS_TOKEN: z.string().min(1).optional(),
 		APP_LMS_UPSTASH_REDIS_URL: z.url().optional(),
@@ -289,6 +310,14 @@ const modeProjectionSchema = z
 						},
 					},
 		),
+		filesWorker: filesWorkerModeSchema.parse({
+			concurrency: value.APP_LMS_FILES_WORKER_CONCURRENCY,
+			pollIntervalMs: value.APP_LMS_FILES_WORKER_POLL_INTERVAL_MS,
+			queueDriver: value.APP_LMS_FILES_WORKER_QUEUE_DRIVER,
+			redisKeyPrefix: value.APP_LMS_FILES_WORKER_REDIS_KEY_PREFIX,
+			redisUrl: value.REDIS_URL ?? null,
+			staleAfterMs: value.APP_LMS_FILES_WORKER_STALE_AFTER_MS,
+		}),
 	}));
 
 export const env = Object.freeze({
@@ -300,3 +329,4 @@ export const databaseMode: DatabaseMode = env.database;
 export const cacheMode: CacheMode = env.cache;
 export const emailMode: EmailMode = env.email;
 export const filesStorageMode: FilesStorageMode = env.filesStorage;
+export const filesWorkerMode: FilesWorkerMode = env.filesWorker;

@@ -3,6 +3,7 @@ import type {
 	createUploadTargetOutputSchema,
 	FileKind,
 	FileRecord,
+	FilesStorageBackend,
 	FilesUploadModeDecision,
 	FileVisibility,
 	fileRecordSchema,
@@ -14,6 +15,7 @@ import {
 	FilesError,
 	filesErrorCodes,
 	inferFileKindFromContentType,
+	selectFileRouteRule,
 	selectFilesUploadMode,
 } from "@de100/files-shared";
 import type { z } from "zod/v4";
@@ -189,6 +191,7 @@ export type CreateFilesOrpcHandlersOptions<TAppContext = unknown> = {
 	maxDirectUploadBytes?: number;
 	operations: FilesOperations<TAppContext>;
 	routes?: FilesOrpcConfig["routes"];
+	storageBackend?: FilesStorageBackend;
 	watchProcessing?: (
 		input: { fileId: string },
 		context: Awaited<ReturnType<FilesOperations<TAppContext>["createContext"]>>,
@@ -258,11 +261,13 @@ export function createFilesOrpcHandlers<TAppContext = unknown>(
 				);
 			}
 
-			const decision = selectFilesUploadMode({
+			const decision = resolveFilesUploadMode({
 				contentType: input.file.type,
 				fileSize: input.file.size,
 				kind: input.kind ?? inferFileKindFromContentType(input.file.type),
 				maxDirectUploadBytes: options.maxDirectUploadBytes,
+				options,
+				routeSlug: input.routeSlug,
 				requiresResumable: input.requiresResumable,
 			});
 
@@ -341,11 +346,13 @@ export function createFilesOrpcHandlers<TAppContext = unknown>(
 			return options.operations.variants.listVariants(input.fileId);
 		},
 		resolveUploadMode(input) {
-			return selectFilesUploadMode({
+			return resolveFilesUploadMode({
 				contentType: input.contentType,
 				fileSize: input.fileSize,
 				kind: input.kind,
 				maxDirectUploadBytes: options.maxDirectUploadBytes,
+				options,
+				routeSlug: input.routeSlug,
 				requiresResumable: input.requiresResumable,
 			});
 		},
@@ -358,6 +365,32 @@ export function createFilesOrpcHandlers<TAppContext = unknown>(
 			return options.watchUpload?.(input, context) ?? createEmptyFilesEventIterator();
 		},
 	};
+}
+
+function resolveFilesUploadMode<TAppContext>(
+	input: FilesUploadModeInput & {
+		maxDirectUploadBytes?: number;
+		options: Pick<CreateFilesOrpcHandlersOptions<TAppContext>, "routes" | "storageBackend">;
+	},
+): FilesUploadModeDecision {
+	const kind = input.kind ?? inferFileKindFromContentType(input.contentType);
+	const route = input.options.routes?.find((candidate) => candidate.slug === input.routeSlug);
+	const routeRule = route
+		? selectFileRouteRule(route.config, {
+				contentType: input.contentType,
+				kind,
+			})
+		: null;
+
+	return selectFilesUploadMode({
+		contentType: input.contentType,
+		fileSize: input.fileSize,
+		kind,
+		maxDirectUploadBytes: input.maxDirectUploadBytes,
+		requiresResumable: input.requiresResumable ?? routeRule?.requiresResumable,
+		routeProtocols: routeRule?.protocols,
+		storageBackend: input.options.storageBackend,
+	});
 }
 
 async function* createEmptyFilesEventIterator(): AsyncIterable<FilesEventIteratorEvent> {}

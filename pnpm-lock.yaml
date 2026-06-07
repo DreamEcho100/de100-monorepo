@@ -288,6 +288,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: 'catalog:'
         version: 3.1058.0
+      '@aws-sdk/s3-request-presigner':
+        specifier: 'catalog:'
+        version: 3.1058.0
       '@de100/apps-lms-auth':
         specifier: workspace:*
         version: link:../auth
@@ -300,6 +303,9 @@ importers:
       '@de100/apps-lms-validators':
         specifier: workspace:*
         version: link:../validators
+      '@de100/files-processing-video':
+        specifier: workspace:*
+        version: link:../../../files/processing-video
       '@de100/files-server':
         specifier: workspace:*
         version: link:../../../files/server
@@ -538,6 +544,46 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
+      '@de100/biome-config':
+        specifier: workspace:*
+        version: link:../../../../tooling/biome
+      '@de100/tsconfig':
+        specifier: workspace:*
+        version: link:../../../../tooling/typescript
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.30.1)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0)
+
+  packages/apps/lms/worker:
+    dependencies:
+      '@de100/apps-lms-api':
+        specifier: workspace:*
+        version: link:../api
+      '@de100/apps-lms-db':
+        specifier: workspace:*
+        version: link:../db
+      '@de100/apps-lms-env':
+        specifier: workspace:*
+        version: link:../env
+      '@de100/files-server':
+        specifier: workspace:*
+        version: link:../../../files/server
+      '@de100/files-shared':
+        specifier: workspace:*
+        version: link:../../../files/shared
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@neondatabase/serverless@1.1.0)(@types/pg@8.20.0)(@upstash/redis@1.38.0)(kysely@0.28.17)(postgres@3.4.9)
+    devDependencies:
+      '@biomejs/biome':
+        specifier: 'catalog:'
+        version: 2.4.15
+      '@de100/apps-lms-config':
+        specifier: workspace:*
+        version: link:../config
       '@de100/biome-config':
         specifier: workspace:*
         version: link:../../../../tooling/biome

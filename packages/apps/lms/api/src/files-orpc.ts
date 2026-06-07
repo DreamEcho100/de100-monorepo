@@ -5,21 +5,32 @@ import type {
 	FilesDirectDownloadInput,
 	FilesDirectDownloadOutput,
 	FilesDirectUploadInput,
+	FilesUploadModeInput,
 } from "@de100/files-server/orpc";
 import { createFilesOrpcHandlers } from "@de100/files-server/orpc";
+import type {
+	FilesStorageBackend,
+	FilesUploadModeDecision,
+	FilesUploadProtocolPreference,
+	FilesUploadTargetProtocol,
+} from "@de100/files-shared";
 import {
 	defaultDirectOrpcUploadMaxBytes,
 	inferFileKindFromContentType,
+	selectFileRouteRule,
 	selectFilesUploadMode,
 } from "@de100/files-shared";
 
 import type { Context } from "./context";
 import { processLmsUploadedFile } from "./files-processing";
 import { createLmsFilesRepositories } from "./files-repositories";
+import { lmsFilesRouteConfig } from "./files-routes";
 import { createSignedFilesAccessUrl, issueSignedFilesAccessToken } from "./files-signed-access";
 import {
 	createFilesAccessUrl,
 	createFilesStorageKey,
+	createFilesStorageUploadTarget,
+	getFilesStorageBackend,
 	getFilesStorageProvider,
 } from "./files-storage";
 
@@ -32,6 +43,9 @@ export type CreateLmsFilesOrpcHandlersOptions = {
 
 export function createLmsFilesOrpcHandlers(options: CreateLmsFilesOrpcHandlersOptions) {
 	const repositories = createLmsFilesRepositories(options.context.db);
+	const initialRequest = (options.context.request ??
+		new Request("http://localhost/api/files")) as unknown as Request;
+	const storageBackend = getFilesStorageBackend(initialRequest);
 
 	return createFilesOrpcHandlers<{ db: DbInstance }>({
 		async completeUpload(_input, filesContext, file) {
@@ -76,13 +90,14 @@ export function createLmsFilesOrpcHandlers(options: CreateLmsFilesOrpcHandlersOp
 			});
 			const targetId = crypto.randomUUID();
 			const sessionId = crypto.randomUUID();
-			const selectedMode = selectFilesUploadMode({
+			const selectedMode = resolveLmsFilesUploadMode({
 				contentType: input.contentType,
 				fileSize: input.fileSize,
 				kind,
 				maxDirectUploadBytes: lmsDirectOrpcUploadMaxBytes,
-				requiresResumable: input.protocol === "tus" || input.protocol === "s3-multipart",
-				routeProtocols: [input.protocol],
+				requestedProtocol: input.protocol,
+				routeSlug: input.routeSlug,
+				storageBackend,
 			});
 			const protocol =
 				input.protocol === "auto"
@@ -112,18 +127,34 @@ export function createLmsFilesOrpcHandlers(options: CreateLmsFilesOrpcHandlersOp
 				type: "upload",
 			});
 
-			return {
-				expiresAt,
+			const target = await createFilesStorageUploadTarget(filesContext.request, {
+				contentType: input.contentType,
+				expiresInSeconds: 60 * 60,
 				fields: {
 					fileId: fileRecord.id,
 					key,
 				},
-				headers: input.contentType ? { "content-type": input.contentType } : null,
-				method: protocol === "s3-put" ? "PUT" : "POST",
+				key,
 				protocol,
 				sessionId,
 				targetId,
-				uploadUrl: createFilesUploadUrl(filesContext.request, protocol, sessionId),
+				visibility,
+			});
+
+			if (!target) {
+				throw new Error(
+					`Files upload protocol ${protocol} is not available for ${storageBackend} storage.`,
+				);
+			}
+
+			return {
+				...target,
+				expiresAt,
+				fields: {
+					...(target.fields ?? {}),
+					fileId: fileRecord.id,
+					key,
+				},
 			};
 		},
 		async directDownload(input, filesContext) {
@@ -161,8 +192,42 @@ export function createLmsFilesOrpcHandlers(options: CreateLmsFilesOrpcHandlersOp
 			}),
 			...repositories,
 		},
+		routes: lmsFilesRouteConfig,
+		storageBackend,
 		watchProcessing: (input) => lmsFilesEventBus.watchProcessing(input),
 		watchUpload: (input) => lmsFilesEventBus.watchUpload(input),
+	});
+}
+
+export function resolveLmsFilesUploadMode(
+	input: FilesUploadModeInput & {
+		maxDirectUploadBytes?: number;
+		requestedProtocol?: FilesUploadProtocolPreference;
+		storageBackend?: FilesStorageBackend;
+	},
+): FilesUploadModeDecision {
+	const kind = input.kind ?? inferFileKindFromContentType(input.contentType);
+	const route = lmsFilesRouteConfig.find((candidate) => candidate.slug === input.routeSlug);
+	const routeRule = route
+		? selectFileRouteRule(route.config, {
+				contentType: input.contentType,
+				kind,
+			})
+		: null;
+	const forcedProtocol = normalizeRequestedProtocol(input.requestedProtocol);
+
+	return selectFilesUploadMode({
+		contentType: input.contentType,
+		fileSize: input.fileSize,
+		forcedProtocol,
+		kind,
+		maxDirectUploadBytes: input.maxDirectUploadBytes ?? lmsDirectOrpcUploadMaxBytes,
+		requiresResumable:
+			input.requiresResumable ??
+			routeRule?.requiresResumable ??
+			isResumableTargetProtocol(forcedProtocol),
+		routeProtocols: forcedProtocol ? [forcedProtocol] : routeRule?.protocols,
+		storageBackend: input.storageBackend,
 	});
 }
 
@@ -289,6 +354,12 @@ function requireFilesUserId(auth: FilesAuthContext) {
 	return auth.userId;
 }
 
-function createFilesUploadUrl(request: Request, protocol: string, sessionId: string) {
-	return new URL(`/api/files/upload/${protocol}/${sessionId}`, request.url).toString();
+function normalizeRequestedProtocol(
+	protocol: FilesUploadProtocolPreference | undefined,
+): FilesUploadTargetProtocol | undefined {
+	return protocol && protocol !== "auto" ? protocol : undefined;
+}
+
+function isResumableTargetProtocol(protocol: FilesUploadTargetProtocol | undefined) {
+	return protocol === "tus" || protocol === "s3-multipart";
 }

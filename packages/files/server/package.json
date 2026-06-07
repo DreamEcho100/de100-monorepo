@@ -6,6 +6,12 @@
 		".": {
 			"default": "./src/index.ts"
 		},
+		"./artifact-delivery": {
+			"default": "./src/artifact-delivery.ts"
+		},
+		"./entitlements": {
+			"default": "./src/entitlements.ts"
+		},
 		"./orpc": {
 			"default": "./src/orpc.ts"
 		},
@@ -21,8 +27,14 @@
 		"./temp-files": {
 			"default": "./src/temp-files.ts"
 		},
+		"./telemetry": {
+			"default": "./src/telemetry.ts"
+		},
 		"./worker": {
 			"default": "./src/worker.ts"
+		},
+		"./worker-queue": {
+			"default": "./src/worker-queue.ts"
 		},
 		"./*": {
 			"default": "./src/*.ts"

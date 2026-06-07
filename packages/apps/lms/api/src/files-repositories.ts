@@ -737,6 +737,10 @@ export function serializeLmsProcessingJobRecord(
 }
 
 function createReadableFilePredicate(context: FilesAuthContext) {
+	if (context.role === "admin" || context.role === "worker") {
+		return isNull(files.deletedAt);
+	}
+
 	const publicReadyPredicate = and(
 		eq(files.visibility, "public"),
 		eq(files.status, "ready"),
@@ -751,6 +755,10 @@ function createReadableFilePredicate(context: FilesAuthContext) {
 }
 
 function createListFilesPredicate(context: FilesAuthContext) {
+	if (context.role === "admin" || context.role === "worker") {
+		return isNull(files.deletedAt);
+	}
+
 	if (!context.userId) {
 		return and(eq(files.visibility, "public"), eq(files.status, "ready"), isNull(files.deletedAt));
 	}

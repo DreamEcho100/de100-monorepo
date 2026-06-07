@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeFileRouteConfig, normalizeFileRouteOptions } from "./route-config";
+import {
+	normalizeFileRouteConfig,
+	normalizeFileRouteOptions,
+	selectFileRouteRule,
+} from "./route-config";
 
 describe("normalizeFileRouteConfig", () => {
 	it("fills defaults and parses file sizes", () => {
@@ -18,7 +22,34 @@ describe("normalizeFileRouteConfig", () => {
 			maxFileSizeBytes: 8 * 1024 * 1024,
 			minFileCount: 1,
 			protocols: ["auto"],
+			requiresResumable: false,
 		});
+	});
+
+	it("selects route rules by kind, MIME type, and MIME wildcard", () => {
+		const config = normalizeFileRouteConfig({
+			"application/pdf": {
+				maxFileSize: "16MB",
+			},
+			"video/*": {
+				maxFileSize: "2GB",
+				requiresResumable: true,
+			},
+			image: {
+				maxFileSize: "8MB",
+			},
+		});
+
+		expect(selectFileRouteRule(config, { kind: "image" })).toMatchObject({
+			maxFileSizeBytes: 8 * 1024 * 1024,
+		});
+		expect(selectFileRouteRule(config, { contentType: "application/pdf" })).toMatchObject({
+			maxFileSizeBytes: 16 * 1024 * 1024,
+		});
+		expect(selectFileRouteRule(config, { contentType: "video/mp4" })).toMatchObject({
+			requiresResumable: true,
+		});
+		expect(selectFileRouteRule(config, { contentType: "application/json" })).toBeNull();
 	});
 
 	it("rejects invalid counts", () => {

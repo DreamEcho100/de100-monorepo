@@ -1,5 +1,10 @@
 import type { S3Client as AwsS3Client, GetObjectCommandOutput } from "@aws-sdk/client-s3";
 import { env } from "@de100/apps-lms-env/server";
+import type {
+	CreateUploadTargetOutput,
+	FilesStorageBackend,
+	FilesUploadTargetProtocol,
+} from "@de100/files-shared";
 
 export type FilesVisibility = "public" | "private";
 export type FilesStorageDriver = "local" | "s3";
@@ -79,6 +84,17 @@ export type FilesStorageProvider = {
 	headObject(input: ReadFilesObjectInput): Promise<FilesObjectHead | null>;
 	listPrefix(input: { prefix: string; visibility: FilesVisibility }): Promise<string[] | null>;
 	putObject(input: PutFilesObjectInput): Promise<void>;
+};
+
+export type CreateFilesStorageUploadTargetInput = {
+	contentType: string;
+	expiresInSeconds: number;
+	fields?: Record<string, string>;
+	key: string;
+	protocol: FilesUploadTargetProtocol;
+	sessionId: string;
+	targetId: string;
+	visibility: FilesVisibility;
 };
 
 type FilesBindings = {
@@ -495,6 +511,28 @@ export function getFilesStorageCapabilities(source: RequestLike): FilesStorageCa
 	};
 }
 
+export function getFilesStorageBackend(source: RequestLike): FilesStorageBackend {
+	const capabilities = getFilesStorageCapabilities(source);
+	if (capabilities.driver === "local") {
+		return "local-fs";
+	}
+
+	switch (capabilities.provider) {
+		case "minio":
+			return "minio-s3";
+		case "r2":
+			return "r2-s3";
+		case "aws":
+		case "custom":
+		case null:
+			return "s3-compatible";
+		default: {
+			const exhaustive: never = capabilities.provider;
+			throw new Error(`Unsupported files storage provider: ${exhaustive}`);
+		}
+	}
+}
+
 function resolveFilesBucketInternal(source: RequestLike, visibility: FilesVisibility): FilesBucket {
 	if (getFilesStorageDriver(source) === "local") {
 		return createLocalBucket(visibility);
@@ -567,6 +605,72 @@ export function getFilesStorageProvider(source: RequestLike): FilesStorageProvid
 			});
 		},
 	};
+}
+
+export async function createFilesStorageUploadTarget(
+	source: RequestLike,
+	input: CreateFilesStorageUploadTargetInput,
+): Promise<CreateUploadTargetOutput | null> {
+	const expiresAt = new Date(Date.now() + input.expiresInSeconds * 1000);
+	const baseTarget = {
+		expiresAt,
+		protocol: input.protocol,
+		sessionId: input.sessionId,
+		targetId: input.targetId,
+	} satisfies Pick<CreateUploadTargetOutput, "expiresAt" | "protocol" | "sessionId" | "targetId">;
+
+	if (input.protocol === "xhr" || input.protocol === "tus") {
+		return {
+			...baseTarget,
+			fields: {
+				...input.fields,
+				key: input.key,
+			},
+			headers: input.contentType ? { "content-type": input.contentType } : null,
+			method: "POST",
+			uploadUrl: createFilesServerUploadUrl(source, input.protocol, input.sessionId),
+		};
+	}
+
+	if (input.protocol === "s3-put") {
+		const uploadUrl = await createS3PresignedPutUploadUrl(source, input);
+		if (!uploadUrl) {
+			return null;
+		}
+
+		return {
+			...baseTarget,
+			fields: {
+				...input.fields,
+				key: input.key,
+			},
+			headers: input.contentType ? { "content-type": input.contentType } : null,
+			method: "PUT",
+			uploadUrl,
+		};
+	}
+
+	if (input.protocol === "s3-multipart") {
+		const multipart = await createS3MultipartUpload(source, input);
+		if (!multipart) {
+			return null;
+		}
+
+		return {
+			...baseTarget,
+			fields: {
+				...input.fields,
+				bucket: multipart.bucket,
+				key: input.key,
+				uploadId: multipart.uploadId,
+			},
+			headers: input.contentType ? { "content-type": input.contentType } : null,
+			method: "POST",
+			uploadUrl: createFilesServerUploadUrl(source, input.protocol, input.sessionId),
+		};
+	}
+
+	return null;
 }
 
 async function getLocalFs() {
@@ -824,6 +928,81 @@ export function getFilesBucketName(
 
 	const resolvedS3BucketConfig = resolveS3BucketConfig(visibility);
 	return resolvedS3BucketConfig?.bucketName ?? null;
+}
+
+async function createS3PresignedPutUploadUrl(
+	source: RequestLike,
+	input: Pick<
+		CreateFilesStorageUploadTargetInput,
+		"contentType" | "expiresInSeconds" | "key" | "visibility"
+	>,
+): Promise<string | null> {
+	const resolvedConfig = resolveS3BucketConfigForRequest(source, input.visibility);
+	if (!resolvedConfig) {
+		return null;
+	}
+
+	const { PutObjectCommand } = await import("@aws-sdk/client-s3");
+	const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
+	const client = await getS3Client(resolvedConfig.config);
+	const command = new PutObjectCommand({
+		Bucket: resolvedConfig.bucketName,
+		ContentType: input.contentType,
+		Key: input.key,
+	});
+
+	return getSignedUrl(client as never, command as never, {
+		expiresIn: Math.max(1, input.expiresInSeconds),
+	});
+}
+
+async function createS3MultipartUpload(
+	source: RequestLike,
+	input: Pick<CreateFilesStorageUploadTargetInput, "contentType" | "key" | "visibility">,
+): Promise<{ bucket: string; uploadId: string } | null> {
+	const resolvedConfig = resolveS3BucketConfigForRequest(source, input.visibility);
+	if (!resolvedConfig) {
+		return null;
+	}
+
+	const { CreateMultipartUploadCommand } = await import("@aws-sdk/client-s3");
+	const client = await getS3Client(resolvedConfig.config);
+	const output = await client.send(
+		new CreateMultipartUploadCommand({
+			Bucket: resolvedConfig.bucketName,
+			ContentType: input.contentType,
+			Key: input.key,
+		}),
+	);
+
+	return output.UploadId
+		? {
+				bucket: resolvedConfig.bucketName,
+				uploadId: output.UploadId,
+			}
+		: null;
+}
+
+function resolveS3BucketConfigForRequest(
+	source: RequestLike,
+	visibility: FilesVisibility,
+): ResolvedS3BucketConfig | null {
+	if (getFilesStorageDriver(source) !== "s3") {
+		return null;
+	}
+
+	return resolveS3BucketConfig(visibility);
+}
+
+function createFilesServerUploadUrl(
+	source: RequestLike,
+	protocol: FilesUploadTargetProtocol,
+	sessionId: string,
+) {
+	return new URL(
+		`/api/files/upload/${protocol}/${sessionId}`,
+		resolveRequest(source).url,
+	).toString();
 }
 
 export function getPublicFilesDirectUrl(source: RequestLike, key: string): string | null {

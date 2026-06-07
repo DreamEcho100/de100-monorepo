@@ -23,10 +23,12 @@
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "catalog:",
+		"@aws-sdk/s3-request-presigner": "catalog:",
 		"@de100/apps-lms-auth": "workspace:*",
 		"@de100/apps-lms-db": "workspace:*",
 		"@de100/apps-lms-env": "workspace:*",
 		"@de100/apps-lms-validators": "workspace:*",
+		"@de100/files-processing-video": "workspace:*",
 		"@de100/files-server": "workspace:*",
 		"@de100/files-shared": "workspace:*",
 		"@orpc/client": "catalog:",

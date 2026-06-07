@@ -2,7 +2,11 @@ import type { DbInstance } from "@de100/apps-lms-db";
 import { describe, expect, it } from "vitest";
 
 import type { Context } from "./context";
-import { createLmsFilesOrpcHandlers, lmsDirectOrpcUploadMaxBytes } from "./files-orpc";
+import {
+	createLmsFilesOrpcHandlers,
+	lmsDirectOrpcUploadMaxBytes,
+	resolveLmsFilesUploadMode,
+} from "./files-orpc";
 
 const request = new Request("https://app.test/api/rpc/files");
 
@@ -56,6 +60,68 @@ describe("createLmsFilesOrpcHandlers", () => {
 		).toMatchObject({
 			mode: "upload-target",
 			protocol: "tus",
+		});
+	});
+
+	it("uses LMS route config to pick MinIO/R2 multipart for course videos", () => {
+		for (const storageBackend of ["minio-s3", "r2-s3"] as const) {
+			expect(
+				resolveLmsFilesUploadMode({
+					contentType: "video/mp4",
+					fileSize: 8 * 1024 * 1024,
+					routeSlug: "lesson-video",
+					storageBackend,
+				}),
+			).toMatchObject({
+				mode: "upload-target",
+				protocol: "s3-multipart",
+				reason: "s3-compatible-multipart",
+				storageBackend,
+			});
+		}
+	});
+
+	it("keeps local avatar uploads on direct oRPC while local course videos use resumable targets", () => {
+		expect(
+			resolveLmsFilesUploadMode({
+				contentType: "image/png",
+				fileSize: 1024,
+				routeSlug: "avatar",
+				storageBackend: "local-fs",
+			}),
+		).toMatchObject({
+			mode: "orpc-direct",
+			protocol: "orpc-direct",
+		});
+
+		expect(
+			resolveLmsFilesUploadMode({
+				contentType: "video/mp4",
+				fileSize: 8 * 1024 * 1024,
+				routeSlug: "lesson-video",
+				storageBackend: "local-fs",
+			}),
+		).toMatchObject({
+			deliveryStrategy: "range-http",
+			mode: "upload-target",
+			protocol: "tus",
+			reason: "resumable-required",
+		});
+	});
+
+	it("lets explicit lab/admin protocol overrides win", () => {
+		expect(
+			resolveLmsFilesUploadMode({
+				contentType: "video/mp4",
+				fileSize: 8 * 1024 * 1024,
+				requestedProtocol: "xhr",
+				routeSlug: "lesson-video",
+				storageBackend: "minio-s3",
+			}),
+		).toMatchObject({
+			mode: "upload-target",
+			protocol: "xhr",
+			reason: "direct-disabled",
 		});
 	});
 });

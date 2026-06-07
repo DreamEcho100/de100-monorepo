@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 
-import type { FilesUploadProtocolPreference, FileVisibility } from "./constants";
+import type { FileKind, FilesUploadProtocolPreference, FileVisibility } from "./constants";
 import { fileKindValues, filesUploadProtocolPreferenceValues } from "./constants";
 import type { FileSizeInput } from "./size";
 import { parseFileSizeToBytes } from "./size";
@@ -27,6 +27,7 @@ export type FileRouteRuleInput = {
 	maxFileSize?: FileSizeInput;
 	minFileCount?: number;
 	protocols?: FilesUploadProtocolPreference[];
+	requiresResumable?: boolean;
 };
 
 export type NormalizedFileRouteRule = {
@@ -36,6 +37,7 @@ export type NormalizedFileRouteRule = {
 	maxFileSizeBytes: number;
 	minFileCount: number;
 	protocols: FilesUploadProtocolPreference[];
+	requiresResumable: boolean;
 };
 
 export type FileRouteConfigInput = Record<FileRouteInputKey, FileRouteRuleInput>;
@@ -95,10 +97,41 @@ export function normalizeFileRouteConfig(input: FileRouteConfigInput): Normalize
 					maxFileSizeBytes: parseFileSizeToBytes(rule.maxFileSize ?? "4MB"),
 					minFileCount,
 					protocols: [...protocols],
+					requiresResumable: rule.requiresResumable ?? false,
 				} satisfies NormalizedFileRouteRule,
 			];
 		}),
 	);
+}
+
+export function selectFileRouteRule(
+	config: NormalizedFileRouteConfig,
+	input: {
+		contentType?: string;
+		kind?: FileKind;
+	},
+): NormalizedFileRouteRule | null {
+	const normalizedContentType = input.contentType?.toLowerCase().trim();
+
+	const kindRule = input.kind ? config[input.kind] : undefined;
+	if (kindRule) {
+		return kindRule;
+	}
+
+	if (normalizedContentType) {
+		const exactRule = config[normalizedContentType];
+		if (exactRule) {
+			return exactRule;
+		}
+
+		const wildcard = `${normalizedContentType.split("/")[0]}/*`;
+		const wildcardRule = config[wildcard];
+		if (wildcardRule) {
+			return wildcardRule;
+		}
+	}
+
+	return null;
 }
 
 export function normalizeFileRouteOptions(

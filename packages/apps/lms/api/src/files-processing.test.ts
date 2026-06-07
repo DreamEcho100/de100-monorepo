@@ -1,6 +1,11 @@
 import type { DbInstance } from "@de100/apps-lms-db";
+import type { FilesVideoHlsPlan } from "@de100/files-processing-video";
 import type { FilesProcessingJobRecord, FilesVariantRecord } from "@de100/files-server/operations";
-import type { FileRecord } from "@de100/files-shared";
+import type {
+	FileRecord,
+	FilesArtifactGroupRecord,
+	FilesArtifactRecord,
+} from "@de100/files-shared";
 import { describe, expect, it } from "vitest";
 
 import { createLmsFilesProcessingPipeline, processLmsUploadedFile } from "./files-processing";
@@ -120,6 +125,100 @@ describe("LMS files processing", () => {
 		]);
 	});
 
+	it("uses an injected ffmpeg HLS adapter to persist artifact groups for video-hls jobs", async () => {
+		const file = createFileRecord({
+			contentType: "video/mp4",
+			fileName: "lesson.mp4",
+			key: "users/user_1/lesson.mp4",
+			kind: "video",
+			metadata: {
+				height: 720,
+				width: 1280,
+			},
+			size: 12,
+		});
+		const storageProvider = createFakeStorageProvider(file);
+		const context = createFilesContext();
+		const repositories = createRepositories(file);
+		const pipeline = createLmsFilesProcessingPipeline(context, {
+			dependencies: {
+				async load(dependency) {
+					return dependency === "ffmpeg"
+						? {
+								dependency,
+								module: {
+									createHls: async ({ plan }: { plan: FilesVideoHlsPlan }) => [
+										{
+											contentType: "image/jpeg",
+											key: plan.posterKey,
+											size: 4,
+											value: new Uint8Array([1, 2, 3, 4]),
+										},
+										...plan.renditions.flatMap(({ manifestKey, rendition }) => [
+											{
+												contentType: "application/vnd.apple.mpegurl",
+												key: manifestKey,
+												size: 20,
+												value: `#EXTM3U\n# ${rendition.label}\n`,
+											},
+											{
+												contentType: "video/MP2T",
+												key: `${plan.targetPrefix}/${rendition.label}/segment-00001.ts`,
+												size: 40,
+												value: new Uint8Array([1, 2, 3]),
+											},
+										]),
+									],
+								},
+								status: "available",
+							}
+						: {
+								dependency,
+								reason: `${dependency} not enabled in this test`,
+								status: "unavailable",
+							};
+				},
+			},
+			repositories,
+			storageProvider,
+		});
+
+		const processed = await processLmsUploadedFile({
+			file,
+			filesContext: context,
+			kind: "video-hls",
+			pipeline,
+			repositories,
+		});
+
+		expect(processed.result.metadata).toMatchObject({
+			artifactCount: 7,
+			ffmpeg: "available",
+			inputFormat: "mp4",
+			renditions: ["480p", "720p"],
+			videoHls: "generated",
+		});
+		expect(repositories.__state.artifactGroups).toHaveLength(1);
+		expect(repositories.__state.artifactGroups[0]).toMatchObject({
+			fileId: "file_1",
+			kind: "hls",
+			status: "ready",
+			visibility: "private",
+		});
+		expect(repositories.__state.artifacts.map((artifact) => artifact.kind)).toEqual([
+			"hls-master-manifest",
+			"poster",
+			"hls-rendition-manifest",
+			"hls-segment",
+			"hls-rendition-manifest",
+			"hls-segment",
+			"metadata",
+		]);
+		expect(storageProvider.__state.puts).toHaveLength(14);
+		expect(storageProvider.__state.deletes).toHaveLength(7);
+		expect(repositories.__state.variants).toEqual([]);
+	});
+
 	it("uses an injected ffmpeg adapter to persist audio waveform variants", async () => {
 		const file = createFileRecord({
 			contentType: "audio/mpeg",
@@ -210,6 +309,7 @@ function createFileRecord(input: Partial<FileRecord> = {}): FileRecord {
 
 function createFakeStorageProvider(sourceFile = createFileRecord()) {
 	const state = {
+		deletes: [] as Array<{ key: string; visibility: string }>,
 		objects: new Map<string, Uint8Array>([
 			[`${sourceFile.visibility}:${sourceFile.key}`, new TextEncoder().encode("source")],
 		]),
@@ -224,6 +324,10 @@ function createFakeStorageProvider(sourceFile = createFileRecord()) {
 			return null;
 		},
 		async deleteObject(input) {
+			state.deletes.push({
+				key: input.key,
+				visibility: input.visibility,
+			});
 			state.objects.delete(`${input.visibility}:${input.key}`);
 		},
 		driver: "local",
@@ -281,11 +385,15 @@ function createFakeStorageProvider(sourceFile = createFileRecord()) {
 
 function createRepositories(sourceFile = createFileRecord()) {
 	const state: {
+		artifactGroups: FilesArtifactGroupRecord[];
+		artifacts: FilesArtifactRecord[];
 		file: FileRecord;
 		fileStatuses: string[];
 		job: FilesProcessingJobRecord;
 		variants: FilesVariantRecord[];
 	} = {
+		artifactGroups: [],
+		artifacts: [],
 		file: sourceFile,
 		fileStatuses: [],
 		job: {
@@ -305,6 +413,81 @@ function createRepositories(sourceFile = createFileRecord()) {
 	};
 	const repositories: LmsFilesRepositories & { __state: typeof state } = {
 		__state: state,
+		artifacts: {
+			groups: {
+				async createGroup(input) {
+					const group: FilesArtifactGroupRecord = {
+						bucketName: input.bucketName ?? null,
+						createdAt: timestamp,
+						deletedAt: null,
+						fileId: input.fileId,
+						id: input.id ?? "artifact_group_1",
+						kind: input.kind,
+						metadata: input.metadata ?? null,
+						revision: input.revision,
+						status: input.status,
+						storagePrefix: input.storagePrefix,
+						updatedAt: timestamp,
+						visibility: input.visibility,
+					};
+					state.artifactGroups.push(group);
+					return group;
+				},
+				async getGroup(id) {
+					return state.artifactGroups.find((group) => group.id === id) ?? null;
+				},
+				async listGroups(fileId) {
+					return state.artifactGroups.filter((group) => group.fileId === fileId);
+				},
+				async updateGroupStatus(id, status) {
+					const group = state.artifactGroups.find((item) => item.id === id);
+					if (!group) {
+						return null;
+					}
+
+					group.status = status;
+					return group;
+				},
+			},
+			items: {
+				async createArtifact(input) {
+					const artifact: FilesArtifactRecord = {
+						bucketName: input.bucketName ?? null,
+						contentType: input.contentType,
+						createdAt: timestamp,
+						deletedAt: null,
+						durationMs: input.durationMs ?? null,
+						fileId: input.fileId,
+						groupId: input.groupId,
+						height: input.height ?? null,
+						id: input.id ?? `artifact_${state.artifacts.length + 1}`,
+						key: input.key,
+						kind: input.kind,
+						metadata: input.metadata ?? null,
+						renditionLabel: input.renditionLabel ?? null,
+						size: input.size,
+						sortOrder: input.sortOrder,
+						status: input.status,
+						updatedAt: timestamp,
+						width: input.width ?? null,
+					};
+					state.artifacts.push(artifact);
+					return artifact;
+				},
+				async listArtifacts(groupId) {
+					return state.artifacts.filter((artifact) => artifact.groupId === groupId);
+				},
+				async updateArtifactStatus(id, status) {
+					const artifact = state.artifacts.find((item) => item.id === id);
+					if (!artifact) {
+						return null;
+					}
+
+					artifact.status = status;
+					return artifact;
+				},
+			},
+		},
 		files: {
 			async createFile(input) {
 				state.file = createFileRecord(input);

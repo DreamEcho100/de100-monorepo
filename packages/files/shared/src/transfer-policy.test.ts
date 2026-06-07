@@ -73,6 +73,43 @@ describe("files transfer policy", () => {
 		});
 	});
 
+	it("uses multipart for resumable course-video style S3-compatible routes", () => {
+		for (const storageBackend of ["minio-s3", "r2-s3"] as const) {
+			expect(
+				selectFilesUploadMode({
+					contentType: "video/mp4",
+					fileSize: 64 * 1024 * 1024,
+					requiresResumable: true,
+					routeProtocols: ["auto", "s3-multipart", "s3-put", "tus", "xhr"],
+					storageBackend,
+				}),
+			).toMatchObject({
+				deliveryStrategy: "provider-url",
+				mode: "upload-target",
+				protocol: "s3-multipart",
+				reason: "s3-compatible-multipart",
+				storageBackend,
+			});
+		}
+	});
+
+	it("falls back to server targets when local resumable protocols are disabled", () => {
+		expect(
+			selectFilesUploadMode({
+				contentType: "video/mp4",
+				fileSize: 64 * 1024 * 1024,
+				requiresResumable: true,
+				routeProtocols: ["xhr"],
+				storageBackend: "local-fs",
+			}),
+		).toMatchObject({
+			deliveryStrategy: "range-http",
+			mode: "upload-target",
+			protocol: "xhr",
+			reason: "resumable-required",
+		});
+	});
+
 	it("routes explicitly resumable uploads to upload targets", () => {
 		expect(
 			selectFilesUploadMode({

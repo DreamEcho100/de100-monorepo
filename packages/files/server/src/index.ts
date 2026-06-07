@@ -1,3 +1,5 @@
+export * from "./artifact-delivery";
+export * from "./entitlements";
 export * from "./events";
 export * from "./hls-playback";
 export * from "./operations";
@@ -7,5 +9,7 @@ export * from "./processing-dependencies";
 export * from "./router";
 export * from "./signed-access";
 export * from "./storage";
+export * from "./telemetry";
 export * from "./temp-files";
 export * from "./worker";
+export * from "./worker-queue";

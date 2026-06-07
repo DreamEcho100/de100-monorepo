@@ -26,6 +26,7 @@ export type FilesClientConfig = {
 				maxFileSizeBytes: number;
 				minFileCount: number;
 				protocols: FilesUploadProtocolPreference[];
+				requiresResumable: boolean;
 			}
 		>;
 		options: {
