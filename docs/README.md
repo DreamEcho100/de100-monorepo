@@ -28,9 +28,14 @@ Current entry points:
 - `architecture/link-preview-security.md`: link preview URL policy model (allowlist, protocol, SSRF, and decision reasons)
 - `architecture/files-platform.md`: package topology, Hybrid/HTTP-native approach model, public interfaces, and future adapter direction
 - `architecture/files-storage.md`: files storage primitives and the current public/private split
+- `architecture/course-video-files.md`: course-video HLS artifact, playback, protection, and provider strategy
+- `architecture/files-processing-addons.md`: image, video, audio, and document processing addon responsibilities
+- `architecture/files-upload-delivery.md`: upload protocols, integrations, delivery strategies, and limits
 - `flows/files-flow.md`: how uploads and public/private reads move through the app runtime
 - `flows/todo-flow.md`: how the app reads and mutates user-owned todos end to end
 - `setup/files-platform-examples.md`: Solid, framework-neutral, server pipeline, and LMS route examples for the files platform
+- `setup/files-storage-r2-minio.md`: local filesystem, MinIO, R2, AWS S3, and custom S3-compatible storage setup
+- `setup/files-worker-deployment.md`: LMS files worker queue, ffmpeg, retry, cleanup, and deployment guidance
 - `worklog.md`: chronological implementation notes
 
 Infra execution docs entry point:

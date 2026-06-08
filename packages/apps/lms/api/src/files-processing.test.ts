@@ -219,6 +219,129 @@ describe("LMS files processing", () => {
 		expect(repositories.__state.variants).toEqual([]);
 	});
 
+	it("uses video-hls-encryption jobs to persist encrypted HLS key artifacts", async () => {
+		const file = createFileRecord({
+			contentType: "video/mp4",
+			fileName: "lesson.mp4",
+			key: "users/user_1/lesson.mp4",
+			kind: "video",
+			metadata: {
+				height: 480,
+				width: 854,
+			},
+			size: 12,
+		});
+		const storageProvider = createFakeStorageProvider(file);
+		const context = createFilesContext();
+		const repositories = createRepositories(file);
+		const observedEncryption: Array<{
+			keyBytesHex: string;
+			keyInfoBody: string;
+			keyInfoFilePath: string;
+		} | null> = [];
+		const pipeline = createLmsFilesProcessingPipeline(context, {
+			dependencies: {
+				async load(dependency) {
+					return dependency === "ffmpeg"
+						? {
+								dependency,
+								module: {
+									createHls: async ({
+										encryption,
+										plan,
+									}: {
+										encryption: {
+											keyBytesHex: string;
+											keyInfoBody: string;
+											keyInfoFilePath: string;
+										} | null;
+										plan: FilesVideoHlsPlan;
+									}) => {
+										observedEncryption.push(encryption);
+
+										return [
+											{
+												contentType: "image/jpeg",
+												key: plan.posterKey,
+												size: 4,
+												value: new Uint8Array([1, 2, 3, 4]),
+											},
+											...plan.renditions.flatMap(({ manifestKey, rendition }) => [
+												{
+													contentType: "application/vnd.apple.mpegurl",
+													key: manifestKey,
+													size: 120,
+													value: [
+														"#EXTM3U",
+														`#EXT-X-KEY:METHOD=AES-128,URI="${plan.encryption?.keyUri}",IV=0x${plan.encryption?.ivHex}`,
+														`# ${rendition.label}`,
+														"",
+													].join("\n"),
+												},
+												{
+													contentType: "video/MP2T",
+													key: `${plan.targetPrefix}/${rendition.label}/segment-00001.ts`,
+													size: 40,
+													value: new Uint8Array([1, 2, 3]),
+												},
+											]),
+										];
+									},
+								},
+								status: "available",
+							}
+						: {
+								dependency,
+								reason: `${dependency} not enabled in this test`,
+								status: "unavailable",
+							};
+				},
+			},
+			repositories,
+			storageProvider,
+		});
+
+		const processed = await processLmsUploadedFile({
+			file,
+			filesContext: context,
+			kind: "video-hls-encryption",
+			pipeline,
+			repositories,
+		});
+
+		expect(processed.result.metadata).toMatchObject({
+			artifactCount: 6,
+			protectionMode: "aes-128",
+			renditions: ["480p"],
+			videoHls: "generated",
+		});
+		expect(observedEncryption).toHaveLength(1);
+		expect(observedEncryption[0]).toMatchObject({
+			keyInfoFilePath: expect.stringContaining(".key.info"),
+		});
+		expect(observedEncryption[0]?.keyBytesHex).toMatch(/^[0-9a-f]{32}$/u);
+		expect(observedEncryption[0]?.keyInfoBody).toContain("de100-hls-key://");
+		expect(repositories.__state.artifactGroups[0]).toMatchObject({
+			kind: "hls-encrypted",
+			metadata: {
+				encryption: {
+					algorithm: "AES-128",
+				},
+				protectionMode: "aes-128",
+			},
+		});
+		expect(repositories.__state.artifacts.map((artifact) => artifact.kind)).toEqual([
+			"hls-master-manifest",
+			"poster",
+			"hls-rendition-manifest",
+			"hls-segment",
+			"hls-key",
+			"metadata",
+		]);
+		expect(storageProvider.__state.puts).toHaveLength(12);
+		expect(storageProvider.__state.deletes).toHaveLength(6);
+	});
+
 	it("uses an injected ffmpeg adapter to persist audio waveform variants", async () => {
 		const file = createFileRecord({
 			contentType: "audio/mpeg",

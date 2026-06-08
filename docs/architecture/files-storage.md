@@ -16,6 +16,8 @@ These bindings are described by the current infra docs under `packages/apps/lms/
 
 For the end-to-end production deployment path, see `docs/setup/production-deployment.md`.
 
+For storage setup examples across local filesystem, MinIO, R2, AWS S3, and custom S3-compatible providers, see `docs/setup/files-storage-r2-minio.md`.
+
 The active driver is selected through `APP_LMS_FILES_STORAGE_DRIVER`. When `APP_LMS_FILES_STORAGE_DRIVER=local`, objects are stored under `APP_LMS_FILES_LOCAL_ROOT` and the same app-facing files URLs still work. Runtime policy maps this profile to `local-fs`. When `APP_LMS_FILES_STORAGE_DRIVER=s3`, configure `APP_LMS_FILES_S3_PROVIDER` plus the generic `APP_LMS_FILES_S3_*` endpoint, region, bucket, and credential values. Runtime policy maps these profiles to `r2-s3`, `minio-s3`, or `s3-compatible`.
 
 ## Why split public and private buckets

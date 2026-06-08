@@ -1,6 +1,6 @@
 # Files Platform DX Evaluation
 
-Last updated: 2026-06-07
+Last updated: 2026-06-08
 
 This report tracks the files API comparison after dropping RPC-native as a top-level approach. Hybrid is the recommended default candidate, HTTP-native is maintained as the full second path, and `orpc-direct` remains a small-file capability inside Hybrid.
 
@@ -37,6 +37,29 @@ Signed HLS playback currently uses `/api/files/playback/hls/{token}/{path}`. The
 
 The `hls.js` dependency is intentionally lazy-loaded by the package player. Production builds emit it as a separate large chunk; that warning is expected for the dependency and does not mean the lesson route eagerly bundles the player fallback.
 
+## Protection Prototypes
+
+Signed HLS remains the product default. It is the simplest posture to operate, works with normal browser playback, and keeps entitlement checks app-owned. It limits casual URL sharing through session TTLs, but it is not DRM.
+
+AES-128 HLS is now an MVP package/server capability:
+
+- `@de100/files-shared` defines AES key references and DRM prototype descriptors.
+- `@de100/files-processing-video` can plan `aes-128` HLS outputs, ffmpeg key-info usage, key artifacts, and `hls-encrypted` artifact groups.
+- `@de100/files-server` rewrites package key URI placeholders into signed playback key URLs.
+- LMS serves HLS key bytes only through signed session paths like `/api/files/playback/hls/{token}/keys/{keyId}`.
+- HLS key artifacts are not served through the generic artifact path.
+
+AES-128 improves resistance to simple copied segment URLs, but it is still not DRM. A user with a valid session can still play and potentially capture the content.
+
+DRM remains prototype-only:
+
+| Prototype | Status | Main benefit | Main cost |
+| --- | --- | --- | --- |
+| Self-owned R2/Shaka-style | Typed descriptor only | Lower provider lock-in, compatible with self-owned storage | High operational complexity: licenses, packaging, player integration, platform-specific DRM systems |
+| Cloudflare Stream managed | Typed descriptor only | Easier managed path if Cloudflare is already the video vendor | Higher provider lock-in and a separate managed-video workflow |
+
+No DRM path should become the product default until a real playback lab proves browser support, entitlement integration, operational setup, and failure modes.
+
 ## Running Notes
 
 - 2026-06-02: Phase 8 revised to migrate active LMS media usage to files before building the approach lab.
@@ -66,3 +89,13 @@ The `hls.js` dependency is intentionally lazy-loaded by the package player. Prod
 - 2026-06-07: Browser evaluation covered unauthenticated files-lab gating, authenticated Hybrid/HTTP labs, the course-video lab, and the product lesson shell. Headless `test:browser` passed, and headed `test:browser:headed` also passed. No VS Code integrated browser tool is exposed to Codex in this environment.
 - 2026-06-07: Player DX note: keep the package player as the product default. The helper-only path is useful proof that apps can compose their own player, but it repeats caption and telemetry details. The external-adapter path is the right future seam for Shaka/video.js/Mux-style integrations.
 - 2026-06-07: Protection remains signed HLS only. AES-128 and DRM prototypes move to the next phase; do not recommend them until implementation and browser evidence exist.
+- 2026-06-08: Phase 10 AES-128 MVP added shared protection contracts, video processing key planning, key artifact modeling, signed key delivery, and manifest key-URI rewriting. Recommendation remains signed HLS by default; AES-128 is available as a stronger prototype for selected course-video routes.
+- 2026-06-08: Course playback sessions now inherit `aes-128` from encrypted artifact-group metadata, so signed key delivery is exercised by the normal course playback-session path instead of being only a route-level capability.
+- 2026-06-08: Phase 10 DRM work intentionally stayed at descriptor/prototype boundaries. Self-owned R2/Shaka-style and Cloudflare Stream managed paths are represented for evaluation without adding provider SDK/player coupling to core files packages.
+- 2026-06-08: Phase 12 global QA passed: root typecheck, root tests, LMS web build, active stale scans, and current-facing docs/env stale scans. The build still emits the expected lazy `hls.js` chunk warning and existing Nitro/esbuild bigint-target warnings.
+- 2026-06-08: Built API smoke passed against the generated Node server: files config returned 200, while disabled S3 multipart, Companion, and Transloadit integration routes returned 501. Page-level curl/load-event smoke is not reliable evidence for SolidStart streaming pages in this environment; browser assertions are the page evidence.
+- 2026-06-08: Local DB migration smoke passed against Docker Postgres. Migrations applied successfully and table inspection confirmed files, upload sessions/parts, variants, artifact groups/artifacts, captions, playback sessions/events, processing jobs, courses, chapters, lessons, enrollments, and course video assets.
+- 2026-06-08: Real local ffmpeg encrypted-HLS smoke passed without MinIO: generated a short MP4 fixture, AES-128 key, HLS manifest, and encrypted segment. The manifest contains the expected key and segment references.
+- 2026-06-08: Full MinIO provider-backed smoke remains blocked: the repo compose file does not include MinIO, no local MinIO image is available, and pulling the image was rejected by the approval system. This should move to a provider-backed follow-up with either a repo-owned MinIO compose override or explicit local service setup.
+- 2026-06-08: Browser evaluation now covers product files unauthenticated gating, files lab unauthenticated gating, authenticated Hybrid/HTTP labs, course-video lab, and product lesson shell. Headless and headed Playwright both passed. No VS Code integrated browser automation is exposed to Codex here.
+- 2026-06-08: Recommendation is unchanged after final local QA: keep Hybrid as the default scalable path, keep HTTP-native as the maintained second path, keep signed HLS as the product protection default, treat AES-128 HLS as an opt-in stronger prototype, and keep DRM/provider-managed video as adapter/prototype work until real provider-backed playback evidence exists.

@@ -1,8 +1,8 @@
 # Current Plan: Video-Ready Files Platform
 
-Last updated: 2026-06-07
+Last updated: 2026-06-08
 
-Current active phase: Phase 10 - HLS encryption and DRM prototypes
+Current active phase: Phase 13 - Provider-backed live smoke follow-up
 
 Archived previous tracker:
 
@@ -105,9 +105,10 @@ Status legend: Not Started, In Progress, Done, Blocked, Paused.
 | 7     | MinIO/R2 upload defaults and S3 multipart course uploads   | Done        |
 | 8     | Course admin/product integration and gated labs            | Done        |
 | 9     | Player prototypes, captions, QoE, browser evaluation       | Done        |
-| 10    | HLS encryption and DRM prototypes                          | In Progress |
-| 11    | Docs, deployment guides, provider comparisons              | Not Started |
-| 12    | Final QA gates and DX/UX recommendation evidence           | Not Started |
+| 10    | HLS encryption and DRM prototypes                          | Done        |
+| 11    | Docs, deployment guides, provider comparisons              | Done        |
+| 12    | Final QA gates and DX/UX recommendation evidence           | Done        |
+| 13    | Provider-backed MinIO/R2/live media smoke                  | Blocked     |
 
 ## 4. Phase 1: Roadmap Reset and Foundation Contracts
 
@@ -357,30 +358,47 @@ Exit gates:
 
 ### Phase 10 - Encryption and DRM Prototypes
 
-Status: In Progress
+Status: Done
 
-Execution order:
+Completed scope:
 
-1. Reconcile current HLS artifact group model, signed playback route, worker output layout, and player URL contracts.
-2. Add HLS AES-128 encryption MVP:
-   - package-level encryption contract types
-   - key artifact/key-reference model
-   - worker-side ffmpeg command planning for encrypted HLS
-   - signed key delivery route with entitlement/session checks
-   - player/browser smoke for encrypted manifests where feasible
-3. Add self-owned R2/Shaka-style DRM prototype:
-   - document minimum Widevine/FairPlay/PlayReady moving parts
-   - keep implementation behind explicit lab/prototype flags
-   - avoid coupling core files packages to one DRM provider
-4. Add Cloudflare Stream managed DRM prototype:
-   - adapter boundary
-   - handoff and playback-token shape
-   - comparison against self-owned R2 HLS
-5. Record protection tradeoffs:
-   - signed HLS remains the product default until encryption/DRM evidence proves otherwise
-   - AES-128 improves link leakage resistance but is not DRM
-   - real DRM increases operational/provider complexity
-6. Keep broad provider comparison docs for Phase 11, but record implementation evidence here.
+1. Reconciled current HLS artifact group model, signed playback route, worker output layout, and player URL contracts.
+2. Confirmed no DB schema change was needed for the AES-128 MVP:
+   - use `hls-encrypted` artifact groups
+   - use `hls-key` artifacts
+   - use artifact/group metadata for protection mode and key references
+   - use signed playback sessions for key delivery
+3. Added shared AES-128 protection contracts:
+   - key-reference schema
+   - package key URI creation/parsing
+   - AES-128 hex normalization
+   - DRM prototype descriptor schema
+4. Added video processing support for AES-128 HLS:
+   - encrypted plan shape
+   - ffmpeg key-info command planning
+   - key artifact object planning
+   - `hls-encrypted` group classification
+   - generated output validation for key artifacts
+5. Added server HLS protection helpers:
+   - manifest key URI rewriting
+   - signed key request path parsing
+   - key artifact lookup/metadata validation
+   - manifest/key artifact classification
+6. Wired LMS signed key delivery:
+   - `/api/files/playback/hls/{token}/keys/{keyId}` serves key bytes only through valid signed sessions
+   - `hls-key` artifacts are blocked from the generic artifact path
+   - manifests rewrite package key placeholders into token-scoped key URLs
+7. Wired `video-hls-encryption` as an opt-in LMS worker job path using injected ffmpeg adapter key material and key-info details.
+8. Updated course playback sessions to inherit `aes-128` from encrypted artifact-group metadata.
+9. Added DRM prototype descriptors without coupling core packages to a DRM vendor:
+   - self-owned R2/Shaka-style path
+   - Cloudflare Stream managed path
+   - disabled/prototype descriptor helper
+10. Updated DX evidence:
+    - signed HLS remains the product default
+    - AES-128 is available as a stronger selected-route prototype
+    - DRM remains prototype-only until browser, entitlement, and provider evidence exists
+11. Browser evidence for AES remains route/unit-level in this phase because a real encrypted media fixture requires ffmpeg/worker/storage smoke. Full visible playback evaluation moves to Phase 12 after Phase 11 documents the setup path.
 
 Exit gates:
 
@@ -400,22 +418,115 @@ Exit gates:
 
 ### Phase 11 - Docs and Deployment Guides
 
-1. R2/MinIO setup.
-2. Worker deployment.
-3. Cloudflare Worker optional edge adapter.
-4. Course video integration.
-5. Addon packages.
-6. Upload, processing, signed playback, HLS encryption, DRM, and QoE.
+Status: Done
+
+Completed scope:
+
+1. Inventoried current docs and examples for stale files/media/video wording.
+2. Added R2/MinIO setup docs:
+   - local MinIO profile
+   - remote R2 profile
+   - generic S3-compatible env model
+   - separate public/private bucket guidance
+   - Docker compose/local smoke instructions
+3. Added LMS files worker deployment docs:
+   - package/process entrypoint
+   - Redis queue recommended path
+   - DB-polling fallback
+   - ffmpeg/ffprobe dependency requirements
+   - concurrency, retries, staging-prefix promote, cleanup
+4. Added optional Cloudflare Worker edge adapter notes:
+   - signed HLS delivery boundary
+   - R2 access shape
+   - cache/security considerations
+5. Added course video integration guide:
+   - course/chapter/lesson/video asset model
+   - upload route defaults
+   - HLS processing job
+   - preview/private entitlement behavior
+   - product player usage
+6. Added processing addon docs:
+   - image addon capabilities
+   - video addon HLS/AES planning
+   - audio addon capabilities
+   - document addon capabilities
+7. Added upload and delivery docs:
+   - S3 multipart default for course videos
+   - Tus/XHR alternatives
+   - signed HLS playback
+   - AES-128 prototype
+   - DRM prototype boundaries
+   - QoE events and telemetry hooks
+8. Added provider comparison notes:
+   - R2, MinIO, AWS S3
+   - Cloudflare Stream, Mux, Bunny, other managed video providers
+   - self-owned HLS vs managed-video tradeoffs
+9. Updated examples matching current exports:
+   - Solid `FileUploader`
+   - framework-neutral runtime
+   - server pipeline
+   - `HlsVideoPlayer`
+   - AES-128 HLS planning helpers
+10. Updated `.env.example` and environment docs with files worker env defaults.
+11. Linked docs from `docs/README.md` and related architecture/flow docs.
+12. Ran doc hygiene scans and package/app/global gates.
 
 ### Phase 12 - Final QA and Evidence
 
-1. Full package typecheck/test gates.
-2. LMS app typecheck/test/build.
-3. Stale media scan.
-4. DB reset/migrate smoke.
-5. MinIO/HLS smoke.
-6. Browser evaluation evidence.
-7. Final DX/UX recommendation report.
+Status: Done
+
+Completed scope:
+
+1. Ran global typecheck and test gates.
+2. Built the LMS web app.
+3. Ran stale media/env scans for active source and current-facing docs/env.
+4. Ran built API smoke against the generated Node server:
+   - files config returned 200
+   - disabled S3 multipart, Companion, and Transloadit integration routes returned 501
+5. Ran DB migration smoke against local Docker Postgres:
+   - Postgres started healthy
+   - migrations applied successfully
+   - files/course/artifact/playback tables exist
+6. Ran real local ffmpeg encrypted-HLS smoke:
+   - generated a tiny MP4 fixture
+   - generated AES-128 key material
+   - generated HLS manifest and encrypted segment
+   - verified manifest key and segment references
+7. Added product files browser coverage for unauthenticated gating.
+8. Ran headless and headed Playwright browser evaluation:
+   - product files route gating
+   - files lab gating
+   - Hybrid lab
+   - HTTP-native lab
+   - course-video lab
+   - product lesson shell
+9. Updated the DX report with recommendation evidence.
+
+Notes:
+
+- VS Code integrated-browser automation is not exposed in this Codex environment, so headed Playwright is the visible-browser path.
+- Page-level curl/load-event smoke is not the authoritative evidence for SolidStart streaming pages in this environment; browser assertions are. API curl smoke is clean.
+- Full MinIO/R2 provider-backed live smoke moves to Phase 13 because MinIO is not in the repo compose file, the local MinIO image is absent, and the image pull was blocked by the approval system.
+
+### Phase 13 - Provider-Backed Live Smoke Follow-Up
+
+Status: Blocked
+
+Blocked on:
+
+1. Local MinIO image/service availability or permission to pull the image.
+2. Optional real R2 credentials for remote smoke.
+
+Execution order when unblocked:
+
+1. Add a repo-owned MinIO compose override or documented local service command.
+2. Create public/private buckets.
+3. Configure local files storage with the MinIO S3-compatible profile.
+4. Run upload target smoke for small PUT and large multipart planning.
+5. Run worker-backed `video-hls` and `video-hls-encryption` jobs against MinIO.
+6. Verify artifact promotion, signed manifest read, signed key read, range delivery, and cleanup behavior.
+7. Optionally repeat a narrow R2 smoke with real credentials.
+8. Record final provider-backed evidence and close Phase 13.
 
 ## 6. Validation Log
 
@@ -535,6 +646,67 @@ Exit gates:
 114. PASS: global `pnpm type:check`
 115. PASS: global `pnpm test`
 116. PASS: final global `pnpm format-and-lint:check` after Phase 9 tracker and DX report updates.
+117. NOTE: Phase 10 reconciliation found no DB schema change is needed for the AES-128 MVP; use `hls-encrypted` groups, `hls-key` artifacts, artifact metadata, and signed-session key delivery.
+118. PASS: `pnpm -F @de100/files-shared format-and-lint:fix` after adding protection contracts.
+119. PASS: `pnpm -F @de100/files-server format-and-lint:fix` after adding HLS protection and DRM prototype helpers.
+120. PASS: `pnpm -F @de100/files-processing-video format-and-lint:fix` after adding AES-128 HLS planning.
+121. PASS: `pnpm -F @de100/apps-lms-web format-and-lint:fix` after wiring signed key delivery.
+122. PASS: `pnpm -F @de100/files-shared type:check`
+123. PASS: `pnpm -F @de100/files-shared test`
+124. PASS: `pnpm -F @de100/files-server type:check`
+125. PASS: `pnpm -F @de100/files-server test`
+126. PASS: `pnpm -F @de100/files-processing-video type:check`
+127. PASS: `pnpm -F @de100/files-processing-video test`
+128. PASS: `pnpm -F @de100/apps-lms-api type:check`
+129. PASS: `pnpm -F @de100/apps-lms-api test`
+130. PASS: `pnpm -F @de100/apps-lms-web type:check`
+131. PASS: `pnpm -F @de100/apps-lms-web test`
+132. PASS: `pnpm -F @de100/apps-lms-api format-and-lint:fix` after wiring `video-hls-encryption` through the LMS processing bridge.
+133. PASS: `pnpm -F @de100/apps-lms-api type:check`
+134. PASS: `pnpm -F @de100/apps-lms-api test`
+135. PASS: `pnpm -F @de100/files-processing-video type:check`
+136. PASS: `pnpm -F @de100/files-processing-video test`
+137. PASS: `pnpm -F @de100/files-server type:check`
+138. PASS: `pnpm -F @de100/files-server test`
+139. PASS: `pnpm -F @de100/apps-lms-api format-and-lint:fix` after deriving course playback-session protection mode from artifact-group metadata.
+140. PASS: `pnpm -F @de100/apps-lms-api type:check`
+141. PASS: `pnpm -F @de100/apps-lms-api test`
+142. PASS: `pnpm -F @de100/apps-lms-web build`
+143. PASS: global `pnpm format-and-lint:check`
+144. PASS: global `pnpm type:check`
+145. PASS: global `pnpm test`
+146. DONE: Phase 10 closed. Phase 11 is active with docs, deployment guides, provider comparisons, and Phase 12 smoke/evidence prep as the next execution path.
+147. PASS: final global `pnpm format-and-lint:check` after closing Phase 10 and activating Phase 11 in the tracker.
+148. PASS: final global `pnpm format-and-lint:check` after replacing stale Phase 10 active notes with closure notes.
+149. NOTE: Phase 11 inventory found the active docs already cover base files architecture/storage/flow/examples, but video-ready deployment details are still spread out. Historical `/media` references remain only in archive/evidence/worklog files and are intentionally preserved as history.
+150. DONE: Phase 11 docs slice added storage setup, worker deployment, and course-video HLS architecture guides; linked them from the docs index and existing files architecture/storage/flow docs.
+151. DONE: Phase 11 examples/env slice added worker env examples and current-export examples for `HlsVideoPlayer` plus AES-128 HLS planning.
+152. DONE: Phase 11 addon/protocol slice added processing-addon and upload/delivery strategy docs with explicit protocol, integration, delivery, and limit terminology.
+153. PASS: active docs/env stale scan found no legacy media env/API/router names, old R2 driver wording, old transport wording, or stale variant-not-implemented wording. Broad scan only reports historical archive entries.
+154. PASS: global `pnpm format-and-lint:check`
+155. PASS: global `pnpm type:check`
+156. PASS: global `pnpm test`
+157. PASS: `pnpm -F @de100/apps-lms-web build` with expected lazy `hls.js` chunk warning and existing Nitro/esbuild bigint-target warnings.
+158. DONE: Phase 11 closed. Phase 12 is active with final package gates, stale scans, built smoke, DB migrate smoke, MinIO/HLS smoke, browser evaluation, and recommendation evidence as the next execution path.
+159. PASS: final global `pnpm format-and-lint:check` after closing Phase 11 and activating Phase 12 in the tracker.
+160. PASS: final active docs/env stale scan produced no matches after tracker wording cleanup.
+161. PASS: final global `pnpm format-and-lint:check` after tightening the HLS player example QoE callback type and tracker wording.
+162. PASS: Phase 12 global `pnpm type:check`.
+163. PASS: Phase 12 global `pnpm test`.
+164. PASS: Phase 12 `pnpm -F @de100/apps-lms-web build` with expected lazy `hls.js` chunk warning and existing Nitro/esbuild bigint-target warnings.
+165. PASS: built API smoke against generated Node server: files config returned 200; disabled S3 multipart, Companion, and Transloadit integrations returned 501.
+166. NOTE: page-level curl/load-event smoke is not authoritative for SolidStart streaming pages in this environment. Browser assertions are used for page evidence.
+167. PASS: local Docker Postgres started healthy; local DB migrations applied successfully with only PostgreSQL identifier-truncation notices.
+168. PASS: migrated table inspection found files, file upload sessions/parts, variants, artifact groups/artifacts, caption tracks, playback sessions/events, processing jobs, courses, chapters, lessons, enrollments, and course video assets.
+169. PASS: real local ffmpeg encrypted-HLS smoke generated a 3-second MP4 fixture, AES-128 key, HLS manifest, and encrypted segment; manifest contains key and segment references.
+170. BLOCKED: full MinIO provider smoke could not run because the local MinIO image/service is unavailable and the image pull was blocked by the approval system.
+171. FAIL then fixed: adding product files browser coverage first exposed a Playwright load-event timeout for the unauthenticated redirect. The page rendered login, so the smoke now waits for navigation commit and asserts visible login UI.
+172. PASS: `pnpm -F @de100/apps-lms-web test:browser` with product files gating, files lab gating, Hybrid lab, HTTP-native lab, course-video lab, and product lesson shell.
+173. PASS: `pnpm -F @de100/apps-lms-web test:browser:headed` with the same browser coverage.
+174. DONE: Phase 12 local QA and DX/UX recommendation evidence closed. Phase 13 is the only remaining provider-backed live smoke follow-up and is blocked on MinIO/R2 service availability.
+175. PASS: final global `pnpm format-and-lint:check` after browser-test and DX-report updates.
+176. PASS: final global `pnpm type:check` after browser-test and DX-report updates.
+177. PASS: final global `pnpm test` after browser-test and DX-report updates.
 
 ## 7. Phase 9 Completion Notes
 
@@ -587,14 +759,16 @@ Phase 9 completed scope:
    - `hls.js` is emitted as a separate lazy chunk and triggers a chunk-size warning, which is expected for this dependency
    - existing Nitro/esbuild bigint-target warnings remain unrelated to Phase 9
 
-## 8. Phase 10 Active Notes
+## 8. Phase 10 Closure Notes
 
-Phase 10 owns protection prototypes only. Signed HLS remains the default until AES-128 and DRM evidence proves a better tradeoff.
+Phase 10 closed the protection prototype slice. Signed HLS remains the default until AES-128 and DRM evidence proves a better tradeoff in real playback and operations smoke.
 
-Immediate Phase 10 checklist:
+Closure checklist:
 
-1. Confirm whether encrypted HLS needs new DB columns or can use artifact metadata/key artifacts for the MVP.
-2. Add package-level AES-128 contract names before app route wiring.
-3. Keep key delivery signed-session scoped; do not expose provider keys or bucket object keys.
-4. Keep DRM prototypes isolated behind lab/prototype flags.
-5. Update `docs/files-platform-dx-evaluation.md` with protection tradeoffs as evidence appears.
+1. Done: confirm encrypted HLS can use artifact metadata/key artifacts for the MVP.
+2. Done: add package-level AES-128 contract names before app route wiring.
+3. Done: keep key delivery signed-session scoped; do not expose provider keys or bucket object keys.
+4. Done: keep DRM prototypes isolated behind lab/prototype flags.
+5. Done: update `docs/files-platform-dx-evaluation.md` with protection tradeoffs as evidence appears.
+6. Done: wire `video-hls-encryption` as an opt-in LMS worker job path using injected ffmpeg adapter key material/key-info details.
+7. Done: run build and final global gates before closing Phase 10.

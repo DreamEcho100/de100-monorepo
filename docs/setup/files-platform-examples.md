@@ -135,14 +135,82 @@ await runFilesProcessingJob({
 
 The LMS app uses this pattern in its concrete processing bridge. Current generated variants are image `optimized`, video `poster`, and audio `waveform`. Images use `sharp` when available and a source-copy fallback otherwise. Video and audio variants require an injected ffmpeg-shaped adapter.
 
+## Course HLS player
+
+Use `HlsVideoPlayer` for product course playback once the app has created a signed playback session and returned a playback source.
+
+```tsx
+import {
+	HlsVideoPlayer,
+	type HlsVideoPlayerQoeEvent,
+} from "@de100/files-domains-solidjs/client";
+
+export function CourseLessonVideo(props: {
+	playback: {
+		captionTracks: {
+			default?: boolean;
+			kind?: "captions" | "chapters" | "descriptions" | "metadata" | "subtitles";
+			label: string;
+			language: string;
+			src: string;
+		}[];
+		masterManifestUrl: string;
+		posterUrl: string | null;
+	} | null;
+	recordQoeEvent(event: HlsVideoPlayerQoeEvent): void;
+}) {
+	return (
+		<HlsVideoPlayer
+			captionTracks={props.playback?.captionTracks ?? []}
+			onQoeEvent={props.recordQoeEvent}
+			poster={props.playback?.posterUrl}
+			src={props.playback?.masterManifestUrl}
+		/>
+	);
+}
+```
+
+The LMS lesson route uses the same package player for the recommended product path. Helper-only and external-adapter prototypes remain in the app as comparison paths.
+
+## Encrypted HLS planning
+
+AES-128 HLS is selected by route/job policy, not by the player. The video processing addon exposes the planning pieces used by the LMS worker bridge:
+
+```ts
+import {
+	createFilesVideoHlsAes128KeyInfoFile,
+	createFilesVideoHlsAes128KeyObject,
+	createFilesVideoHlsPlan,
+	filesVideoDefaultHlsProcessingPreset,
+} from "@de100/files-processing-video";
+
+const plan = createFilesVideoHlsPlan({
+	preset: {
+		...filesVideoDefaultHlsProcessingPreset,
+		playbackProtection: "aes-128",
+	},
+	sourceMetadata: { height: 1080, width: 1920 },
+	stagingPrefix: `staging/${fileId}`,
+	targetPrefix: `courses/${courseId}/${lessonId}/hls`,
+});
+
+const keyInfo = createFilesVideoHlsAes128KeyInfoFile(plan);
+const keyObject = createFilesVideoHlsAes128KeyObject(plan);
+```
+
+The app is responsible for writing the key-info file for ffmpeg, persisting `keyObject`, and making sure playback sessions for the artifact group use protection mode `aes-128`.
+
 ## LMS routes to exercise
 
 - Product flow: `/en/files`
 - Approach comparison: `/en/files-lab`
 - Hybrid lab: `/en/files-lab/hybrid`
 - HTTP-native lab: `/en/files-lab/http`
+- Course-video lab: `/en/files-lab/course-video`
+- Course lesson shell: `/en/courses/{courseSlug}/{chapterSlug}/{lessonSlug}`
 - Public reads: `/api/files/public/[...key]`
 - Private reads: `/api/files/private/[...key]`
 - Signed reads: `/api/files/signed/[token]`
 - Variant reads: `/api/files/{id}/variants/{variant}`
+- Signed HLS playback: `/api/files/playback/hls/{token}/{path}`
 - Upload control and compatibility: `/api/files/config`, `/api/files/upload-mode`, `/api/files/targets`, `/api/files/{fileId}/complete`, `/api/files/sessions/{sessionId}/abort`, `/api/files/upload/{protocol}/{sessionId}`

@@ -44,6 +44,10 @@ The lab routes keep both approaches visible:
 
 The HTTP surface is intentionally broad: public/private/signed reads, range delivery, config, upload-mode resolution, target creation, completion, abort, variants, disabled integration routes, and server-proxy upload protocol routes.
 
+Course-video HLS is documented separately in `docs/architecture/course-video-files.md`. That guide covers HLS artifact groups, signed playback sessions, AES-128 HLS, DRM prototypes, provider tradeoffs, and browser evaluation expectations.
+
+Processing addons are documented in `docs/architecture/files-processing-addons.md`. Upload protocols, integrations, delivery strategies, and byte-path limits are documented in `docs/architecture/files-upload-delivery.md`.
+
 ## Protocol, processing, and security policy
 
 Upload protocols and integrations are different layers. `orpc-direct`, `xhr`, `tus`, `s3-put`, `s3-multipart`, and `custom` are upload protocols. Companion and Transloadit are integrations. Range reads are delivery policy, not an upload protocol.

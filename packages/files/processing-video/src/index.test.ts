@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
 	assertFilesVideoHlsGeneratedObjects,
 	createFilesVideoFfmpegHlsCommands,
+	createFilesVideoHlsAes128KeyInfoFile,
+	createFilesVideoHlsAes128KeyObject,
 	createFilesVideoHlsArtifactInputs,
 	createFilesVideoHlsMasterManifest,
 	createFilesVideoHlsMetadataObject,
@@ -146,6 +148,106 @@ describe("video HLS processing planning", () => {
 		expect(masterManifest).toContain("#EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=854x480");
 		expect(masterManifest).toContain("480p/index.m3u8");
 		expect(masterManifest).toContain("720p/index.m3u8");
+	});
+
+	it("plans AES-128 HLS key artifacts and ffmpeg key-info arguments", () => {
+		const plan = createFilesVideoHlsPlan({
+			encryption: {
+				ivHex: "1".repeat(32),
+				keyId: "lesson-key",
+			},
+			preset: {
+				inputFormats: ["mp4"],
+				originalRetention: "keep",
+				playbackProtection: "aes-128",
+				preset: {
+					renditions: [
+						{
+							bandwidth: 800_000,
+							height: 480,
+							label: "480p",
+							videoBitrate: 700_000,
+							width: 854,
+						},
+					],
+					segmentDurationSeconds: 4,
+					segmentFormat: "mpeg-ts",
+					skipRenditionsAboveSource: true,
+				},
+			},
+			stagingPrefix: "staging/file-1",
+			targetPrefix: "files/file-1/hls",
+		});
+		const keyObject = createFilesVideoHlsAes128KeyObject({
+			keyBytesHex: "a".repeat(32),
+			plan,
+		});
+
+		expect(plan.encryption).toMatchObject({
+			algorithm: "AES-128",
+			ivHex: "1".repeat(32),
+			keyId: "lesson-key",
+			keyKey: "files/file-1/hls/keys/lesson-key.key",
+			keyUri: "de100-hls-key://lesson-key",
+		});
+		expect(createFilesVideoHlsAes128KeyInfoFile({ keyFilePath: "/tmp/key.bin", plan })).toBe(
+			"de100-hls-key://lesson-key\n/tmp/key.bin\n11111111111111111111111111111111\n",
+		);
+		expect(() =>
+			createFilesVideoFfmpegHlsCommands({
+				inputPath: "/tmp/source.mp4",
+				plan,
+			}),
+		).toThrow("key info file path");
+		expect(
+			createFilesVideoFfmpegHlsCommands({
+				hlsKeyInfoFilePath: "/tmp/key-info.txt",
+				inputPath: "/tmp/source.mp4",
+				plan,
+			})[1]?.args,
+		).toContain("/tmp/key-info.txt");
+		expect(keyObject).toMatchObject({
+			contentType: "application/octet-stream",
+			key: "files/file-1/hls/keys/lesson-key.key",
+			size: 16,
+		});
+
+		const artifactPlan = createFilesVideoHlsArtifactInputs({
+			fileId: "file-1",
+			groupId: "group-1",
+			objects: [
+				{ key: plan.masterManifestKey, size: 10 },
+				{ key: plan.posterKey, size: 10 },
+				{ key: plan.renditions[0]?.manifestKey ?? "", size: 10 },
+				{ key: "files/file-1/hls/480p/segment-00001.ts", size: 10 },
+				keyObject,
+			],
+			plan,
+			visibility: "private",
+		});
+
+		expect(
+			validateFilesVideoHlsGeneratedObjects({ objects: artifactPlan.artifacts, plan }),
+		).toEqual({
+			missing: [],
+			ok: true,
+		});
+		expect(artifactPlan.group).toMatchObject({
+			kind: "hls-encrypted",
+			metadata: {
+				encryption: {
+					keyId: "lesson-key",
+					keyUri: "de100-hls-key://lesson-key",
+				},
+				protectionMode: "aes-128",
+			},
+		});
+		expect(artifactPlan.artifacts).toContainEqual(
+			expect.objectContaining({
+				kind: "hls-key",
+				key: "files/file-1/hls/keys/lesson-key.key",
+			}),
+		);
 	});
 
 	it("creates local pre-process command plans for admin and lab workflows", () => {

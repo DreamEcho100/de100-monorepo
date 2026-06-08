@@ -3,17 +3,21 @@ import type {
 	FilesFfmpegCommand,
 	FilesVideoHlsGeneratedObject,
 	FilesVideoHlsPlan,
+	FilesVideoHlsProcessingPreset,
 	FilesVideoSourceMetadata,
 } from "@de100/files-processing-video";
 import {
 	assertFilesVideoHlsGeneratedObjects,
 	createFilesVideoFfmpegHlsCommands,
+	createFilesVideoHlsAes128KeyInfoFile,
+	createFilesVideoHlsAes128KeyObject,
 	createFilesVideoHlsArtifactInputs,
 	createFilesVideoHlsMasterManifest,
 	createFilesVideoHlsMetadataObject,
 	createFilesVideoHlsPlan,
 	createFilesVideoHlsStagingPlan,
 	detectFilesVideoInputFormat,
+	filesVideoDefaultHlsProcessingPreset,
 	promoteFilesVideoHlsGeneratedObjects,
 } from "@de100/files-processing-video";
 import type { FilesRequestContext } from "@de100/files-server/operations";
@@ -69,6 +73,12 @@ type FfmpegVariantMethod = "createPoster" | "createWaveform";
 type FfmpegAdapter = {
 	createHls?: (input: {
 		commands: FilesFfmpegCommand[];
+		encryption: {
+			keyBytesHex: string;
+			keyFilePath: string;
+			keyInfoBody: string;
+			keyInfoFilePath: string;
+		} | null;
 		file: FileRecord;
 		plan: FilesVideoHlsPlan;
 		source: {
@@ -169,11 +179,13 @@ export function createLmsFilesProcessingPipeline(
 				}
 
 				if (input.file.kind === "video") {
-					if (input.job?.kind === "video-hls") {
+					if (input.job?.kind === "video-hls" || input.job?.kind === "video-hls-encryption") {
 						return createVideoHlsArtifacts({
 							dependencies,
 							file: input.file,
 							jobId: input.job.id,
+							protectionMode:
+								input.job.kind === "video-hls-encryption" ? "aes-128" : "signed-session",
 							repositories: options.repositories,
 							stateAttempt: input.state.attempt,
 							storageProvider,
@@ -296,6 +308,7 @@ async function createVideoHlsArtifacts(input: {
 	dependencies: FilesProcessingDependencyRegistry;
 	file: FileRecord;
 	jobId: string;
+	protectionMode: "aes-128" | "signed-session";
 	repositories?: LmsFilesRepositories;
 	stateAttempt: number;
 	storageProvider: FilesStorageProvider;
@@ -355,18 +368,32 @@ async function createVideoHlsArtifacts(input: {
 		revision,
 	});
 	const sourceMetadata = resolveVideoSourceMetadata(input.file.metadata);
+	const preset = createVideoHlsProcessingPreset(input.protectionMode);
 	const plan = createFilesVideoHlsPlan({
+		encryption:
+			input.protectionMode === "aes-128"
+				? {
+						keyId: groupId,
+					}
+				: undefined,
+		preset,
 		sourceMetadata,
 		stagingPrefix,
 		targetPrefix,
 	});
 	const stagingPlan = createFilesVideoHlsStagingPlan(plan);
+	const encryption = createVideoHlsEncryptionAdapterInput({
+		jobId: input.jobId,
+		plan: stagingPlan,
+	});
 	const commands = createFilesVideoFfmpegHlsCommands({
+		hlsKeyInfoFilePath: encryption?.keyInfoFilePath,
 		inputPath: input.file.key,
 		plan: stagingPlan,
 	});
 	const generatedByAdapter = await adapter.createHls({
 		commands,
+		encryption,
 		file: input.file,
 		plan: stagingPlan,
 		source: {
@@ -380,6 +407,12 @@ async function createVideoHlsArtifacts(input: {
 		plan: stagingPlan,
 		sourceMetadata,
 	});
+	const keyObject = encryption
+		? createFilesVideoHlsAes128KeyObject({
+				keyBytesHex: encryption.keyBytesHex,
+				plan: stagingPlan,
+			})
+		: null;
 	const stagingObjects: HlsGeneratedOutput[] = [
 		{
 			contentType: "application/vnd.apple.mpegurl",
@@ -388,6 +421,14 @@ async function createVideoHlsArtifacts(input: {
 			value: masterManifest,
 		},
 		...generatedByAdapter,
+		...(keyObject
+			? [
+					{
+						...keyObject,
+						value: keyObject.body,
+					},
+				]
+			: []),
 		{
 			...metadataObject,
 			value: metadataObject.body,
@@ -445,6 +486,7 @@ async function createVideoHlsArtifacts(input: {
 				artifactGroupId: artifactGroup.id,
 				ffmpeg: ffmpegResult.status,
 				inputFormat,
+				protectionMode: plan.protectionMode,
 				renditions: plan.renditions.map(({ rendition }) => rendition.label),
 				videoHls: "generated",
 			},
@@ -593,6 +635,34 @@ async function cleanupHlsObjects(input: {
 	);
 }
 
+function createVideoHlsProcessingPreset(
+	protectionMode: "aes-128" | "signed-session",
+): FilesVideoHlsProcessingPreset {
+	return {
+		...filesVideoDefaultHlsProcessingPreset,
+		playbackProtection: protectionMode,
+	};
+}
+
+function createVideoHlsEncryptionAdapterInput(input: { jobId: string; plan: FilesVideoHlsPlan }) {
+	if (!input.plan.encryption) {
+		return null;
+	}
+
+	const keyFilePath = `/tmp/de100-files-${input.jobId}-${input.plan.encryption.keyId}.key`;
+	const keyInfoFilePath = `${keyFilePath}.info`;
+
+	return {
+		keyBytesHex: createRandomAes128Hex(),
+		keyFilePath,
+		keyInfoBody: createFilesVideoHlsAes128KeyInfoFile({
+			keyFilePath,
+			plan: input.plan,
+		}),
+		keyInfoFilePath,
+	};
+}
+
 async function putGeneratedVariant(input: {
 	file: FileRecord;
 	storageProvider: FilesStorageProvider;
@@ -674,4 +744,10 @@ function resolveVideoSourceMetadata(
 function readOptionalNumber(metadata: Record<string, unknown>, key: string) {
 	const value = metadata[key];
 	return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function createRandomAes128Hex() {
+	const bytes = new Uint8Array(16);
+	crypto.getRandomValues(bytes);
+	return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }

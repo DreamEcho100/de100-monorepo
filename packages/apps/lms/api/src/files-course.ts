@@ -10,7 +10,12 @@ import {
 import { canReadCourseLessonWithEntitlements } from "@de100/files-server/entitlements";
 import { createSignedHlsPlaybackSession } from "@de100/files-server/hls-playback";
 import type { FilesAuthContext, FilesRequestContext } from "@de100/files-server/operations";
-import type { FileStatus } from "@de100/files-shared";
+import type {
+	FileStatus,
+	FilesArtifactGroupRecord,
+	FilesHlsProtectionMode,
+} from "@de100/files-shared";
+import { filesHlsProtectionModeValues } from "@de100/files-shared";
 import { and, eq, isNull } from "drizzle-orm";
 
 import type { LmsFilesRepositories } from "./files-repositories";
@@ -471,6 +476,19 @@ export async function createLmsCourseLessonPlaybackSession(input: {
 		};
 	}
 
+	const artifactGroup = await input.files.artifacts?.groups.getGroup(
+		input.accessContext.videoAsset.artifactGroupId,
+	);
+	if (!artifactGroup || artifactGroup.status !== "ready") {
+		return {
+			decision: {
+				allowed: false,
+				reason: "asset-unavailable" as const,
+			},
+			session: null,
+		};
+	}
+
 	const now = new Date();
 	const session = createSignedHlsPlaybackSession({
 		artifactGroupId: input.accessContext.videoAsset.artifactGroupId,
@@ -482,6 +500,7 @@ export async function createLmsCourseLessonPlaybackSession(input: {
 			courseId: input.accessContext.course.id,
 			lessonId: input.accessContext.lesson.id,
 		},
+		protectionMode: readLmsCourseArtifactGroupProtectionMode(artifactGroup),
 		subjectId: input.auth.userId,
 	});
 
@@ -491,6 +510,17 @@ export async function createLmsCourseLessonPlaybackSession(input: {
 		decision,
 		session,
 	};
+}
+
+function readLmsCourseArtifactGroupProtectionMode(
+	artifactGroup: Pick<FilesArtifactGroupRecord, "metadata">,
+): FilesHlsProtectionMode {
+	const mode = artifactGroup.metadata?.protectionMode;
+	return typeof mode === "string" && isFilesHlsProtectionMode(mode) ? mode : "signed-session";
+}
+
+function isFilesHlsProtectionMode(input: string): input is FilesHlsProtectionMode {
+	return filesHlsProtectionModeValues.includes(input as FilesHlsProtectionMode);
 }
 
 export async function canReadLmsCourseLesson(

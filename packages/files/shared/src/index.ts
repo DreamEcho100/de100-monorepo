@@ -4,6 +4,7 @@ export * from "./constants";
 export * from "./errors";
 export * from "./ids";
 export * from "./processing";
+export * from "./protection";
 export * from "./provider-config";
 export * from "./route-config";
 export * from "./schemas";

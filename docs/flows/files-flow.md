@@ -78,6 +78,19 @@ Current LMS variants are:
 
 Optional dependencies are lazy. `sharp`, `file-type`, `exifr`, and `music-metadata` can be loaded as packages. `ffmpeg` and `ffprobe` require app-injected adapters or executables.
 
+## Course video HLS path
+
+Course videos use the same upload/runtime primitives, then move into a storage-first worker path:
+
+1. Course-video uploads land in storage through the selected route policy.
+2. The LMS API attaches the uploaded file to a lesson video asset.
+3. The API enqueues a `video-hls` or `video-hls-encryption` processing job.
+4. The files worker loads the original, runs the ffmpeg-shaped adapter, writes staging outputs, validates generated artifacts, promotes outputs, and persists the artifact group.
+5. Entitled viewers request a signed HLS playback session through `orpc.courses.createPlaybackSession`.
+6. The product player reads token-scoped manifests, segments, captions, posters, and optional AES key URLs through `/api/files/playback/hls/{token}/{path}`.
+
+See `docs/architecture/course-video-files.md` and `docs/setup/files-worker-deployment.md` for the full operational model.
+
 ## Current boundaries
 
 - Hybrid is the recommended default, and HTTP-native remains the full second path

@@ -10,7 +10,11 @@ import type {
 	FilesHlsSegmentFormat,
 	FileVisibility,
 } from "@de100/files-shared";
-import { filesBalancedCourseHlsPreset } from "@de100/files-shared";
+import {
+	createFilesHlsAes128KeyUri,
+	filesBalancedCourseHlsPreset,
+	normalizeFilesAes128Hex,
+} from "@de100/files-shared";
 
 export const filesVideoProcessingAddonName = "@de100/files-processing-video";
 
@@ -75,8 +79,17 @@ export type FilesVideoHlsRenditionPlan = {
 	sortOrder: number;
 };
 
+export type FilesVideoHlsAes128EncryptionPlan = {
+	algorithm: "AES-128";
+	ivHex: string;
+	keyId: string;
+	keyKey: string;
+	keyUri: string;
+};
+
 export type FilesVideoHlsPlan = {
 	captionPrefix: string;
+	encryption: FilesVideoHlsAes128EncryptionPlan | null;
 	metadataKey: string;
 	masterManifestKey: string;
 	posterKey: string;
@@ -117,6 +130,11 @@ export type FilesVideoHlsValidationResult = {
 };
 
 export type FilesVideoHlsPlanInput = {
+	encryption?: {
+		ivHex?: string;
+		keyId?: string;
+		keyUri?: string;
+	};
 	preset?: FilesVideoHlsProcessingPreset;
 	sourceMetadata?: FilesVideoSourceMetadata;
 	stagingPrefix: string;
@@ -163,6 +181,15 @@ export function createFilesVideoHlsPlan(input: FilesVideoHlsPlanInput): FilesVid
 
 	return {
 		captionPrefix: `${targetPrefix}/captions`,
+		encryption:
+			preset.playbackProtection === "aes-128"
+				? createFilesVideoHlsAes128EncryptionPlan({
+						ivHex: input.encryption?.ivHex,
+						keyId: input.encryption?.keyId,
+						keyUri: input.encryption?.keyUri,
+						targetPrefix,
+					})
+				: null,
 		metadataKey: `${targetPrefix}/metadata.json`,
 		masterManifestKey: `${targetPrefix}/master.m3u8`,
 		posterKey: `${targetPrefix}/poster.jpg`,
@@ -193,6 +220,7 @@ export function createFilesVideoHlsStagingPlan(plan: FilesVideoHlsPlan): FilesVi
 
 export function createFilesVideoLocalPreprocessPlan(input: {
 	binaryPath?: string;
+	hlsKeyInfoFilePath?: string;
 	inputPath: string;
 	outputPrefix: string;
 	preset?: FilesVideoHlsProcessingPreset;
@@ -212,6 +240,7 @@ export function createFilesVideoLocalPreprocessPlan(input: {
 	return {
 		commands: createFilesVideoFfmpegHlsCommands({
 			binaryPath: input.binaryPath,
+			hlsKeyInfoFilePath: input.hlsKeyInfoFilePath,
 			inputPath: input.inputPath,
 			plan: stagingPlan,
 		}),
@@ -232,6 +261,7 @@ export function promoteFilesVideoHlsGeneratedObjects(input: {
 
 export function createFilesVideoFfmpegHlsCommands(input: {
 	binaryPath?: string;
+	hlsKeyInfoFilePath?: string;
 	inputPath: string;
 	plan: FilesVideoHlsPlan;
 	posterTimestampSeconds?: number;
@@ -272,6 +302,14 @@ export function createFilesVideoFfmpegHlsCommands(input: {
 			if (initSegmentKey) {
 				hlsArgs.push("-hls_fmp4_init_filename", initSegmentKey);
 			}
+		}
+
+		if (input.plan.encryption) {
+			if (!input.hlsKeyInfoFilePath) {
+				throw new Error("Encrypted HLS ffmpeg planning requires an HLS key info file path.");
+			}
+
+			hlsArgs.push("-hls_key_info_file", input.hlsKeyInfoFilePath);
 		}
 
 		commands.push({
@@ -331,6 +369,14 @@ export function createFilesVideoHlsMetadataObject(input: {
 }): FilesVideoHlsGeneratedObject & { body: string } {
 	const body = JSON.stringify(
 		{
+			encryption: input.plan.encryption
+				? {
+						algorithm: input.plan.encryption.algorithm,
+						ivHex: input.plan.encryption.ivHex,
+						keyId: input.plan.encryption.keyId,
+						keyUri: input.plan.encryption.keyUri,
+					}
+				: null,
 			protectionMode: input.plan.protectionMode,
 			renditions: input.plan.renditions.map(({ rendition }) => rendition),
 			segmentDurationSeconds: input.plan.segmentDurationSeconds,
@@ -362,6 +408,10 @@ export function validateFilesVideoHlsGeneratedObjects(input: {
 
 	if (!keys.has(input.plan.posterKey)) {
 		missing.push(input.plan.posterKey);
+	}
+
+	if (input.plan.encryption && !keys.has(input.plan.encryption.keyKey)) {
+		missing.push(input.plan.encryption.keyKey);
 	}
 
 	for (const renditionPlan of input.plan.renditions) {
@@ -428,8 +478,16 @@ export function createFilesVideoHlsArtifactInputs(input: {
 			bucketName: input.bucketName ?? null,
 			fileId: input.fileId,
 			id: input.groupId,
-			kind: "hls",
+			kind: getFilesVideoHlsArtifactGroupKind(input.plan.protectionMode),
 			metadata: {
+				encryption: input.plan.encryption
+					? {
+							algorithm: input.plan.encryption.algorithm,
+							ivHex: input.plan.encryption.ivHex,
+							keyId: input.plan.encryption.keyId,
+							keyUri: input.plan.encryption.keyUri,
+						}
+					: null,
 				protectionMode: input.plan.protectionMode,
 				renditions: input.plan.renditions.map(({ rendition }) => rendition),
 				segmentDurationSeconds: input.plan.segmentDurationSeconds,
@@ -529,6 +587,12 @@ function replaceFilesVideoHlsPlanPrefix(
 	return {
 		...plan,
 		captionPrefix: replaceStoragePrefix(plan.captionPrefix, fromPrefix, toPrefix),
+		encryption: plan.encryption
+			? {
+					...plan.encryption,
+					keyKey: replaceStoragePrefix(plan.encryption.keyKey, fromPrefix, toPrefix),
+				}
+			: null,
 		metadataKey: replaceStoragePrefix(plan.metadataKey, fromPrefix, toPrefix),
 		masterManifestKey: replaceStoragePrefix(plan.masterManifestKey, fromPrefix, toPrefix),
 		posterKey: replaceStoragePrefix(plan.posterKey, fromPrefix, toPrefix),
@@ -546,6 +610,44 @@ function replaceFilesVideoHlsPlanPrefix(
 		})),
 		stagingPrefix: toPrefix === plan.stagingPrefix ? plan.stagingPrefix : plan.stagingPrefix,
 		targetPrefix: toPrefix,
+	};
+}
+
+export function createFilesVideoHlsAes128KeyInfoFile(input: {
+	keyFilePath: string;
+	plan: Pick<FilesVideoHlsPlan, "encryption">;
+}): string {
+	if (!input.plan.encryption) {
+		throw new Error("HLS AES-128 key info file requires an encrypted HLS plan.");
+	}
+
+	return [input.plan.encryption.keyUri, input.keyFilePath, input.plan.encryption.ivHex, ""].join(
+		"\n",
+	);
+}
+
+export function createFilesVideoHlsAes128KeyObject(input: {
+	keyBytesHex: string;
+	plan: Pick<FilesVideoHlsPlan, "encryption">;
+}): FilesVideoHlsGeneratedObject & { body: ArrayBuffer } {
+	if (!input.plan.encryption) {
+		throw new Error("HLS AES-128 key object requires an encrypted HLS plan.");
+	}
+
+	const keyBytesHex = normalizeFilesAes128Hex(input.keyBytesHex, 16);
+	const body = hexToArrayBuffer(keyBytesHex);
+
+	return {
+		body,
+		contentType: "application/octet-stream",
+		key: input.plan.encryption.keyKey,
+		metadata: {
+			algorithm: input.plan.encryption.algorithm,
+			ivHex: input.plan.encryption.ivHex,
+			keyId: input.plan.encryption.keyId,
+			keyUri: input.plan.encryption.keyUri,
+		},
+		size: body.byteLength,
 	};
 }
 
@@ -606,6 +708,13 @@ function classifyFilesVideoHlsObject(
 		};
 	}
 
+	if (plan.encryption && key === plan.encryption.keyKey) {
+		return {
+			contentType: "application/octet-stream",
+			kind: "hls-key",
+		};
+	}
+
 	if (key.startsWith(`${plan.captionPrefix}/`)) {
 		return {
 			contentType: "text/vtt",
@@ -648,6 +757,43 @@ function createRelativeStoragePath(basePrefix: string, key: string): string {
 	}
 
 	return key;
+}
+
+function createFilesVideoHlsAes128EncryptionPlan(input: {
+	ivHex?: string;
+	keyId?: string;
+	keyUri?: string;
+	targetPrefix: string;
+}): FilesVideoHlsAes128EncryptionPlan {
+	const keyId = input.keyId?.trim() || "default";
+
+	return {
+		algorithm: "AES-128",
+		ivHex: normalizeFilesAes128Hex(input.ivHex ?? "0".repeat(32), 16),
+		keyId,
+		keyKey: `${input.targetPrefix}/keys/${keyId}.key`,
+		keyUri: input.keyUri ?? createFilesHlsAes128KeyUri(keyId),
+	};
+}
+
+function getFilesVideoHlsArtifactGroupKind(protectionMode: FilesHlsProtectionMode) {
+	switch (protectionMode) {
+		case "aes-128":
+			return "hls-encrypted";
+		case "drm":
+			return "drm";
+		default:
+			return "hls";
+	}
+}
+
+function hexToArrayBuffer(value: string): ArrayBuffer {
+	const bytes = new Uint8Array(value.length / 2);
+	for (let index = 0; index < value.length; index += 2) {
+		bytes[index / 2] = Number.parseInt(value.slice(index, index + 2), 16);
+	}
+
+	return bytes.buffer;
 }
 
 function replaceStoragePrefix(key: string, fromPrefix: string, toPrefix: string): string {

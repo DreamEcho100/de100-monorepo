@@ -6,6 +6,13 @@ test("gates the files lab for unauthenticated users", async ({ page }) => {
 	await expect(page).toHaveURL(/\/en\/login/);
 });
 
+test("gates the product files page for unauthenticated users", async ({ page }) => {
+	await page.goto("/en/files", { waitUntil: "commit" });
+
+	await expect(page).toHaveURL(/\/en\/login/);
+	await expect(page.getByRole("button", { name: "Sign In" })).toBeVisible();
+});
+
 test("renders the files lab shell and both approach pages for an authenticated user", async ({
 	page,
 }) => {

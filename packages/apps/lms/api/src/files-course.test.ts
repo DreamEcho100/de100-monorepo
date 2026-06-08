@@ -1,6 +1,6 @@
 import type { DbInstance } from "@de100/apps-lms-db";
 import type { FilesRequestContext } from "@de100/files-server/operations";
-import type { FileRecord } from "@de100/files-shared";
+import type { FileRecord, FilesArtifactGroupRecord } from "@de100/files-shared";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -192,8 +192,14 @@ describe("LMS course files workflows", () => {
 			updateSessionStatus: vi.fn(),
 		};
 		const files = createFakeFilesRepositories(createFileRecord({ kind: "video", status: "ready" }));
+		const groups = {
+			createGroup: vi.fn(),
+			getGroup: vi.fn(async () => createArtifactGroupRecord()),
+			listGroups: vi.fn(),
+			updateGroupStatus: vi.fn(),
+		};
 		files.artifacts = {
-			groups: files.artifacts?.groups,
+			groups,
 			items: files.artifacts?.items,
 			playbackSessions,
 		} as LmsFilesRepositories["artifacts"];
@@ -220,6 +226,7 @@ describe("LMS course files workflows", () => {
 			},
 		});
 		expect(playbackSessions.createSession).toHaveBeenCalledOnce();
+		expect(groups.getGroup).toHaveBeenCalledWith("group_1");
 
 		await expect(
 			createLmsCourseLessonPlaybackSession({
@@ -236,6 +243,53 @@ describe("LMS course files workflows", () => {
 			decision: { allowed: false, reason: "not-enrolled" },
 			session: null,
 		});
+	});
+
+	it("uses encrypted artifact-group metadata for AES HLS playback sessions", async () => {
+		const playbackSessions = {
+			createSession: vi.fn(async (session) => session),
+			getSessionByToken: vi.fn(),
+			updateSessionStatus: vi.fn(),
+		};
+		const files = createFakeFilesRepositories(createFileRecord({ kind: "video", status: "ready" }));
+		files.artifacts = {
+			groups: {
+				createGroup: vi.fn(),
+				getGroup: vi.fn(async () =>
+					createArtifactGroupRecord({
+						kind: "hls-encrypted",
+						metadata: { protectionMode: "aes-128" },
+					}),
+				),
+				listGroups: vi.fn(),
+				updateGroupStatus: vi.fn(),
+			},
+			items: files.artifacts?.items,
+			playbackSessions,
+		} as LmsFilesRepositories["artifacts"];
+
+		await expect(
+			createLmsCourseLessonPlaybackSession({
+				accessContext: createAccessContext({
+					artifactGroupStatus: "ready",
+					enrollmentStatus: "active",
+					videoAssetStatus: "ready",
+				}),
+				auth: { userId: "student_1" },
+				files,
+				requestContext: createRequestContext({ userId: "student_1" }),
+			}),
+		).resolves.toMatchObject({
+			session: {
+				artifactGroupId: "group_1",
+				protectionMode: "aes-128",
+			},
+		});
+		expect(playbackSessions.createSession).toHaveBeenCalledWith(
+			expect.objectContaining({
+				protectionMode: "aes-128",
+			}),
+		);
 	});
 });
 
@@ -334,6 +388,25 @@ function createFileRecord(input: Pick<FileRecord, "kind" | "status">): FileRecor
 		status: input.status,
 		updatedAt: now,
 		userId: "owner_1",
+		visibility: "private",
+	};
+}
+
+function createArtifactGroupRecord(
+	input: Partial<Pick<FilesArtifactGroupRecord, "kind" | "metadata" | "status">> = {},
+): FilesArtifactGroupRecord {
+	return {
+		bucketName: "private-files",
+		createdAt: now,
+		deletedAt: null,
+		fileId: "file_1",
+		id: "group_1",
+		kind: input.kind ?? "hls",
+		metadata: input.metadata ?? { protectionMode: "signed-session" },
+		revision: 1,
+		status: input.status ?? "ready",
+		storagePrefix: "courses/course_1/lesson_1/hls",
+		updatedAt: now,
 		visibility: "private",
 	};
 }

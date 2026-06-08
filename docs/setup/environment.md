@@ -155,11 +155,29 @@ Current runtime note:
 - when those bindings are unavailable, `s3` mode falls back to `APP_LMS_FILES_S3_*` hosted configuration
 - `APP_LMS_FILES_S3_PROVIDER=minio` is the recommended local production-parity profile when you need S3 behavior offline
 
+Detailed storage setup examples live in `docs/setup/files-storage-r2-minio.md`.
+
 Private files sharing now uses signed app URLs. The signing flow uses:
 
 - `APP_LMS_FILES_SIGNING_SECRET` when you want a secret separate from Better Auth
 - `APP_LMS_BETTER_AUTH_SECRET` as the fallback signing secret when `APP_LMS_FILES_SIGNING_SECRET` is unset
 - `APP_LMS_FILES_SIGNED_URL_TTL_SECONDS` to control how long a signed files URL remains valid
+
+## files worker
+
+The LMS files worker processes durable jobs such as generated variants and HLS artifact groups. Defaults are local-safe:
+
+```env
+APP_LMS_FILES_WORKER_CONCURRENCY=1
+APP_LMS_FILES_WORKER_POLL_INTERVAL_MS=5000
+APP_LMS_FILES_WORKER_QUEUE_DRIVER=auto
+APP_LMS_FILES_WORKER_REDIS_KEY_PREFIX=de100:lms:files
+APP_LMS_FILES_WORKER_STALE_AFTER_MS=300000
+```
+
+`APP_LMS_FILES_WORKER_QUEUE_DRIVER=auto` uses Redis when `REDIS_URL` is set and falls back to DB polling otherwise. Use `redis` to require Redis, or `db` to force DB polling.
+
+See `docs/setup/files-worker-deployment.md` for worker process, ffmpeg, queue, retry, and cleanup guidance.
 
 ## Local Docker Postgres and Redis
 
