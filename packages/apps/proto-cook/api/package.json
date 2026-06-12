@@ -14,12 +14,14 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
-		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
-		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
+		"format-and-lint:check": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true . && pnpm lint:localized-errors && pnpm lint:files-storage-coupling",
+		"format-and-lint:fix": "biome check --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write . && pnpm lint:localized-errors && pnpm lint:files-storage-coupling",
 		"format:check": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
-		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
+		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true . && pnpm lint:localized-errors && pnpm lint:files-storage-coupling",
 		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
+		"lint:files-storage-coupling": "node ../../../../scripts/check-files-storage-coupling.mjs",
+		"lint:localized-errors": "node ../../../../scripts/check-localized-error-literals.mjs",
 		"type:check": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {

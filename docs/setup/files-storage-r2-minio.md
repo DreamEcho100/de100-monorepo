@@ -69,7 +69,7 @@ APP_PROTO_COOK_FILES_SIGNED_URL_TTL_SECONDS=3600
 The repo compose file includes a local MinIO service:
 
 ```sh
-pnpm files:minio:up
+pnpm -F @de100/apps-proto-cook-infra minio:up
 ```
 
 The smoke script creates buckets automatically, but normal local environments should keep
@@ -180,9 +180,9 @@ For MinIO parity:
 
 ```sh
 docker compose up -d proto-cook-postgres proto-cook-redis
-pnpm files:minio:up
+pnpm -F @de100/apps-proto-cook-infra minio:up
 pnpm -F @de100/apps-proto-cook-db db:migrate
-pnpm files:minio:smoke
+pnpm -F @de100/apps-proto-cook-infra minio:smoke
 pnpm -F @de100/apps-proto-cook-web dev
 ```
 
@@ -194,7 +194,7 @@ Then verify:
 - `/api/files/config` reports the expected driver/provider
 - `/api/files/upload-mode` selects S3-compatible protocol paths for course-video route policy when configured
 
-`pnpm files:minio:smoke` validates the provider path directly:
+`pnpm -F @de100/apps-proto-cook-infra minio:smoke` validates the provider path directly:
 
 - creates public and private buckets when missing
 - writes and reads public/private objects

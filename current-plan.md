@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-12
 
-Current active phase: Complete - ready for review/manual validation
+Current active phase: Complete - Phase 10 ready
 
 Archived previous tracker:
 
@@ -45,6 +45,7 @@ Proto Cook is the prototype host app for reusable product decisions. It is not a
 15. Feature Labs are gated/manual surfaces, not default product flows.
 16. Cohesive Solid state should use `createStore`; independent primitive state can remain signals.
 17. `docs/archive/**` may preserve historical terminology. Active docs/source may not.
+18. Root `package.json` scripts are workspace orchestration only. Package/domain/service-specific commands must live in the owning package and be reached through Turbo or explicit `pnpm -F` commands.
 
 ## Phase Board
 
@@ -60,6 +61,8 @@ Status legend: Not Started, In Progress, Done, Blocked, Paused.
 | 6     | Files manual and Feature Lab coverage     | Done        |
 | 7     | Solid state refactor and test audit       | Done        |
 | 8     | Final gates, stale scans, and handoff      | Done        |
+| 9     | Root script ownership cleanup             | Done        |
+| 10    | I18n, lifecycle docs, and lab manual hardening | Not Started |
 
 ## Phase 1 - Planning and Domain Docs
 
@@ -171,8 +174,8 @@ Normalize package scripts and make typecheck cover active JS/MJS/config/test fil
 
 - Done: common package scripts were added to checkable packages and the package generator template.
 - Done: active JS/MJS/config typecheck coverage was added through root and package `tsconfig.json` includes.
-- Done: root package script-shape validator was added as `pnpm lint:package-scripts`.
-- Done: `pnpm lint:package-scripts` passes.
+- Done: root package script-shape validator was added as `pnpm lint:workspace-package-scripts`.
+- Done: `pnpm lint:workspace-package-scripts` passes.
 - Done: global `pnpm type:check` passed before the latest Solid store refactor; rerun remains part of Phase 8.
 
 ## Phase 5 - CI Split and Service-Backed Smoke
@@ -217,7 +220,7 @@ Replace stale CI with two strict workflows and app smoke jobs backed by GitHub s
 2. `pnpm format-and-lint:check`
 3. `pnpm type:check`
 4. `pnpm test`
-5. `pnpm files:minio:smoke`
+5. `pnpm -F @de100/apps-proto-cook-infra minio:smoke`
 
 ### Status
 
@@ -327,8 +330,8 @@ Run full validation, record remaining risks, and leave the repository with clear
 3. `pnpm type:check`
 4. `pnpm test`
 5. `pnpm -F @de100/apps-proto-cook-web build`
-6. `pnpm files:minio:up`
-7. `pnpm files:minio:smoke`
+6. `pnpm -F @de100/apps-proto-cook-infra minio:up`
+7. `pnpm -F @de100/apps-proto-cook-infra minio:smoke`
 8. Stale app identity scan clean.
 9. Stale old media API/env/router scan clean.
 10. Manual docs updated with any discovered failures.
@@ -336,9 +339,80 @@ Run full validation, record remaining risks, and leave the repository with clear
 ### Status
 
 - Done: all automated gates listed above passed.
-- Done: `pnpm files:minio:up` required stopping legacy local containers that were occupying port `9000`; the renamed `de100-proto-cook-minio` container now starts and publishes `9000-9001`.
+- Done: `pnpm -F @de100/apps-proto-cook-infra minio:up` required stopping legacy local containers that were occupying port `9000`; the renamed `de100-proto-cook-minio` container now starts and publishes `9000-9001`.
 - Done: `docker-compose.yml` now binds MinIO explicitly with `--address ":9000"` so the host smoke test can connect.
 - Done: build completed with non-blocking Nitro/esbuild bigint target warnings; track separately if runtime target support becomes a deployment issue.
+
+## Phase 9 - Root Script Ownership Cleanup
+
+### Objective
+
+Remove package/domain-specific commands from the root manifest and make root scripts workspace orchestration only.
+
+### Scope
+
+1. Remove root files/MinIO aliases.
+2. Remove root app-domain lint aliases.
+3. Rename the root package script validator to `lint:workspace-package-scripts`.
+4. Make root `test` and `test:watch` generic Turbo commands without package filters.
+5. Move localized error and files-storage coupling checks into the Proto Cook API package lint flow.
+6. Move local service and MinIO lifecycle helpers into the Proto Cook infra package.
+7. Update CI and active docs to use package-owned scripts.
+
+### Step Tracker
+
+| Step | Task | Status | Evidence |
+| ---- | ---- | ------ | -------- |
+| 1 | Clean root `package.json` scripts | Done | Root now exposes only workspace-level orchestration and workspace policy checks. |
+| 2 | Move API/files lint checks into API package | Done | `@de100/apps-proto-cook-api` runs localized-error and files-storage coupling checks from package lint/check scripts. |
+| 3 | Move MinIO/service helpers into infra package | Done | `@de100/apps-proto-cook-infra` owns `services:*` and `minio:*` scripts. |
+| 4 | Update CI and docs command references | Done | Workflows/docs call package-owned scripts. |
+| 5 | Run validation gates | Done | See validation log. |
+
+### Exit Gates
+
+1. `pnpm lint:workspace-package-scripts`
+2. `pnpm format-and-lint:check`
+3. `pnpm type:check`
+4. `pnpm test`
+5. `pnpm -F @de100/apps-proto-cook-infra services:status`
+6. `pnpm -F @de100/apps-proto-cook-infra minio:status`
+7. `pnpm -F @de100/apps-proto-cook-web build`
+8. No active root script references to package/domain-specific aliases.
+
+### Status
+
+- Done: root scripts now expose workspace orchestration only.
+- Done: root `test` and `test:watch` are generic Turbo commands without package filters.
+- Done: package/domain checks moved into package-owned lint/check scripts.
+- Done: local service and MinIO lifecycle commands moved to `@de100/apps-proto-cook-infra`.
+- Done: CI and active docs now call package-owned service/smoke scripts.
+- Done: Phase 9 exit gates passed.
+
+## Phase 10 - I18n, Lifecycle Docs, and Lab Manual Hardening
+
+### Objective
+
+Address the remaining active-app hardening feedback: all visible UI text should use the i18n layer, local service lifecycle should be documented clearly, and Feature Lab docs should become full manual-testing tutorials.
+
+### Scope
+
+1. Move all active visible app copy to the current i18n setup.
+2. Fix semantic stale translations that still describe the old app identity.
+3. Add a targeted hardcoded active UI copy scanner with data-literal allowlists.
+4. Expand `docs/proto-cook/files` into per-lab tutorials with setup, steps, expected behavior, failure modes, cleanup, and feedback checklists.
+5. Update Feature Lab pages so static checklist-style labs either become runnable surfaces or clearly document disabled/placeholder paths.
+6. Document foreground dev-server shutdown versus package-owned Docker service lifecycle.
+7. Keep root scripts workspace-only.
+
+### Initial Exit Gates
+
+1. `pnpm format-and-lint:check`
+2. `pnpm type:check`
+3. `pnpm test`
+4. `pnpm -F @de100/apps-proto-cook-web build`
+5. Hardcoded active UI copy scan clean or only allowed data literals.
+6. Stale active terminology scan clean outside archives/build/vendor paths.
 
 ## Follow-Up Backlog
 
@@ -346,6 +420,7 @@ Run full validation, record remaining risks, and leave the repository with clear
 2. Decide whether to remove legacy stopped Docker containers with `docker compose up --remove-orphans` during a separate local cleanup.
 3. If production runtime warnings matter for the deployment target, raise the Nitro/esbuild target above ES2019 or isolate the bigint-producing dependency.
 4. Push the split workflows and verify `proto-cook-ci.yml` and `general-packages-ci.yml` remotely with GitHub services.
+5. Start Phase 10 i18n/docs/lab hardening.
 
 ## Validation Log
 
@@ -356,8 +431,8 @@ Run full validation, record remaining risks, and leave the repository with clear
 - 2026-06-12: User confirmed `proto-cook` as the canonical rename target and no compatibility aliases.
 - 2026-06-12: `pnpm install` passed after Proto Cook package rename and lockfile update.
 - 2026-06-12: `pnpm -F @de100/apps-proto-cook-web type:check` passed after the files approach lab and course video lab store refactors.
-- 2026-06-12: `pnpm lint:package-scripts` passed.
-- 2026-06-12: `pnpm lint:files-storage-coupling` passed.
+- 2026-06-12: `pnpm lint:workspace-package-scripts` passed.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-api lint:files-storage-coupling` passed.
 - 2026-06-12: Active stale app identity and old media API/env/router scans are clean outside explicit archive/history/generated exclusions.
 - 2026-06-12: Raw active app/package path scan is clean after pruning an empty stale API directory and generated old-name install/cache artifacts.
 - 2026-06-12: CI env writer validated with `node scripts/write-proto-cook-ci-env.mjs --output /tmp/proto-cook-ci.env`.
@@ -366,5 +441,16 @@ Run full validation, record remaining risks, and leave the repository with clear
 - 2026-06-12: `pnpm type:check` passed.
 - 2026-06-12: `pnpm test` passed.
 - 2026-06-12: `pnpm -F @de100/apps-proto-cook-web build` passed with non-blocking Nitro/esbuild bigint target warnings.
-- 2026-06-12: `pnpm files:minio:up` passed after stopping legacy local containers that occupied port `9000`.
-- 2026-06-12: `pnpm files:minio:smoke` passed against `http://127.0.0.1:9000`.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-infra minio:up` passed after stopping legacy local containers that occupied port `9000`.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-infra minio:smoke` passed against `http://127.0.0.1:9000`.
+- 2026-06-12: Phase 9 started after root `package.json` was found to expose files/i18n/package-specific commands.
+- 2026-06-12: `pnpm lint:workspace-package-scripts` passed after root script cleanup.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-api lint:localized-errors` passed.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-api lint:files-storage-coupling` passed.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-infra services:status` passed with Docker socket access; only MinIO is currently running locally.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-infra minio:status` passed with Docker socket access.
+- 2026-06-12: `pnpm format-and-lint:check` passed with API-owned localized-error and files-storage coupling checks running through the API package.
+- 2026-06-12: `pnpm type:check` passed.
+- 2026-06-12: generic root `pnpm test` passed after removing hardcoded package filters.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-web build` passed with the existing non-blocking Nitro/esbuild bigint target warnings.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-infra minio:smoke` passed against `http://127.0.0.1:9000` with run id `phase13-2026-06-12T16-02-24-559Z-8e796edd-50cd-409b-8a25-c2ed37478f77`.

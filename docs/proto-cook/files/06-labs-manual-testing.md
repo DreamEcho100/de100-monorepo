@@ -19,7 +19,7 @@ Baseline before testing:
 
 ```sh
 pnpm install
-pnpm files:minio:up
+pnpm -F @de100/apps-proto-cook-infra minio:up
 pnpm -F @de100/apps-proto-cook-db db:migrate
 pnpm -F @de100/apps-proto-cook-web db:seed
 pnpm dev

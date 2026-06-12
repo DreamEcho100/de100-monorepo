@@ -57,7 +57,7 @@ jobs:
         run: node ./scripts/write-proto-cook-ci-env.mjs
 
       - name: Package script convention
-        run: pnpm lint:package-scripts
+        run: pnpm lint:workspace-package-scripts
 
       - name: Format and lint
         run: pnpm format-and-lint:check

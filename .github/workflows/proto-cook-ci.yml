@@ -148,7 +148,7 @@ jobs:
             --glob '!pnpm-lock.yaml'
 
       - name: MinIO files smoke
-        run: pnpm files:minio:smoke
+        run: pnpm -F @de100/apps-proto-cook-infra minio:smoke
 
       - name: Start built app
         run: |

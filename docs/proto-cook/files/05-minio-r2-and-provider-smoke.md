@@ -21,13 +21,13 @@ r2-s3
 Start local MinIO:
 
 ```sh
-pnpm files:minio:up
+pnpm -F @de100/apps-proto-cook-infra minio:up
 ```
 
 Smoke local MinIO:
 
 ```sh
-pnpm files:minio:smoke
+pnpm -F @de100/apps-proto-cook-infra minio:smoke
 ```
 
 Expected smoke output includes:

@@ -19,8 +19,8 @@ pnpm install
 pnpm type:check
 pnpm test
 pnpm -F @de100/apps-proto-cook-web build
-pnpm files:minio:up
-pnpm files:minio:smoke
+pnpm -F @de100/apps-proto-cook-infra minio:up
+pnpm -F @de100/apps-proto-cook-infra minio:smoke
 ```
 
 Current recommendation:
