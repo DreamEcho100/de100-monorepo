@@ -5,11 +5,11 @@
 This guide documents the storage profiles used by the files platform after the video-ready rewrite. The product direction is:
 
 - use `local` only for simple offline development, tests, demos, and small single-node projects
-- use `s3` plus `APP_LMS_FILES_S3_PROVIDER=minio` for local production-parity testing
-- use `s3` plus `APP_LMS_FILES_S3_PROVIDER=r2` for the default remote production profile
+- use `s3` plus `APP_PROTO_COOK_FILES_S3_PROVIDER=minio` for local production-parity testing
+- use `s3` plus `APP_PROTO_COOK_FILES_S3_PROVIDER=r2` for the default remote production profile
 - keep public and private buckets separate
 
-The code-level storage contract lives in `@de100/files-server`. LMS owns environment parsing, provider creation, DB persistence, auth, and route wiring.
+The code-level storage contract lives in `@de100/files-server`. Proto Cook owns environment parsing, provider creation, DB persistence, auth, and route wiring.
 
 ## Provider References
 
@@ -27,11 +27,11 @@ Do not bake provider pricing into project docs. Provider pricing and limits can 
 
 | Profile | Env shape | Runtime storage backend | Intended use |
 | --- | --- | --- | --- |
-| Local filesystem | `APP_LMS_FILES_STORAGE_DRIVER=local` | `local-fs` | Offline development, tests, demos |
-| MinIO | `APP_LMS_FILES_STORAGE_DRIVER=s3`, `APP_LMS_FILES_S3_PROVIDER=minio` | `minio-s3` | Local S3-compatible parity |
-| Cloudflare R2 | `APP_LMS_FILES_STORAGE_DRIVER=s3`, `APP_LMS_FILES_S3_PROVIDER=r2` | `r2-s3` | Default remote production storage |
-| AWS S3 | `APP_LMS_FILES_STORAGE_DRIVER=s3`, `APP_LMS_FILES_S3_PROVIDER=aws` | `s3-compatible` | AWS-native deployment |
-| Custom S3-compatible | `APP_LMS_FILES_STORAGE_DRIVER=s3`, `APP_LMS_FILES_S3_PROVIDER=custom` | `s3-compatible` | Spaces, Wasabi, self-hosted providers, or app-provided endpoints |
+| Local filesystem | `APP_PROTO_COOK_FILES_STORAGE_DRIVER=local` | `local-fs` | Offline development, tests, demos |
+| MinIO | `APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3`, `APP_PROTO_COOK_FILES_S3_PROVIDER=minio` | `minio-s3` | Local S3-compatible parity |
+| Cloudflare R2 | `APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3`, `APP_PROTO_COOK_FILES_S3_PROVIDER=r2` | `r2-s3` | Default remote production storage |
+| AWS S3 | `APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3`, `APP_PROTO_COOK_FILES_S3_PROVIDER=aws` | `s3-compatible` | AWS-native deployment |
+| Custom S3-compatible | `APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3`, `APP_PROTO_COOK_FILES_S3_PROVIDER=custom` | `s3-compatible` | Spaces, Wasabi, self-hosted providers, or app-provided endpoints |
 
 Do not set the storage driver to an R2-specific value. R2 is modeled as the S3-compatible driver with provider `r2`.
 
@@ -40,9 +40,9 @@ Do not set the storage driver to an R2-specific value. R2 is modeled as the S3-c
 Use this for the fastest local loop:
 
 ```env
-APP_LMS_FILES_STORAGE_DRIVER=local
-APP_LMS_FILES_LOCAL_ROOT=./.local/files
-APP_LMS_FILES_SIGNED_URL_TTL_SECONDS=3600
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=local
+APP_PROTO_COOK_FILES_LOCAL_ROOT=./.local/files
+APP_PROTO_COOK_FILES_SIGNED_URL_TTL_SECONDS=3600
 ```
 
 This mode mirrors public/private buckets under the local root, but it does not provide S3 multipart behavior. Course-video upload policy should therefore use local/server-proxy fallbacks unless a route explicitly forces S3-compatible testing.
@@ -54,16 +54,16 @@ Use MinIO when you need to exercise S3-style keys, buckets, presigned PUT, S3 mu
 Environment:
 
 ```env
-APP_LMS_FILES_STORAGE_DRIVER=s3
-APP_LMS_FILES_S3_PROVIDER=minio
-APP_LMS_FILES_S3_ENDPOINT=http://127.0.0.1:9000
-APP_LMS_FILES_S3_REGION=us-east-1
-APP_LMS_FILES_S3_ACCESS_KEY_ID=minioadmin
-APP_LMS_FILES_S3_SECRET_ACCESS_KEY=minioadmin
-APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
-APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
-APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
-APP_LMS_FILES_SIGNED_URL_TTL_SECONDS=3600
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3
+APP_PROTO_COOK_FILES_S3_PROVIDER=minio
+APP_PROTO_COOK_FILES_S3_ENDPOINT=http://127.0.0.1:9000
+APP_PROTO_COOK_FILES_S3_REGION=us-east-1
+APP_PROTO_COOK_FILES_S3_ACCESS_KEY_ID=minioadmin
+APP_PROTO_COOK_FILES_S3_SECRET_ACCESS_KEY=minioadmin
+APP_PROTO_COOK_FILES_S3_PUBLIC_BUCKET=public-files
+APP_PROTO_COOK_FILES_S3_PRIVATE_BUCKET=private-files
+APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE=true
+APP_PROTO_COOK_FILES_SIGNED_URL_TTL_SECONDS=3600
 ```
 
 The repo compose file includes a local MinIO service:
@@ -85,15 +85,15 @@ Recommended CORS for browser direct upload tests should allow the local app orig
 R2 uses the generic S3-compatible env contract:
 
 ```env
-APP_LMS_FILES_STORAGE_DRIVER=s3
-APP_LMS_FILES_S3_PROVIDER=r2
-APP_LMS_FILES_S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
-APP_LMS_FILES_S3_REGION=auto
-APP_LMS_FILES_S3_ACCESS_KEY_ID=replace-with-access-key-id
-APP_LMS_FILES_S3_SECRET_ACCESS_KEY=replace-with-secret-access-key
-APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
-APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
-APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3
+APP_PROTO_COOK_FILES_S3_PROVIDER=r2
+APP_PROTO_COOK_FILES_S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+APP_PROTO_COOK_FILES_S3_REGION=auto
+APP_PROTO_COOK_FILES_S3_ACCESS_KEY_ID=replace-with-access-key-id
+APP_PROTO_COOK_FILES_S3_SECRET_ACCESS_KEY=replace-with-secret-access-key
+APP_PROTO_COOK_FILES_S3_PUBLIC_BUCKET=public-files
+APP_PROTO_COOK_FILES_S3_PRIVATE_BUCKET=private-files
+APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE=true
 ```
 
 The app should keep two buckets or equivalent isolated prefixes:
@@ -108,29 +108,29 @@ Do not mix public and private course-video artifacts in the same delivery path. 
 For AWS S3:
 
 ```env
-APP_LMS_FILES_STORAGE_DRIVER=s3
-APP_LMS_FILES_S3_PROVIDER=aws
-APP_LMS_FILES_S3_ENDPOINT=https://s3.<region>.amazonaws.com
-APP_LMS_FILES_S3_REGION=<region>
-APP_LMS_FILES_S3_ACCESS_KEY_ID=replace-with-access-key-id
-APP_LMS_FILES_S3_SECRET_ACCESS_KEY=replace-with-secret-access-key
-APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
-APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
-APP_LMS_FILES_S3_FORCE_PATH_STYLE=false
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3
+APP_PROTO_COOK_FILES_S3_PROVIDER=aws
+APP_PROTO_COOK_FILES_S3_ENDPOINT=https://s3.<region>.amazonaws.com
+APP_PROTO_COOK_FILES_S3_REGION=<region>
+APP_PROTO_COOK_FILES_S3_ACCESS_KEY_ID=replace-with-access-key-id
+APP_PROTO_COOK_FILES_S3_SECRET_ACCESS_KEY=replace-with-secret-access-key
+APP_PROTO_COOK_FILES_S3_PUBLIC_BUCKET=public-files
+APP_PROTO_COOK_FILES_S3_PRIVATE_BUCKET=private-files
+APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE=false
 ```
 
 For a custom S3-compatible provider:
 
 ```env
-APP_LMS_FILES_STORAGE_DRIVER=s3
-APP_LMS_FILES_S3_PROVIDER=custom
-APP_LMS_FILES_S3_ENDPOINT=https://storage.example.com
-APP_LMS_FILES_S3_REGION=us-east-1
-APP_LMS_FILES_S3_ACCESS_KEY_ID=replace-with-access-key-id
-APP_LMS_FILES_S3_SECRET_ACCESS_KEY=replace-with-secret-access-key
-APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
-APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
-APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3
+APP_PROTO_COOK_FILES_S3_PROVIDER=custom
+APP_PROTO_COOK_FILES_S3_ENDPOINT=https://storage.example.com
+APP_PROTO_COOK_FILES_S3_REGION=us-east-1
+APP_PROTO_COOK_FILES_S3_ACCESS_KEY_ID=replace-with-access-key-id
+APP_PROTO_COOK_FILES_S3_SECRET_ACCESS_KEY=replace-with-secret-access-key
+APP_PROTO_COOK_FILES_S3_PUBLIC_BUCKET=public-files
+APP_PROTO_COOK_FILES_S3_PRIVATE_BUCKET=private-files
+APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE=true
 ```
 
 Provider-specific endpoint, addressing, CORS, multipart, and signed URL behavior must be validated with provider smoke tests before recommending it for product traffic.
@@ -171,19 +171,19 @@ Other supported delivery strategies remain available for app-specific policy:
 For local filesystem:
 
 ```sh
-pnpm -F @de100/apps-lms-db db:up
-pnpm -F @de100/apps-lms-db db:migrate
-pnpm -F @de100/apps-lms-web dev
+pnpm -F @de100/apps-proto-cook-db db:up
+pnpm -F @de100/apps-proto-cook-db db:migrate
+pnpm -F @de100/apps-proto-cook-web dev
 ```
 
 For MinIO parity:
 
 ```sh
-docker compose up -d lms-postgres lms-redis
+docker compose up -d proto-cook-postgres proto-cook-redis
 pnpm files:minio:up
-pnpm -F @de100/apps-lms-db db:migrate
+pnpm -F @de100/apps-proto-cook-db db:migrate
 pnpm files:minio:smoke
-pnpm -F @de100/apps-lms-web dev
+pnpm -F @de100/apps-proto-cook-web dev
 ```
 
 Then verify:

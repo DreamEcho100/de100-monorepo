@@ -7,6 +7,10 @@ import { fileURLToPath } from "node:url";
 const currentFilePath = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(currentFilePath), "..");
 
+/**
+ * @param {string} directoryPath
+ * @returns {Promise<string[]>}
+ */
 async function walkFiles(directoryPath) {
 	const entries = await readdir(directoryPath, { withFileTypes: true });
 	const filePaths = await Promise.all(
@@ -24,17 +28,35 @@ async function walkFiles(directoryPath) {
 	return filePaths.flat();
 }
 
+/**
+ * @param {string} content
+ * @param {number} index
+ */
 function getLineNumber(content, index) {
 	return content.slice(0, index).split("\n").length;
 }
 
+/**
+ * @param {string} content
+ * @param {RegExp} expression
+ */
 function collectMatches(content, expression) {
-	return Array.from(content.matchAll(expression)).map((match) => ({
-		index: match.index ?? 0,
-		literal: match[1],
-	}));
+	const matches = [];
+
+	for (const match of content.matchAll(expression)) {
+		const literal = match[1];
+		if (typeof literal !== "string") continue;
+
+		matches.push({
+			index: match.index ?? 0,
+			literal,
+		});
+	}
+
+	return matches;
 }
 
+/** @param {string} filePath */
 function toRelativePath(filePath) {
 	return path.relative(repoRoot, filePath);
 }
@@ -55,10 +77,10 @@ const validatorPattern = /message:\s*"([^"]+)"/g;
 async function main() {
 	const violations = [];
 	const routerFiles = (
-		await walkFiles(path.join(repoRoot, "packages/apps/lms/api/src/routers"))
+		await walkFiles(path.join(repoRoot, "packages/apps/proto-cook/api/src/routers"))
 	).filter((filePath) => filePath.endsWith(".ts"));
 	const validatorFiles = (
-		await walkFiles(path.join(repoRoot, "packages/apps/lms/validators/src/internal"))
+		await walkFiles(path.join(repoRoot, "packages/apps/proto-cook/validators/src/internal"))
 	).filter((filePath) => filePath.endsWith(".ts"));
 
 	for (const filePath of routerFiles) {

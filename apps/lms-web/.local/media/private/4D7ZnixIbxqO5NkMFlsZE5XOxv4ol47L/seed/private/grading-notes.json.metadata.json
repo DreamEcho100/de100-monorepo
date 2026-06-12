@@ -1,7 +1,0 @@
-{
-	"httpMetadata": {
-		"cacheControl": "private, no-store, max-age=0",
-		"contentDisposition": "inline; filename=\"grading-notes.json\"",
-		"contentType": "application/json"
-	}
-}

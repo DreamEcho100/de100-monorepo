@@ -1,13 +1,13 @@
 services:
-  lms-postgres:
+  proto-cook-postgres:
     image: postgres:16-alpine
-    container_name: de100-lms-postgres
+    container_name: de100-proto-cook-postgres
     environment:
-      POSTGRES_DB: de100_lms
+      POSTGRES_DB: de100_proto_cook
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d de100_lms"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d de100_proto_cook"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -15,11 +15,11 @@ services:
       - "5432:5432"
     restart: unless-stopped
     volumes:
-      - lms-postgres-data:/var/lib/postgresql/data
+      - proto-cook-postgres-data:/var/lib/postgresql/data
 
-  lms-redis:
+  proto-cook-redis:
     image: redis:7-alpine
-    container_name: de100-lms-redis
+    container_name: de100-proto-cook-redis
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -30,12 +30,12 @@ services:
       - "6379:6379"
     restart: unless-stopped
     volumes:
-      - lms-redis-data:/data
+      - proto-cook-redis-data:/data
 
-  lms-minio:
+  proto-cook-minio:
     image: minio/minio:latest
-    container_name: de100-lms-minio
-    command: server /data --console-address ":9001"
+    container_name: de100-proto-cook-minio
+    command: server /data --address ":9000" --console-address ":9001"
     environment:
       MINIO_ROOT_PASSWORD: minioadmin
       MINIO_ROOT_USER: minioadmin
@@ -44,9 +44,9 @@ services:
       - "9001:9001"
     restart: unless-stopped
     volumes:
-      - lms-minio-data:/data
+      - proto-cook-minio-data:/data
 
 volumes:
-  lms-minio-data:
-  lms-postgres-data:
-  lms-redis-data:
+  proto-cook-minio-data:
+  proto-cook-postgres-data:
+  proto-cook-redis-data:

@@ -1,0 +1,7 @@
+{
+	"extends": "@de100/tsconfig/base.json",
+	"compilerOptions": {
+		"strictNullChecks": true
+	},
+	"include": ["src/**/*.ts", "scripts/**/*.mjs"]
+}

@@ -16,7 +16,7 @@ The recommended production path is:
 8. app creates signed HLS playback sessions for entitled viewers
 9. product player uses native `<video>` plus lazy `hls.js`
 
-`@de100/files-*` packages stay general. LMS injects DB, auth, course entitlements, queues, storage providers, telemetry, and worker process wiring.
+`@de100/files-*` packages stay general. Proto Cook injects DB, auth, course entitlements, queues, storage providers, telemetry, and worker process wiring.
 
 ## Current Package Responsibilities
 
@@ -27,12 +27,12 @@ The recommended production path is:
 | `@de100/files-client` | framework-neutral upload planning/runtime and protocol executors |
 | `@de100/files-domains-solidjs` | `FileUploader`, `createFileUploaderController`, `HlsVideoPlayer`, Solid helpers |
 | `@de100/files-processing-video` | HLS ladder planning, ffmpeg command planning, artifact planning, AES-128 key artifact planning |
-| `@de100/apps-lms-api` | course services, files repositories, oRPC routers, processing bridge |
-| `@de100/apps-lms-worker` | LMS worker config, queue adapters, run-once/loop primitives |
+| `@de100/apps-proto-cook-api` | course services, files repositories, oRPC routers, processing bridge |
+| `@de100/apps-proto-cook-worker` | Proto Cook worker config, queue adapters, run-once/loop primitives |
 
 ## Course Model
 
-The LMS integration uses these app-owned tables:
+The Proto Cook integration uses these app-owned tables:
 
 - courses
 - course chapters
@@ -157,7 +157,7 @@ Do not make DRM the product default until a real lab proves packaging, license d
 | Mux or similar managed video | You want managed encoding, analytics, player ecosystem, and operational simplicity | Provider lock-in and cost profile need separate product approval |
 | Bunny or other video/CDN providers | You want a managed video/CDN path with provider-specific pricing/features | Provider APIs and security model become app-specific adapter work |
 
-The project recommendation remains self-owned HLS on R2/MinIO for the default LMS files platform, with managed providers documented as adapter choices.
+The project recommendation remains self-owned HLS on R2/MinIO for the default Proto Cook files platform, with managed providers documented as adapter choices.
 
 ## Optional Cloudflare Worker Edge Adapter
 
@@ -188,6 +188,6 @@ Phase 12 should evaluate:
 Use the VS Code integrated browser if available. Otherwise use headed Playwright:
 
 ```sh
-pnpm -F @de100/apps-lms-web test:browser:headed
+pnpm -F @de100/apps-proto-cook-web test:browser:headed
 ```
 

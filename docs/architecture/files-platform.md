@@ -2,7 +2,7 @@
 
 ## Recommended shape
 
-The files platform is split into reusable packages plus the LMS app integration:
+The files platform is split into reusable packages plus the Proto Cook app integration:
 
 - `@de100/files-shared`: constants, schemas, route config, provider config, transfer policy, status transitions, processing contracts, IDs, size, and time helpers.
 - `@de100/files-server`: app-injected operations, storage providers, signed access, temp-file utilities, oRPC handlers, event helpers, and processing pipeline runner.
@@ -32,7 +32,7 @@ Server integrations provide `FilesOperations`: context creation, file records, u
 
 Processing uses `createFilesPipeline()` and `runFilesProcessingJob()`. Pipeline stages aggregate metadata, emit variants, run cleanup callbacks, retry configured failures, persist processing job output, and update file status.
 
-## LMS integration
+## Proto Cook integration
 
 The product `/files` page uses the Hybrid path. It lists files, uploads through the Solid uploader/runtime, requests signed access, shows generated variants, and links binary reads through `/api/files/*`.
 
@@ -56,7 +56,7 @@ Every byte strategy has explicit limits. `orpc-direct` and `xhr` are constrained
 
 The default client executors support fetch-backed `xhr`, `s3-put`, and `custom`. Tus, S3 multipart, Companion, and Transloadit require configured services or app-provided executors. Disabled integrations return explicit not-configured responses.
 
-Processing jobs are app-injected. The LMS app currently runs validate, metadata, and variant stages after upload completion, persists job attempts/output/error, persists variants, and updates file status. Temp-file helpers in `@de100/files-server/temp-files` are available for stages that need scoped working directories or local byte copies; cleanup callbacks run after success or failure.
+Processing jobs are app-injected. The Proto Cook app currently runs validate, metadata, and variant stages after upload completion, persists job attempts/output/error, persists variants, and updates file status. Temp-file helpers in `@de100/files-server/temp-files` are available for stages that need scoped working directories or local byte copies; cleanup callbacks run after success or failure.
 
 The security model is owner-scoped by default. Private reads require a session and verify the requested key belongs to the current user prefix. Signed access is short-lived and reloads the file record before streaming bytes. Public and private buckets stay separate, and generated variants inherit the file readability check before delivery.
 

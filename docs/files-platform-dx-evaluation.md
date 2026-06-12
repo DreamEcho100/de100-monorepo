@@ -21,17 +21,17 @@ This report tracks the files API comparison after dropping RPC-native as a top-l
 Visible local runs are available with:
 
 ```bash
-pnpm -F @de100/apps-lms-web test:browser:headed
-pnpm -F @de100/apps-lms-web test:browser:ui
+pnpm -F @de100/apps-proto-cook-web test:browser:headed
+pnpm -F @de100/apps-proto-cook-web test:browser:ui
 ```
 
 ## Course Video Player Prototypes
 
 | Prototype | Role | Current evidence | DX note |
 | --- | --- | --- | --- |
-| Package player | Recommended product default | `HlsVideoPlayer` in `@de100/files-domains-solidjs`; native HLS first, lazy `hls.js` fallback, caption tracks, QoE callback | Best default for LMS/product surfaces because playback, captions, and telemetry wiring are one component boundary |
-| Helper-only player | App-composed comparison path | LMS lesson page composes its own `<video>` with package QoE event helper | Useful when an app needs full markup control, but it repeats caption/QoE details quickly |
-| External adapter prototype | Integration boundary test | LMS lesson page wraps package player and annotates telemetry as an external-player adapter | Keeps a future Shaka/video.js/Mux-player adapter possible without coupling core packages to one player |
+| Package player | Recommended product default | `HlsVideoPlayer` in `@de100/files-domains-solidjs`; native HLS first, lazy `hls.js` fallback, caption tracks, QoE callback | Best default for Proto Cook/product surfaces because playback, captions, and telemetry wiring are one component boundary |
+| Helper-only player | App-composed comparison path | Proto Cook lesson page composes its own `<video>` with package QoE event helper | Useful when an app needs full markup control, but it repeats caption/QoE details quickly |
+| External adapter prototype | Integration boundary test | Proto Cook lesson page wraps package player and annotates telemetry as an external-player adapter | Keeps a future Shaka/video.js/Mux-player adapter possible without coupling core packages to one player |
 
 Signed HLS playback currently uses `/api/files/playback/hls/{token}/{path}`. The oRPC course playback-session procedure returns a typed playback source containing the master manifest URL, caption tracks, token, session id, and master artifact id.
 
@@ -46,7 +46,7 @@ AES-128 HLS is now an MVP package/server capability:
 - `@de100/files-shared` defines AES key references and DRM prototype descriptors.
 - `@de100/files-processing-video` can plan `aes-128` HLS outputs, ffmpeg key-info usage, key artifacts, and `hls-encrypted` artifact groups.
 - `@de100/files-server` rewrites package key URI placeholders into signed playback key URLs.
-- LMS serves HLS key bytes only through signed session paths like `/api/files/playback/hls/{token}/keys/{keyId}`.
+- Proto Cook serves HLS key bytes only through signed session paths like `/api/files/playback/hls/{token}/keys/{keyId}`.
 - HLS key artifacts are not served through the generic artifact path.
 
 AES-128 improves resistance to simple copied segment URLs, but it is still not DRM. A user with a valid session can still play and potentially capture the content.
@@ -62,10 +62,10 @@ No DRM path should become the product default until a real playback lab proves b
 
 ## Running Notes
 
-- 2026-06-02: Phase 8 revised to migrate active LMS media usage to files before building the approach lab.
+- 2026-06-02: Phase 8 revised to migrate active Proto Cook media usage to files before building the approach lab.
 - 2026-06-02: Active `/files` page, `/api/files/*` read/control/upload routes, and initial `/files-lab` matrix scaffold added. Validation pending.
-- 2026-06-02: Targeted validation passed for files domain typecheck/test/lint, LMS API typecheck/test/lint, LMS web typecheck/test/lint/build, route preload, and range response tests.
-- 2026-06-02: Completed storage/env rename cleanup. Active files code now uses `APP_LMS_FILES_*`, files-native storage, files seed fixtures, files docs, and no package-exported media router/storage/schema/validator modules.
+- 2026-06-02: Targeted validation passed for files domain typecheck/test/lint, Proto Cook API typecheck/test/lint, Proto Cook web typecheck/test/lint/build, route preload, and range response tests.
+- 2026-06-02: Completed storage/env rename cleanup. Active files code now uses `APP_PROTO_COOK_FILES_*`, files-native storage, files seed fixtures, files docs, and no package-exported media router/storage/schema/validator modules.
 - 2026-06-02: Added focused HTTP/lab policy coverage for range responses, server-proxy upload protocol enablement (`xhr`/`tus` only), stress-track Tus selection, target-mode decisions, and generated image/audio/video/document/generic fixtures.
 - 2026-06-02: Added explicit disabled routes for S3 multipart, Companion, and Transloadit under `/api/files/integrations/*`; this keeps unsupported provider paths deterministic instead of silently failing.
 - 2026-06-02: Added `/api/files/{id}/variants/{variant}`. It reuses file readability checks, serves only ready/live variants, and is ready for Phase 9-generated image/video variants.
@@ -74,10 +74,10 @@ No DRM path should become the product default until a real playback lab proves b
 - 2026-06-02: Phase 8 closed. Remaining before final recommendation: processing-generated variants, provider-backed resumable/S3-style flows where configured, and side-by-side product-flow DX notes across RPC, HTTP, and hybrid.
 - 2026-06-03: Phase 9 dropped RPC-native as a top-level path. `/en/files-lab` is now a comparison shell, `/en/files-lab/hybrid` exercises the recommended Hybrid path, and `/en/files-lab/http` exercises the maintained HTTP-native path.
 - 2026-06-03: Terminology split is now explicit: API approach, storage backend, upload protocol, delivery strategy, integration, and processing mode. Companion and Transloadit are integrations, not upload protocols.
-- 2026-06-03: Local development profiles are `local-fs` for simple offline work and `minio-s3` for S3-compatible parity. Cloudflare R2 production config uses `APP_LMS_FILES_STORAGE_DRIVER=s3` with `APP_LMS_FILES_S3_PROVIDER=r2`.
+- 2026-06-03: Local development profiles are `local-fs` for simple offline work and `minio-s3` for S3-compatible parity. Cloudflare R2 production config uses `APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3` with `APP_PROTO_COOK_FILES_S3_PROVIDER=r2`.
 - 2026-06-03: Playwright browser evaluation passed for unauthenticated `/en/files-lab` gating plus mocked-auth `/en/files-lab`, `/en/files-lab/hybrid`, and `/en/files-lab/http`. The test exercises generated fixtures and the Hybrid/HTTP-native lab controls for track, storage profile, protocol, and visibility.
 - 2026-06-06: Phase 10 processing runner added retry, cleanup, persisted job attempts/output/error, aggregate metadata, and generated variant persistence through app-injected operations.
-- 2026-06-06: LMS upload completion now runs a local processing pipeline before marking files ready. Direct oRPC uploads and target-completion flows use the same processing bridge.
+- 2026-06-06: Proto Cook upload completion now runs a local processing pipeline before marking files ready. Direct oRPC uploads and target-completion flows use the same processing bridge.
 - 2026-06-06: Concrete variant behavior now covers image `optimized`, video `poster`, and audio `waveform`. Image variants use `sharp` when enabled and source-copy otherwise; video/audio variants use injected ffmpeg-shaped adapters, with disabled paths explicit when the adapter is absent.
 - 2026-06-06: Product `/files` now queries and displays generated variants with links to `/api/files/{id}/variants/{variant}`. This makes variant delivery testable from the normal product flow, not only route-level tests.
 - 2026-06-06: DX note: Hybrid remains the stronger default because processing state and target completion can stay typed through oRPC while binary delivery and variants remain normal HTTP routes. HTTP-native remains useful for external clients and route-first integrations, but needs more client wrapper code for equivalent type ergonomics.
@@ -92,7 +92,7 @@ No DRM path should become the product default until a real playback lab proves b
 - 2026-06-08: Phase 10 AES-128 MVP added shared protection contracts, video processing key planning, key artifact modeling, signed key delivery, and manifest key-URI rewriting. Recommendation remains signed HLS by default; AES-128 is available as a stronger prototype for selected course-video routes.
 - 2026-06-08: Course playback sessions now inherit `aes-128` from encrypted artifact-group metadata, so signed key delivery is exercised by the normal course playback-session path instead of being only a route-level capability.
 - 2026-06-08: Phase 10 DRM work intentionally stayed at descriptor/prototype boundaries. Self-owned R2/Shaka-style and Cloudflare Stream managed paths are represented for evaluation without adding provider SDK/player coupling to core files packages.
-- 2026-06-08: Phase 12 global QA passed: root typecheck, root tests, LMS web build, active stale scans, and current-facing docs/env stale scans. The build still emits the expected lazy `hls.js` chunk warning and existing Nitro/esbuild bigint-target warnings.
+- 2026-06-08: Phase 12 global QA passed: root typecheck, root tests, Proto Cook web build, active stale scans, and current-facing docs/env stale scans. The build still emits the expected lazy `hls.js` chunk warning and existing Nitro/esbuild bigint-target warnings.
 - 2026-06-08: Built API smoke passed against the generated Node server: files config returned 200, while disabled S3 multipart, Companion, and Transloadit integration routes returned 501. Page-level curl/load-event smoke is not reliable evidence for SolidStart streaming pages in this environment; browser assertions are the page evidence.
 - 2026-06-08: Local DB migration smoke passed against Docker Postgres. Migrations applied successfully and table inspection confirmed files, upload sessions/parts, variants, artifact groups/artifacts, captions, playback sessions/events, processing jobs, courses, chapters, lessons, enrollments, and course video assets.
 - 2026-06-08: Real local ffmpeg encrypted-HLS smoke passed without MinIO: generated a short MP4 fixture, AES-128 key, HLS manifest, and encrypted segment. The manifest contains the expected key and segment references.

@@ -1,5 +1,15 @@
 {
 	"name": "@de100/i18n-domains",
 	"private": true,
-	"description": ""
+	"description": "",
+	"scripts": {
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"format-and-lint:check": "biome check --css-parse-tailwind-directives=true .",
+		"format-and-lint:fix": "biome check --css-parse-tailwind-directives=true --write .",
+		"format:check": "biome format --css-parse-tailwind-directives=true .",
+		"format:fix": "biome format --css-parse-tailwind-directives=true --write .",
+		"lint:check": "biome lint --css-parse-tailwind-directives=true .",
+		"lint:fix": "biome lint --css-parse-tailwind-directives=true --write .",
+		"type:check": "node -e \"process.exit(0)\""
+	}
 }

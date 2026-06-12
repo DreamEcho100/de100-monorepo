@@ -132,7 +132,10 @@ importers:
         version: link:tooling/biome
       '@turbo/gen':
         specifier: ^2.9.16
-        version: 2.9.16(@types/node@25.9.1)
+        version: 2.9.16(@types/node@22.19.19)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.19
       dotenv-cli:
         specifier: 'catalog:'
         version: 11.0.0
@@ -146,26 +149,26 @@ importers:
         specifier: 'catalog:'
         version: 7.7.0
 
-  apps/lms-web:
+  apps/proto-cook-web:
     dependencies:
-      '@de100/apps-lms-api':
+      '@de100/apps-proto-cook-api':
         specifier: workspace:*
-        version: link:../../packages/apps/lms/api
-      '@de100/apps-lms-auth':
+        version: link:../../packages/apps/proto-cook/api
+      '@de100/apps-proto-cook-auth':
         specifier: workspace:*
-        version: link:../../packages/apps/lms/auth
-      '@de100/apps-lms-config':
+        version: link:../../packages/apps/proto-cook/auth
+      '@de100/apps-proto-cook-config':
         specifier: workspace:*
-        version: link:../../packages/apps/lms/config
-      '@de100/apps-lms-db':
+        version: link:../../packages/apps/proto-cook/config
+      '@de100/apps-proto-cook-db':
         specifier: workspace:*
-        version: link:../../packages/apps/lms/db
-      '@de100/apps-lms-env':
+        version: link:../../packages/apps/proto-cook/db
+      '@de100/apps-proto-cook-env':
         specifier: workspace:*
-        version: link:../../packages/apps/lms/env
-      '@de100/apps-lms-validators':
+        version: link:../../packages/apps/proto-cook/env
+      '@de100/apps-proto-cook-validators':
         specifier: workspace:*
-        version: link:../../packages/apps/lms/validators
+        version: link:../../packages/apps/proto-cook/validators
       '@de100/files-client':
         specifier: workspace:*
         version: link:../../packages/files/client
@@ -281,9 +284,9 @@ importers:
 
   packages/apps: {}
 
-  packages/apps/lms: {}
+  packages/apps/proto-cook: {}
 
-  packages/apps/lms/api:
+  packages/apps/proto-cook/api:
     dependencies:
       '@aws-sdk/client-s3':
         specifier: 'catalog:'
@@ -291,16 +294,16 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: 'catalog:'
         version: 3.1058.0
-      '@de100/apps-lms-auth':
+      '@de100/apps-proto-cook-auth':
         specifier: workspace:*
         version: link:../auth
-      '@de100/apps-lms-db':
+      '@de100/apps-proto-cook-db':
         specifier: workspace:*
         version: link:../db
-      '@de100/apps-lms-env':
+      '@de100/apps-proto-cook-env':
         specifier: workspace:*
         version: link:../env
-      '@de100/apps-lms-validators':
+      '@de100/apps-proto-cook-validators':
         specifier: workspace:*
         version: link:../validators
       '@de100/files-processing-video':
@@ -340,7 +343,7 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
-      '@de100/apps-lms-config':
+      '@de100/apps-proto-cook-config':
         specifier: workspace:*
         version: link:../config
       '@de100/biome-config':
@@ -353,15 +356,15 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/apps/lms/auth:
+  packages/apps/proto-cook/auth:
     dependencies:
-      '@de100/apps-lms-cache':
+      '@de100/apps-proto-cook-cache':
         specifier: workspace:*
         version: link:../cache
-      '@de100/apps-lms-db':
+      '@de100/apps-proto-cook-db':
         specifier: workspace:*
         version: link:../db
-      '@de100/apps-lms-env':
+      '@de100/apps-proto-cook-env':
         specifier: workspace:*
         version: link:../env
       '@de100/biome-config':
@@ -386,7 +389,7 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
-      '@de100/apps-lms-config':
+      '@de100/apps-proto-cook-config':
         specifier: workspace:*
         version: link:../config
       typescript:
@@ -396,7 +399,7 @@ importers:
         specifier: 'catalog:'
         version: 3.2.6(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.30.1)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0)
 
-  packages/apps/lms/cache:
+  packages/apps/proto-cook/cache:
     dependencies:
       '@upstash/redis':
         specifier: ^1.34.3
@@ -421,7 +424,7 @@ importers:
         specifier: 'catalog:'
         version: 3.2.6(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.30.1)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0)
 
-  packages/apps/lms/config:
+  packages/apps/proto-cook/config:
     devDependencies:
       '@biomejs/biome':
         specifier: 'catalog:'
@@ -433,9 +436,9 @@ importers:
         specifier: workspace:*
         version: link:../../../../tooling/typescript
 
-  packages/apps/lms/db:
+  packages/apps/proto-cook/db:
     dependencies:
-      '@de100/apps-lms-env':
+      '@de100/apps-proto-cook-env':
         specifier: workspace:*
         version: link:../env
       '@de100/files-shared':
@@ -460,7 +463,7 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
-      '@de100/apps-lms-config':
+      '@de100/apps-proto-cook-config':
         specifier: workspace:*
         version: link:../config
       '@de100/biome-config':
@@ -479,7 +482,7 @@ importers:
         specifier: 'catalog:'
         version: 3.2.6(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.30.1)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0)
 
-  packages/apps/lms/env:
+  packages/apps/proto-cook/env:
     dependencies:
       '@t3-oss/env-core':
         specifier: 'catalog:'
@@ -494,7 +497,7 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
-      '@de100/apps-lms-config':
+      '@de100/apps-proto-cook-config':
         specifier: workspace:*
         version: link:../config
       '@de100/biome-config':
@@ -510,7 +513,7 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/apps/lms/infra:
+  packages/apps/proto-cook/infra:
     dependencies:
       dotenv:
         specifier: 'catalog:'
@@ -522,7 +525,7 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
-      '@de100/apps-lms-config':
+      '@de100/apps-proto-cook-config':
         specifier: workspace:*
         version: link:../config
       '@de100/biome-config':
@@ -535,7 +538,7 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/apps/lms/validators:
+  packages/apps/proto-cook/validators:
     dependencies:
       zod:
         specifier: 'catalog:'
@@ -557,15 +560,15 @@ importers:
         specifier: 'catalog:'
         version: 3.2.6(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.30.1)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0)
 
-  packages/apps/lms/worker:
+  packages/apps/proto-cook/worker:
     dependencies:
-      '@de100/apps-lms-api':
+      '@de100/apps-proto-cook-api':
         specifier: workspace:*
         version: link:../api
-      '@de100/apps-lms-db':
+      '@de100/apps-proto-cook-db':
         specifier: workspace:*
         version: link:../db
-      '@de100/apps-lms-env':
+      '@de100/apps-proto-cook-env':
         specifier: workspace:*
         version: link:../env
       '@de100/files-server':
@@ -581,7 +584,7 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
-      '@de100/apps-lms-config':
+      '@de100/apps-proto-cook-config':
         specifier: workspace:*
         version: link:../config
       '@de100/biome-config':
@@ -6875,128 +6878,128 @@ snapshots:
 
   '@inquirer/ansi@1.0.2': {}
 
-  '@inquirer/checkbox@4.3.2(@types/node@25.9.1)':
+  '@inquirer/checkbox@4.3.2(@types/node@22.19.19)':
     dependencies:
       '@inquirer/ansi': 1.0.2
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
       '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
-  '@inquirer/confirm@5.1.21(@types/node@25.9.1)':
+  '@inquirer/confirm@5.1.21(@types/node@22.19.19)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
-  '@inquirer/core@10.3.2(@types/node@25.9.1)':
+  '@inquirer/core@10.3.2(@types/node@22.19.19)':
     dependencies:
       '@inquirer/ansi': 1.0.2
       '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
       cli-width: 4.1.0
       mute-stream: 2.0.0
       signal-exit: 4.1.0
       wrap-ansi: 6.2.0
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
-  '@inquirer/editor@4.2.23(@types/node@25.9.1)':
+  '@inquirer/editor@4.2.23(@types/node@22.19.19)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/external-editor': 1.0.3(@types/node@25.9.1)
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/external-editor': 1.0.3(@types/node@22.19.19)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
-  '@inquirer/expand@4.0.23(@types/node@25.9.1)':
+  '@inquirer/expand@4.0.23(@types/node@22.19.19)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
-  '@inquirer/external-editor@1.0.3(@types/node@25.9.1)':
+  '@inquirer/external-editor@1.0.3(@types/node@22.19.19)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.2
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
   '@inquirer/figures@1.0.15': {}
 
-  '@inquirer/input@4.3.1(@types/node@25.9.1)':
+  '@inquirer/input@4.3.1(@types/node@22.19.19)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
-  '@inquirer/number@3.0.23(@types/node@25.9.1)':
+  '@inquirer/number@3.0.23(@types/node@22.19.19)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
-  '@inquirer/password@4.0.23(@types/node@25.9.1)':
-    dependencies:
-      '@inquirer/ansi': 1.0.2
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
-    optionalDependencies:
-      '@types/node': 25.9.1
-
-  '@inquirer/prompts@7.10.1(@types/node@25.9.1)':
-    dependencies:
-      '@inquirer/checkbox': 4.3.2(@types/node@25.9.1)
-      '@inquirer/confirm': 5.1.21(@types/node@25.9.1)
-      '@inquirer/editor': 4.2.23(@types/node@25.9.1)
-      '@inquirer/expand': 4.0.23(@types/node@25.9.1)
-      '@inquirer/input': 4.3.1(@types/node@25.9.1)
-      '@inquirer/number': 3.0.23(@types/node@25.9.1)
-      '@inquirer/password': 4.0.23(@types/node@25.9.1)
-      '@inquirer/rawlist': 4.1.11(@types/node@25.9.1)
-      '@inquirer/search': 3.2.2(@types/node@25.9.1)
-      '@inquirer/select': 4.4.2(@types/node@25.9.1)
-    optionalDependencies:
-      '@types/node': 25.9.1
-
-  '@inquirer/rawlist@4.1.11(@types/node@25.9.1)':
-    dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
-      yoctocolors-cjs: 2.1.3
-    optionalDependencies:
-      '@types/node': 25.9.1
-
-  '@inquirer/search@3.2.2(@types/node@25.9.1)':
-    dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
-      yoctocolors-cjs: 2.1.3
-    optionalDependencies:
-      '@types/node': 25.9.1
-
-  '@inquirer/select@4.4.2(@types/node@25.9.1)':
+  '@inquirer/password@4.0.23(@types/node@22.19.19)':
     dependencies:
       '@inquirer/ansi': 1.0.2
-      '@inquirer/core': 10.3.2(@types/node@25.9.1)
-      '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@25.9.1)
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
+    optionalDependencies:
+      '@types/node': 22.19.19
+
+  '@inquirer/prompts@7.10.1(@types/node@22.19.19)':
+    dependencies:
+      '@inquirer/checkbox': 4.3.2(@types/node@22.19.19)
+      '@inquirer/confirm': 5.1.21(@types/node@22.19.19)
+      '@inquirer/editor': 4.2.23(@types/node@22.19.19)
+      '@inquirer/expand': 4.0.23(@types/node@22.19.19)
+      '@inquirer/input': 4.3.1(@types/node@22.19.19)
+      '@inquirer/number': 3.0.23(@types/node@22.19.19)
+      '@inquirer/password': 4.0.23(@types/node@22.19.19)
+      '@inquirer/rawlist': 4.1.11(@types/node@22.19.19)
+      '@inquirer/search': 3.2.2(@types/node@22.19.19)
+      '@inquirer/select': 4.4.2(@types/node@22.19.19)
+    optionalDependencies:
+      '@types/node': 22.19.19
+
+  '@inquirer/rawlist@4.1.11(@types/node@22.19.19)':
+    dependencies:
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
 
-  '@inquirer/type@3.0.10(@types/node@25.9.1)':
+  '@inquirer/search@3.2.2(@types/node@22.19.19)':
+    dependencies:
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/figures': 1.0.15
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
+      yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 22.19.19
+
+  '@inquirer/select@4.4.2(@types/node@22.19.19)':
+    dependencies:
+      '@inquirer/ansi': 1.0.2
+      '@inquirer/core': 10.3.2(@types/node@22.19.19)
+      '@inquirer/figures': 1.0.15
+      '@inquirer/type': 3.0.10(@types/node@22.19.19)
+      yoctocolors-cjs: 2.1.3
+    optionalDependencies:
+      '@types/node': 22.19.19
+
+  '@inquirer/type@3.0.10(@types/node@22.19.19)':
+    optionalDependencies:
+      '@types/node': 22.19.19
 
   '@internationalized/date@3.12.2':
     dependencies:
@@ -7931,9 +7934,9 @@ snapshots:
   '@turbo/darwin-arm64@2.9.16':
     optional: true
 
-  '@turbo/gen@2.9.16(@types/node@25.9.1)':
+  '@turbo/gen@2.9.16(@types/node@22.19.19)':
     dependencies:
-      '@inquirer/prompts': 7.10.1(@types/node@25.9.1)
+      '@inquirer/prompts': 7.10.1(@types/node@22.19.19)
       esbuild: 0.25.12
     transitivePeerDependencies:
       - '@types/node'

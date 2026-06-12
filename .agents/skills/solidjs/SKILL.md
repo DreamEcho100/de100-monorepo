@@ -127,6 +127,13 @@ setState(produce(s => {
 - `reconcile` — Diff and patch data (for API responses)
 - `unwrap` — Get raw non-reactive object
 
+**Current store behavior to keep in mind:**
+- Store reads track at the accessed property path, so `state.form.title` only subscribes consumers to that property.
+- Path setters (`setState("form", "title", value)`) are preferred for focused updates because they preserve fine-grained invalidation.
+- Passing a plain object to a store setter shallow-merges object state at the target path; it does not replace sibling properties unless those properties are included.
+- Array updates should be explicit. Use path setters for item fields, functional setters for replacement, or `produce` for push/splice-style mutation.
+- Prefer `createStore` for cohesive object-shaped UI state. Keep independent primitive state as `createSignal` when it is clearer and not part of one workflow model.
+
 ## Components
 
 ### Basic Component

@@ -1,6 +1,6 @@
 # Environment Setup
 
-The repo now uses a single `APP_LMS_DATABASE_URL` plus an optional `APP_LMS_DATABASE_DRIVER` override.
+The repo now uses a single `APP_PROTO_COOK_DATABASE_URL` plus an optional `APP_PROTO_COOK_DATABASE_DRIVER` override.
 
 ## Verification status for this document
 
@@ -21,43 +21,43 @@ Evidence index: [docs/evidence/README.md](docs/evidence/README.md)
 
 ## Required variables
 
-- `APP_LMS_DATABASE_URL`: Postgres connection string
-- `APP_LMS_BETTER_AUTH_SECRET`: Better Auth secret, minimum 32 characters
-- `APP_LMS_BETTER_AUTH_URL`: full auth route base, for example `http://127.0.0.1:3000/api/auth`
-- `APP_LMS_CORS_ORIGIN`: allowed browser origin, for example `http://127.0.0.1:3000`
+- `APP_PROTO_COOK_DATABASE_URL`: Postgres connection string
+- `APP_PROTO_COOK_BETTER_AUTH_SECRET`: Better Auth secret, minimum 32 characters
+- `APP_PROTO_COOK_BETTER_AUTH_URL`: full auth route base, for example `http://127.0.0.1:3000/api/auth`
+- `APP_PROTO_COOK_CORS_ORIGIN`: allowed browser origin, for example `http://127.0.0.1:3000`
 
 ## Optional variables
 
-- `APP_LMS_DATABASE_DRIVER`: one of `auto`, `postgres`, or `neon-http`
-- `VITE_APP_LMS_SERVER_URL`: explicit browser-to-server base URL for split-origin setups; leave empty for same-origin deployments
-- `APP_LMS_SMOKE_BASE_URL`: optional base URL override for `selfhost:smoke:public`; defaults to `VITE_APP_LMS_SERVER_URL`, then `APP_LMS_CORS_ORIGIN`, then healthcheck origin
-- `APP_LMS_SMOKE_TIMEOUT_MS`: optional timeout in milliseconds for each smoke check request; defaults to `15000`
-- `APP_LMS_EVIDENCE_ENV`: optional default environment label used by `selfhost:evidence:init`; defaults to `staging`
-- `APP_LMS_CACHE_DRIVER`: one of `memory`, `redis`, or `upstash`
-- `APP_LMS_CACHE_KEY_PREFIX`: prefix applied to LMS cache keys, defaults to `de100:lms`
-- `APP_LMS_EMAIL_DRIVER`: one of `log` or `resend`
-- `APP_LMS_EMAIL_FROM`: sender value for Better Auth emails
-- `APP_LMS_EMAIL_REPLY_TO`: optional reply-to value for Better Auth emails
-- `APP_LMS_RESEND_API_KEY`: required when `APP_LMS_EMAIL_DRIVER=resend`
-- `APP_LMS_FILES_STORAGE_DRIVER`: one of `s3` or `local`
-- `APP_LMS_FILES_LOCAL_ROOT`: filesystem root used when `APP_LMS_FILES_STORAGE_DRIVER=local`
-- `APP_LMS_FILES_S3_PROVIDER`: one of `r2`, `minio`, `aws`, or `custom` when `APP_LMS_FILES_STORAGE_DRIVER=s3`
-- `APP_LMS_FILES_S3_ENDPOINT`: optional S3-compatible endpoint URL for hosted object storage adapters
-- `APP_LMS_FILES_S3_REGION`: optional S3-compatible region, defaults to `auto`
-- `APP_LMS_FILES_S3_ACCESS_KEY_ID`: optional access key ID for S3-compatible adapters
-- `APP_LMS_FILES_S3_SECRET_ACCESS_KEY`: optional secret access key for S3-compatible adapters
-- `APP_LMS_FILES_S3_PUBLIC_BUCKET`: optional public bucket name for S3-compatible adapters
-- `APP_LMS_FILES_S3_PRIVATE_BUCKET`: optional private bucket name for S3-compatible adapters
-- `APP_LMS_FILES_S3_FORCE_PATH_STYLE`: optional S3 path-style toggle, defaults to `true`
-- `APP_LMS_FILES_SIGNING_SECRET`: optional dedicated HMAC secret for signed files URLs; falls back to `APP_LMS_BETTER_AUTH_SECRET`
-- `APP_LMS_FILES_SIGNED_URL_TTL_SECONDS`: signed files URL lifetime in seconds, defaults to `3600`
-- `REDIS_URL`: required when `APP_LMS_CACHE_DRIVER=redis`
-- `APP_LMS_UPSTASH_REDIS_URL`: required when `APP_LMS_CACHE_DRIVER=upstash`
-- `APP_LMS_UPSTASH_REDIS_TOKEN`: required when `APP_LMS_CACHE_DRIVER=upstash`
+- `APP_PROTO_COOK_DATABASE_DRIVER`: one of `auto`, `postgres`, or `neon-http`
+- `VITE_APP_PROTO_COOK_SERVER_URL`: explicit browser-to-server base URL for split-origin setups; leave empty for same-origin deployments
+- `APP_PROTO_COOK_SMOKE_BASE_URL`: optional base URL override for `selfhost:smoke:public`; defaults to `VITE_APP_PROTO_COOK_SERVER_URL`, then `APP_PROTO_COOK_CORS_ORIGIN`, then healthcheck origin
+- `APP_PROTO_COOK_SMOKE_TIMEOUT_MS`: optional timeout in milliseconds for each smoke check request; defaults to `15000`
+- `APP_PROTO_COOK_EVIDENCE_ENV`: optional default environment label used by `selfhost:evidence:init`; defaults to `staging`
+- `APP_PROTO_COOK_CACHE_DRIVER`: one of `memory`, `redis`, or `upstash`
+- `APP_PROTO_COOK_CACHE_KEY_PREFIX`: prefix applied to Proto Cook cache keys, defaults to `de100:proto-cook`
+- `APP_PROTO_COOK_EMAIL_DRIVER`: one of `log` or `resend`
+- `APP_PROTO_COOK_EMAIL_FROM`: sender value for Better Auth emails
+- `APP_PROTO_COOK_EMAIL_REPLY_TO`: optional reply-to value for Better Auth emails
+- `APP_PROTO_COOK_RESEND_API_KEY`: required when `APP_PROTO_COOK_EMAIL_DRIVER=resend`
+- `APP_PROTO_COOK_FILES_STORAGE_DRIVER`: one of `s3` or `local`
+- `APP_PROTO_COOK_FILES_LOCAL_ROOT`: filesystem root used when `APP_PROTO_COOK_FILES_STORAGE_DRIVER=local`
+- `APP_PROTO_COOK_FILES_S3_PROVIDER`: one of `r2`, `minio`, `aws`, or `custom` when `APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3`
+- `APP_PROTO_COOK_FILES_S3_ENDPOINT`: optional S3-compatible endpoint URL for hosted object storage adapters
+- `APP_PROTO_COOK_FILES_S3_REGION`: optional S3-compatible region, defaults to `auto`
+- `APP_PROTO_COOK_FILES_S3_ACCESS_KEY_ID`: optional access key ID for S3-compatible adapters
+- `APP_PROTO_COOK_FILES_S3_SECRET_ACCESS_KEY`: optional secret access key for S3-compatible adapters
+- `APP_PROTO_COOK_FILES_S3_PUBLIC_BUCKET`: optional public bucket name for S3-compatible adapters
+- `APP_PROTO_COOK_FILES_S3_PRIVATE_BUCKET`: optional private bucket name for S3-compatible adapters
+- `APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE`: optional S3 path-style toggle, defaults to `true`
+- `APP_PROTO_COOK_FILES_SIGNING_SECRET`: optional dedicated HMAC secret for signed files URLs; falls back to `APP_PROTO_COOK_BETTER_AUTH_SECRET`
+- `APP_PROTO_COOK_FILES_SIGNED_URL_TTL_SECONDS`: signed files URL lifetime in seconds, defaults to `3600`
+- `REDIS_URL`: required when `APP_PROTO_COOK_CACHE_DRIVER=redis`
+- `APP_PROTO_COOK_UPSTASH_REDIS_URL`: required when `APP_PROTO_COOK_CACHE_DRIVER=upstash`
+- `APP_PROTO_COOK_UPSTASH_REDIS_TOKEN`: required when `APP_PROTO_COOK_CACHE_DRIVER=upstash`
 
 ## Driver selection
 
-`APP_LMS_DATABASE_DRIVER=auto` is the default.
+`APP_PROTO_COOK_DATABASE_DRIVER=auto` is the default.
 
 In auto mode:
 
@@ -76,29 +76,29 @@ Preferred local workflow:
 2. Adjust `.env.local` for the local stack you want to use
 3. Keep `.env` only as a migration fallback if you already have older scripts or habits built around it
 
-The LMS web package's wrapped dev and build scripts now layer env files in this order:
+The Proto Cook web package's wrapped dev and build scripts now layer env files in this order:
 
 1. `.env`
 2. `.env.local`
 
 That means `.env.local` is the preferred local override file and wins over `.env` when both exist.
 
-The env package in `packages/apps/lms/env/src/server.ts` also loads `.env.local` and `.env` from the current working directory, the repo root, and `apps/lms-web` when code runs outside those wrapped scripts.
+The env package in `packages/apps/proto-cook/env/src/server.ts` also loads `.env.local` and `.env` from the current working directory, the repo root, and `apps/proto-cook-web` when code runs outside those wrapped scripts.
 
 For a repeatable local run without manual shell exports:
 
 ```sh
-pnpm -F @de100/apps-lms-web dev
+pnpm -F @de100/apps-proto-cook-web dev
 ```
 
 Use locale-prefixed page routes in examples and checks, for example `http://127.0.0.1:3000/en`, `http://localhost:3000/en/login`, and `/ar/login`.
 
-The default web dev server binds to all local interfaces and uses `strictPort`, so it fails when `APP_LMS_SERVER_PORT` is unavailable instead of silently selecting another port. If a sandboxed tool or Codex-run command prints Vite's ready message but `curl -I http://127.0.0.1:3000/` or the browser reports `ERR_CONNECTION_REFUSED`, start the dev command from a normal local terminal. Sandboxed network namespaces can make a tool-started server unreachable from the host browser.
+The default web dev server binds to all local interfaces and uses `strictPort`, so it fails when `APP_PROTO_COOK_SERVER_PORT` is unavailable instead of silently selecting another port. If a sandboxed tool or Codex-run command prints Vite's ready message but `curl -I http://127.0.0.1:3000/` or the browser reports `ERR_CONNECTION_REFUSED`, start the dev command from a normal local terminal. Sandboxed network namespaces can make a tool-started server unreachable from the host browser.
 
-For a trace-friendly local runtime, create `.env.trace.local` from `.env.trace.local.example` and run:
+For a trace-friendly local runtime, add the following to the env file
 
-```bash
-pnpm -F @de100/apps-lms-web dev:trace
+```env
+PROTO_COOK_APP_VITE_TRACE_MODE="1"
 ```
 
 That mode enables Vite dev sourcemaps, disables build minification, preserves function and class names, and includes dependency sourcemaps during local debugging.
@@ -108,12 +108,11 @@ Create or edit `.env.local` when you need local secrets, non-default URLs, or a 
 ### Dev command matrix
 
 - `pnpm dev`: run monorepo watch mode through Turbo for coordinated package development
-- `pnpm -F @de100/apps-lms-web dev`: run only the app dev server with explicit env loading
-- `pnpm -F @de100/apps-lms-web dev:trace`: run app dev server with trace-friendly debugging defaults
+- `pnpm -F @de100/apps-proto-cook-web dev`: run only the app dev server with explicit env loading
 
 ## Better Auth secondary storage
 
-The starter now routes Better Auth secondary storage through `@de100/apps-lms-cache`.
+The starter now routes Better Auth secondary storage through `@de100/apps-proto-cook-cache`.
 
 - `memory` is the default and keeps ephemeral auth state in-process.
 - `redis` uses a standard Redis connection string.
@@ -125,85 +124,85 @@ Better Auth still stores sessions in the database, but reads and writes its seco
 
 The starter now supports two auth-email delivery modes:
 
-- `APP_LMS_EMAIL_DRIVER=log` logs verification and password-reset emails locally for development
-- `APP_LMS_EMAIL_DRIVER=resend` sends real Better Auth emails through Resend
+- `APP_PROTO_COOK_EMAIL_DRIVER=log` logs verification and password-reset emails locally for development
+- `APP_PROTO_COOK_EMAIL_DRIVER=resend` sends real Better Auth emails through Resend
 
-For local development, keep `APP_LMS_EMAIL_DRIVER=log` and read the generated links from the server logs.
+For local development, keep `APP_PROTO_COOK_EMAIL_DRIVER=log` and read the generated links from the server logs.
 
 For hosted environments, configure:
 
 ```env
-APP_LMS_EMAIL_DRIVER=resend
-APP_LMS_EMAIL_FROM=LMS Starter <noreply@your-domain.example>
-APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
+APP_PROTO_COOK_EMAIL_DRIVER=resend
+APP_PROTO_COOK_EMAIL_FROM=Proto Cook Starter <noreply@your-domain.example>
+APP_PROTO_COOK_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ## files storage and signed delivery
 
 The starter supports two storage backends:
 
-- `APP_LMS_FILES_STORAGE_DRIVER=s3` for S3-compatible object storage
-- `APP_LMS_FILES_STORAGE_DRIVER=local` for a local filesystem fallback during development
+- `APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3` for S3-compatible object storage
+- `APP_PROTO_COOK_FILES_STORAGE_DRIVER=local` for a local filesystem fallback during development
 
-When local storage is enabled, `APP_LMS_FILES_LOCAL_ROOT` controls where uploaded files are written.
+When local storage is enabled, `APP_PROTO_COOK_FILES_LOCAL_ROOT` controls where uploaded files are written.
 
-The environment schema uses generic S3-compatible fields (`APP_LMS_FILES_S3_*`) so R2, MinIO, AWS S3, and custom S3-compatible endpoints share one configuration contract. Select the provider profile with `APP_LMS_FILES_S3_PROVIDER`.
+The environment schema uses generic S3-compatible fields (`APP_PROTO_COOK_FILES_S3_*`) so R2, MinIO, AWS S3, and custom S3-compatible endpoints share one configuration contract. Select the provider profile with `APP_PROTO_COOK_FILES_S3_PROVIDER`.
 
 Current runtime note:
 
-- `s3` + `APP_LMS_FILES_S3_PROVIDER=r2` resolves buckets from runtime request bindings when available
-- when those bindings are unavailable, `s3` mode falls back to `APP_LMS_FILES_S3_*` hosted configuration
-- `APP_LMS_FILES_S3_PROVIDER=minio` is the recommended local production-parity profile when you need S3 behavior offline
+- `s3` + `APP_PROTO_COOK_FILES_S3_PROVIDER=r2` resolves buckets from runtime request bindings when available
+- when those bindings are unavailable, `s3` mode falls back to `APP_PROTO_COOK_FILES_S3_*` hosted configuration
+- `APP_PROTO_COOK_FILES_S3_PROVIDER=minio` is the recommended local production-parity profile when you need S3 behavior offline
 
 Detailed storage setup examples live in `docs/setup/files-storage-r2-minio.md`.
 
 Private files sharing now uses signed app URLs. The signing flow uses:
 
-- `APP_LMS_FILES_SIGNING_SECRET` when you want a secret separate from Better Auth
-- `APP_LMS_BETTER_AUTH_SECRET` as the fallback signing secret when `APP_LMS_FILES_SIGNING_SECRET` is unset
-- `APP_LMS_FILES_SIGNED_URL_TTL_SECONDS` to control how long a signed files URL remains valid
+- `APP_PROTO_COOK_FILES_SIGNING_SECRET` when you want a secret separate from Better Auth
+- `APP_PROTO_COOK_BETTER_AUTH_SECRET` as the fallback signing secret when `APP_PROTO_COOK_FILES_SIGNING_SECRET` is unset
+- `APP_PROTO_COOK_FILES_SIGNED_URL_TTL_SECONDS` to control how long a signed files URL remains valid
 
 ## files worker
 
-The LMS files worker processes durable jobs such as generated variants and HLS artifact groups. Defaults are local-safe:
+The Proto Cook files worker processes durable jobs such as generated variants and HLS artifact groups. Defaults are local-safe:
 
 ```env
-APP_LMS_FILES_WORKER_CONCURRENCY=1
-APP_LMS_FILES_WORKER_POLL_INTERVAL_MS=5000
-APP_LMS_FILES_WORKER_QUEUE_DRIVER=auto
-APP_LMS_FILES_WORKER_REDIS_KEY_PREFIX=de100:lms:files
-APP_LMS_FILES_WORKER_STALE_AFTER_MS=300000
+APP_PROTO_COOK_FILES_WORKER_CONCURRENCY=1
+APP_PROTO_COOK_FILES_WORKER_POLL_INTERVAL_MS=5000
+APP_PROTO_COOK_FILES_WORKER_QUEUE_DRIVER=auto
+APP_PROTO_COOK_FILES_WORKER_REDIS_KEY_PREFIX=de100:proto-cook:files
+APP_PROTO_COOK_FILES_WORKER_STALE_AFTER_MS=300000
 ```
 
-`APP_LMS_FILES_WORKER_QUEUE_DRIVER=auto` uses Redis when `REDIS_URL` is set and falls back to DB polling otherwise. Use `redis` to require Redis, or `db` to force DB polling.
+`APP_PROTO_COOK_FILES_WORKER_QUEUE_DRIVER=auto` uses Redis when `REDIS_URL` is set and falls back to DB polling otherwise. Use `redis` to require Redis, or `db` to force DB polling.
 
 See `docs/setup/files-worker-deployment.md` for worker process, ffmpeg, queue, retry, and cleanup guidance.
 
 ## Local Docker Postgres and Redis
 
-This repo now includes root [docker-compose.yml](/home/viavi/Desktop/workspaces/github/lms/docker-compose.yml) services that match the default local database setup and the optional Redis cache setup documented in `.env.example` and used in `.env.local`.
+This repo now includes root [docker-compose.yml](/home/viavi/Desktop/workspaces/github/proto-cook/docker-compose.yml) services that match the default local database setup and the optional Redis cache setup documented in `.env.example` and used in `.env.local`.
 
 Typical local sequence:
 
 ```sh
-pnpm -F @de100/apps-lms-db db:up
-pnpm -F @de100/apps-lms-db db:migrate
-pnpm -F @de100/apps-lms-web dev
+pnpm -F @de100/apps-proto-cook-db db:up
+pnpm -F @de100/apps-proto-cook-db db:migrate
+pnpm -F @de100/apps-proto-cook-web dev
 curl -I http://127.0.0.1:3000/
 ```
 
-If you switch to `APP_LMS_CACHE_DRIVER=redis`, start Redis too:
+If you switch to `APP_PROTO_COOK_CACHE_DRIVER=redis`, start Redis too:
 
 ```sh
-docker compose up -d lms-redis
+docker compose up -d proto-cook-redis
 ```
 
 Useful commands:
 
 ```sh
-pnpm -F @de100/apps-lms-db db:logs
-pnpm -F @de100/apps-lms-db db:down
-pnpm -F @de100/apps-lms-db db:reset
+pnpm -F @de100/apps-proto-cook-db db:logs
+pnpm -F @de100/apps-proto-cook-db db:down
+pnpm -F @de100/apps-proto-cook-db db:reset
 ```
 
 `db:reset` removes the Docker volume and recreates the database container from scratch.
@@ -211,60 +210,60 @@ pnpm -F @de100/apps-lms-db db:reset
 For local Docker or a directly running Postgres instance, a typical `.env.local` is:
 
 ```env
-APP_LMS_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/de100_lms
-APP_LMS_DATABASE_DRIVER=postgres
-APP_LMS_BETTER_AUTH_URL=http://127.0.0.1:3000/api/auth
-APP_LMS_CORS_ORIGIN=http://127.0.0.1:3000
+APP_PROTO_COOK_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/de100_proto_cook
+APP_PROTO_COOK_DATABASE_DRIVER=postgres
+APP_PROTO_COOK_BETTER_AUTH_URL=http://127.0.0.1:3000/api/auth
+APP_PROTO_COOK_CORS_ORIGIN=http://127.0.0.1:3000
 # Leave empty for same-origin local requests unless you intentionally split origins.
-VITE_APP_LMS_SERVER_URL=
-APP_LMS_EMAIL_DRIVER=log
-APP_LMS_EMAIL_FROM=LMS Starter <noreply@lms.local>
-APP_LMS_CACHE_DRIVER=memory
-APP_LMS_CACHE_KEY_PREFIX=de100:lms:local
-APP_LMS_FILES_STORAGE_DRIVER=local
-APP_LMS_FILES_LOCAL_ROOT=./.local/files
-APP_LMS_FILES_SIGNED_URL_TTL_SECONDS=3600
+VITE_APP_PROTO_COOK_SERVER_URL=
+APP_PROTO_COOK_EMAIL_DRIVER=log
+APP_PROTO_COOK_EMAIL_FROM=Proto Cook Starter <noreply@proto-cook.local>
+APP_PROTO_COOK_CACHE_DRIVER=memory
+APP_PROTO_COOK_CACHE_KEY_PREFIX=de100:proto-cook:local
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=local
+APP_PROTO_COOK_FILES_LOCAL_ROOT=./.local/files
+APP_PROTO_COOK_FILES_SIGNED_URL_TTL_SECONDS=3600
 ```
 
 For local Redis-backed auth cache, update `.env.local` with:
 
 ```env
-APP_LMS_CACHE_DRIVER=redis
+APP_PROTO_COOK_CACHE_DRIVER=redis
 REDIS_URL=redis://127.0.0.1:6379
 ```
 
 For local S3-compatible parity with MinIO, keep the same app/database values and switch files storage to:
 
 ```env
-APP_LMS_FILES_STORAGE_DRIVER=s3
-APP_LMS_FILES_S3_PROVIDER=minio
-APP_LMS_FILES_S3_ENDPOINT=http://127.0.0.1:9000
-APP_LMS_FILES_S3_REGION=us-east-1
-APP_LMS_FILES_S3_ACCESS_KEY_ID=minioadmin
-APP_LMS_FILES_S3_SECRET_ACCESS_KEY=minioadmin
-APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
-APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
-APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3
+APP_PROTO_COOK_FILES_S3_PROVIDER=minio
+APP_PROTO_COOK_FILES_S3_ENDPOINT=http://127.0.0.1:9000
+APP_PROTO_COOK_FILES_S3_REGION=us-east-1
+APP_PROTO_COOK_FILES_S3_ACCESS_KEY_ID=minioadmin
+APP_PROTO_COOK_FILES_S3_SECRET_ACCESS_KEY=minioadmin
+APP_PROTO_COOK_FILES_S3_PUBLIC_BUCKET=public-files
+APP_PROTO_COOK_FILES_S3_PRIVATE_BUCKET=private-files
+APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE=true
 ```
 
 For hosted Neon, replace the database settings in `.env.local` with:
 
 ```env
-APP_LMS_DATABASE_URL=postgresql://user:password@your-project.region.aws.neon.tech/dbname
-APP_LMS_DATABASE_DRIVER=auto
-APP_LMS_EMAIL_DRIVER=resend
-APP_LMS_EMAIL_FROM=LMS Starter <noreply@your-domain.example>
-APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
-APP_LMS_FILES_STORAGE_DRIVER=s3
-APP_LMS_FILES_S3_PROVIDER=r2
+APP_PROTO_COOK_DATABASE_URL=postgresql://user:password@your-project.region.aws.neon.tech/dbname
+APP_PROTO_COOK_DATABASE_DRIVER=auto
+APP_PROTO_COOK_EMAIL_DRIVER=resend
+APP_PROTO_COOK_EMAIL_FROM=Proto Cook Starter <noreply@your-domain.example>
+APP_PROTO_COOK_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3
+APP_PROTO_COOK_FILES_S3_PROVIDER=r2
 ```
 
 For hosted Upstash, update `.env.local` with:
 
 ```env
-APP_LMS_CACHE_DRIVER=upstash
-APP_LMS_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
-APP_LMS_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
+APP_PROTO_COOK_CACHE_DRIVER=upstash
+APP_PROTO_COOK_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
+APP_PROTO_COOK_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
 ```
 
 ## Production deployment environment
@@ -276,39 +275,39 @@ Keep `.env.local` for local development. For hosted migration and deploy command
 Recommended production baseline in `.env.deploy.local`:
 
 ```env
-APP_LMS_SERVER_PORT=3000
-APP_LMS_DATABASE_URL=postgresql://user:password@your-project.region.aws.neon.tech/dbname
-APP_LMS_DATABASE_DRIVER=auto
-APP_LMS_BETTER_AUTH_SECRET=replace-with-a-32-character-secret
-APP_LMS_BETTER_AUTH_URL=https://your-app-domain.example/api/auth
-APP_LMS_CORS_ORIGIN=https://your-app-domain.example
+APP_PROTO_COOK_SERVER_PORT=3000
+APP_PROTO_COOK_DATABASE_URL=postgresql://user:password@your-project.region.aws.neon.tech/dbname
+APP_PROTO_COOK_DATABASE_DRIVER=auto
+APP_PROTO_COOK_BETTER_AUTH_SECRET=replace-with-a-32-character-secret
+APP_PROTO_COOK_BETTER_AUTH_URL=https://your-app-domain.example/api/auth
+APP_PROTO_COOK_CORS_ORIGIN=https://your-app-domain.example
 # Leave empty for same-origin browser -> server requests.
-VITE_APP_LMS_SERVER_URL=
-APP_LMS_EMAIL_DRIVER=resend
-APP_LMS_EMAIL_FROM=LMS Starter <onboarding@resend.dev>
-APP_LMS_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
-APP_LMS_CACHE_DRIVER=upstash
-APP_LMS_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
-APP_LMS_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
-APP_LMS_FILES_STORAGE_DRIVER=s3
-APP_LMS_FILES_S3_PROVIDER=r2
-APP_LMS_FILES_S3_ENDPOINT=https://your-s3-endpoint.example
-APP_LMS_FILES_S3_REGION=auto
-APP_LMS_FILES_S3_ACCESS_KEY_ID=replace-with-your-access-key-id
-APP_LMS_FILES_S3_SECRET_ACCESS_KEY=replace-with-your-secret-access-key
-APP_LMS_FILES_S3_PUBLIC_BUCKET=public-files
-APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
-APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
-APP_LMS_FILES_SIGNING_SECRET=replace-with-a-separate-32-character-secret
-APP_LMS_FILES_SIGNED_URL_TTL_SECONDS=3600
+VITE_APP_PROTO_COOK_SERVER_URL=
+APP_PROTO_COOK_EMAIL_DRIVER=resend
+APP_PROTO_COOK_EMAIL_FROM=Proto Cook Starter <onboarding@resend.dev>
+APP_PROTO_COOK_RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
+APP_PROTO_COOK_CACHE_DRIVER=upstash
+APP_PROTO_COOK_UPSTASH_REDIS_URL=https://your-upstash-instance.upstash.io
+APP_PROTO_COOK_UPSTASH_REDIS_TOKEN=replace-with-your-upstash-token
+APP_PROTO_COOK_FILES_STORAGE_DRIVER=s3
+APP_PROTO_COOK_FILES_S3_PROVIDER=r2
+APP_PROTO_COOK_FILES_S3_ENDPOINT=https://your-s3-endpoint.example
+APP_PROTO_COOK_FILES_S3_REGION=auto
+APP_PROTO_COOK_FILES_S3_ACCESS_KEY_ID=replace-with-your-access-key-id
+APP_PROTO_COOK_FILES_S3_SECRET_ACCESS_KEY=replace-with-your-secret-access-key
+APP_PROTO_COOK_FILES_S3_PUBLIC_BUCKET=public-files
+APP_PROTO_COOK_FILES_S3_PRIVATE_BUCKET=private-files
+APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE=true
+APP_PROTO_COOK_FILES_SIGNING_SECRET=replace-with-a-separate-32-character-secret
+APP_PROTO_COOK_FILES_SIGNED_URL_TTL_SECONDS=3600
 ```
 
 Use Resend's onboarding sender for the first hosted rollout, then replace it with your verified sender domain once it exists.
 
 Notes:
 
-- `APP_LMS_BETTER_AUTH_URL` must point at the deployed `/api/auth` base on the final public origin.
-- `APP_LMS_CORS_ORIGIN` must match the browser origin serving the app.
-- Leave `VITE_APP_LMS_SERVER_URL` unset when the browser talks to the same deployed origin.
-- `APP_LMS_FILES_STORAGE_DRIVER=local` is for local development only; use `s3` with `APP_LMS_FILES_S3_PROVIDER=r2|minio|aws|custom` for shared self-host deployments.
-- Choose `APP_LMS_CACHE_DRIVER=memory` only for single-instance or low-stakes environments. Use `redis` or `upstash` when you need durable shared auth secondary storage.
+- `APP_PROTO_COOK_BETTER_AUTH_URL` must point at the deployed `/api/auth` base on the final public origin.
+- `APP_PROTO_COOK_CORS_ORIGIN` must match the browser origin serving the app.
+- Leave `VITE_APP_PROTO_COOK_SERVER_URL` unset when the browser talks to the same deployed origin.
+- `APP_PROTO_COOK_FILES_STORAGE_DRIVER=local` is for local development only; use `s3` with `APP_PROTO_COOK_FILES_S3_PROVIDER=r2|minio|aws|custom` for shared self-host deployments.
+- Choose `APP_PROTO_COOK_CACHE_DRIVER=memory` only for single-instance or low-stakes environments. Use `redis` or `upstash` when you need durable shared auth secondary storage.

@@ -87,7 +87,7 @@ Recommended conservative sequence:
 
 ## Validator Updates
 
-Update `packages/apps/lms/validators/src/internal/files.ts`:
+Update `packages/apps/proto-cook/validators/src/internal/files.ts`:
 
 - expand `fileStatusSchema`
 - keep output schema backward-compatible for existing fields
@@ -121,7 +121,7 @@ Rules:
 
 ## UI Updates
 
-Update `apps/lms-web/src/files-page.tsx` with explicit status groups:
+Update `apps/proto-cook-web/src/files-page.tsx` with explicit status groups:
 
 - Drafts: `draft`
 - In progress: `scanning`, `processing`

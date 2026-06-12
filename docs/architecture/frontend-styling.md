@@ -2,13 +2,13 @@
 
 ## Current styling stack
 
-The LMS app now layers styling in this order:
+The Proto Cook app now layers styling in this order:
 
 1. `tailwindcss`
 2. `tw-animate-css`
 3. `@de100/ui-shared/styles/base.css`
 4. `@de100/ui-domains-solidjs/styles/base.css`
-5. app-local shell, layout, and state styles in `apps/lms-web/src/app.css`
+5. app-local shell, layout, and state styles in `apps/proto-cook-web/src/app.css`
 
 That order matters because the shared UI stylesheet expects semantic colors, radius tokens, animation utilities, and a few custom utilities to already exist.
 
@@ -24,7 +24,7 @@ The app should prefer those variables over route-local RGB values or one-off arb
 
 ## App compatibility layer
 
-`apps/lms-web/src/app.css` now does two jobs beyond importing Tailwind:
+`apps/proto-cook-web/src/app.css` now does two jobs beyond importing Tailwind:
 
 - imports the shared baseline package before the domains stylesheet
 - imports `tw-animate-css` so animation utilities used by the shared UI package resolve during build
@@ -61,6 +61,6 @@ When the shared UI package needs a value outside the default Tailwind scale:
 
 After changing the shared theme or shared UI stylesheet, validate with:
 
-- `pnpm --filter @de100/apps-lms-web build`
+- `pnpm --filter @de100/apps-proto-cook-web build`
 
 This catches missing semantic tokens, missing compatibility utilities, and unsupported `@apply` candidates before the styling change leaks further into the repo.

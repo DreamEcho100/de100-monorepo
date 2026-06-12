@@ -1,15 +1,15 @@
-# LMS Files Worker Deployment
+# Proto Cook Files Worker Deployment
 
 ## Purpose
 
-The LMS files worker runs app-injected processing outside the request/response path. It is responsible for durable jobs such as HLS packaging, generated variants, retries, and cleanup.
+The Proto Cook files worker runs app-injected processing outside the request/response path. It is responsible for durable jobs such as HLS packaging, generated variants, retries, and cleanup.
 
-The package is `@de100/apps-lms-worker`. It currently exposes worker primitives instead of a committed production process wrapper:
+The package is `@de100/apps-proto-cook-worker`. It currently exposes worker primitives instead of a committed production process wrapper:
 
-- `resolveLmsFilesWorkerConfig()`
-- `resolveLmsFilesWorkerConfigFromEnv()`
-- `runLmsFilesWorkerOnce()`
-- `runLmsFilesWorkerLoop()`
+- `resolveProtoCookFilesWorkerConfig()`
+- `resolveProtoCookFilesWorkerConfigFromEnv()`
+- `runProtoCookFilesWorkerOnce()`
+- `runProtoCookFilesWorkerLoop()`
 - DB polling queue adapter
 - Redis queue adapter
 
@@ -29,11 +29,11 @@ Provider and tool behavior to keep in mind:
 Defaults are safe for local development:
 
 ```env
-APP_LMS_FILES_WORKER_CONCURRENCY=1
-APP_LMS_FILES_WORKER_POLL_INTERVAL_MS=5000
-APP_LMS_FILES_WORKER_QUEUE_DRIVER=auto
-APP_LMS_FILES_WORKER_REDIS_KEY_PREFIX=de100:lms:files
-APP_LMS_FILES_WORKER_STALE_AFTER_MS=300000
+APP_PROTO_COOK_FILES_WORKER_CONCURRENCY=1
+APP_PROTO_COOK_FILES_WORKER_POLL_INTERVAL_MS=5000
+APP_PROTO_COOK_FILES_WORKER_QUEUE_DRIVER=auto
+APP_PROTO_COOK_FILES_WORKER_REDIS_KEY_PREFIX=de100:proto-cook:files
+APP_PROTO_COOK_FILES_WORKER_STALE_AFTER_MS=300000
 ```
 
 Queue driver behavior:
@@ -45,14 +45,14 @@ Queue driver behavior:
 Redis-backed queue example:
 
 ```env
-APP_LMS_FILES_WORKER_QUEUE_DRIVER=redis
+APP_PROTO_COOK_FILES_WORKER_QUEUE_DRIVER=redis
 REDIS_URL=redis://127.0.0.1:6379
-APP_LMS_FILES_WORKER_REDIS_KEY_PREFIX=de100:lms:files
+APP_PROTO_COOK_FILES_WORKER_REDIS_KEY_PREFIX=de100:proto-cook:files
 ```
 
 ## Processing Model
 
-The worker takes a processing job from the queue, reloads the job and file records, then calls the LMS processing bridge. The bridge currently supports:
+The worker takes a processing job from the queue, reloads the job and file records, then calls the Proto Cook processing bridge. The bridge currently supports:
 
 - upload-complete processing
 - image `optimized` variant
@@ -79,7 +79,7 @@ Recommended production policy:
 
 - install `ffmpeg` and `ffprobe` in the worker image
 - run one local worker by default for course-video HLS until CPU/memory evidence supports more
-- keep `APP_LMS_FILES_WORKER_CONCURRENCY=1` for local/default course-video processing
+- keep `APP_PROTO_COOK_FILES_WORKER_CONCURRENCY=1` for local/default course-video processing
 - increase concurrency only after measuring CPU, memory, disk, and storage throughput
 - keep temp/staging paths on a volume with enough free space for the largest configured source and generated HLS ladder
 
@@ -108,23 +108,23 @@ The current package exports the loop primitive. A production process wrapper sho
 Shape:
 
 ```ts
-import { createDb } from "@de100/apps-lms-db";
-import { createLmsFilesRepositories } from "@de100/apps-lms-api/files-repositories";
+import { createDb } from "@de100/apps-proto-cook-db";
+import { createProtoCookFilesRepositories } from "@de100/apps-proto-cook-api/files-repositories";
 import {
-	resolveLmsFilesWorkerConfigFromEnv,
-	runLmsFilesWorkerLoop,
-} from "@de100/apps-lms-worker";
+	resolveProtoCookFilesWorkerConfigFromEnv,
+	runProtoCookFilesWorkerLoop,
+} from "@de100/apps-proto-cook-worker";
 
-const config = resolveLmsFilesWorkerConfigFromEnv();
+const config = resolveProtoCookFilesWorkerConfigFromEnv();
 const db = createDb();
-const repositories = createLmsFilesRepositories(db);
+const repositories = createProtoCookFilesRepositories(db);
 const queue = createQueueAdapter(config, repositories);
 const abort = new AbortController();
 
 process.once("SIGINT", () => abort.abort());
 process.once("SIGTERM", () => abort.abort());
 
-await runLmsFilesWorkerLoop({
+await runProtoCookFilesWorkerLoop({
 	db,
 	pollIntervalMs: config.pollIntervalMs,
 	queue,

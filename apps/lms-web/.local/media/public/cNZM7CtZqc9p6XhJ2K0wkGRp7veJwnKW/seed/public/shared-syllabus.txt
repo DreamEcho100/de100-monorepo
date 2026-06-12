@@ -1,5 +1,0 @@
-LMS seeded media fixture
-File: shared-syllabus.txt
-Visibility: public
-Status: draft
-This file is written during db:seed so local media routes have real content to serve.

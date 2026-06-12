@@ -1,0 +1,8 @@
+{
+	"extends": "@de100/tsconfig/base.json",
+	"compilerOptions": {
+		"strictNullChecks": true
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "dist"]
+}

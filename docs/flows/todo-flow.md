@@ -6,10 +6,10 @@ Todos are now user-owned. A signed-in user should only be able to read, create, 
 
 ## Request path
 
-1. The Solid route calls the typed oRPC client from `apps/lms-web/src/libs/apis/orpc.ts`.
+1. The Solid route calls the typed oRPC client from `apps/proto-cook-web/src/libs/apis/orpc.ts`.
 2. Query-backed reads use TanStack Query option builders like `orpc.todo.getAll.queryOptions()`.
 3. Mutations use TanStack Query `createMutation` with builders like `orpc.todo.create.mutationOptions()`.
-4. The RPC handler in the app forwards the request into `packages/apps/lms/api`.
+4. The RPC handler in the app forwards the request into `packages/apps/proto-cook/api`.
 5. `protectedProcedure` requires a valid Better Auth session before the todo router runs.
 6. The todo router reads `context.session.user.id` and scopes every DB operation to that user.
 7. The DB package persists the todo against the `todo.user_id` foreign key.

@@ -15,10 +15,10 @@ Traefik is supported as an alternative to the default Coolify plus Caddy path.
 
 ## Execution Docs
 
-- ../../../../packages/apps/lms/infra/docs/traefik-deployment/service-setup.md
+- ../../../../packages/apps/proto-cook/infra/docs/traefik-deployment/service-setup.md
 
 ## Required Companions
 
-- Pre-deploy checklist: ../../../../packages/apps/lms/infra/docs/checklists/pre-deploy-checklist.md
-- Post-deploy smoke checklist: ../../../../packages/apps/lms/infra/docs/checklists/post-deploy-smoke-checklist.md
-- Rollback runbook: ../../../../packages/apps/lms/infra/docs/runbooks/rollback-recovery.md
+- Pre-deploy checklist: ../../../../packages/apps/proto-cook/infra/docs/checklists/pre-deploy-checklist.md
+- Post-deploy smoke checklist: ../../../../packages/apps/proto-cook/infra/docs/checklists/post-deploy-smoke-checklist.md
+- Rollback runbook: ../../../../packages/apps/proto-cook/infra/docs/runbooks/rollback-recovery.md

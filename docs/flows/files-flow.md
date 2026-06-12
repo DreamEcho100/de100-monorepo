@@ -2,7 +2,7 @@
 
 ## Goal
 
-The current files flow proves the LMS app can upload, list, process, generate variants, confirm, delete, and issue signed private-access links while keeping binary delivery on app/provider routes.
+The current files flow proves the Proto Cook app can upload, list, process, generate variants, confirm, delete, and issue signed private-access links while keeping binary delivery on app/provider routes.
 
 ## Hybrid upload path
 
@@ -65,12 +65,12 @@ Range-capable reads are delivery policy. They support media playback and cache b
 
 1. Upload completion creates or updates a processing job.
 2. `runFilesProcessingJob()` marks the file `processing` and the job `running`.
-3. The pipeline runs configured stages. The LMS pipeline currently validates storage, records metadata, and generates variants.
+3. The pipeline runs configured stages. The Proto Cook pipeline currently validates storage, records metadata, and generates variants.
 4. Stage metadata, generated variants, errors, duration, attempts, and cleanup behavior are aggregated into job output.
 5. On success, variants are persisted and the file is marked `ready`.
 6. On failure, the job stores the serialized error and the file is marked `failed`.
 
-Current LMS variants are:
+Current Proto Cook variants are:
 
 - image `optimized`
 - video `poster`
@@ -83,7 +83,7 @@ Optional dependencies are lazy. `sharp`, `file-type`, `exifr`, and `music-metada
 Course videos use the same upload/runtime primitives, then move into a storage-first worker path:
 
 1. Course-video uploads land in storage through the selected route policy.
-2. The LMS API attaches the uploaded file to a lesson video asset.
+2. The Proto Cook API attaches the uploaded file to a lesson video asset.
 3. The API enqueues a `video-hls` or `video-hls-encryption` processing job.
 4. The files worker loads the original, runs the ffmpeg-shaped adapter, writes staging outputs, validates generated artifacts, promotes outputs, and persists the artifact group.
 5. Entitled viewers request a signed HLS playback session through `orpc.courses.createPlaybackSession`.
@@ -100,7 +100,7 @@ See `docs/architecture/course-video-files.md` and `docs/setup/files-worker-deplo
 - public, private, signed, variant, and range reads use direct app routes because they return binary responses and need runtime files bucket access
 - private reads remain owner-prefixed at the route boundary
 - public reads can return a direct URL when a public storage domain binding is available
-- local filesystem storage is available for simple development, while `s3` with `APP_LMS_FILES_S3_PROVIDER=r2|minio|aws|custom` is the production-parity model
+- local filesystem storage is available for simple development, while `s3` with `APP_PROTO_COOK_FILES_S3_PROVIDER=r2|minio|aws|custom` is the production-parity model
 - Tus, S3 multipart, Companion, and Transloadit require configured services or app-provided executors before they should carry product traffic
 
 ## Next likely steps

@@ -16,6 +16,10 @@ const forbiddenFilesStorageImports = new Set([
 	"FilesLocalStorageUnavailableError",
 ]);
 
+/**
+ * @param {string} directoryPath
+ * @returns {Promise<string[]>}
+ */
 async function walkFiles(directoryPath) {
 	const entries = await readdir(directoryPath, { withFileTypes: true });
 	const filePaths = await Promise.all(
@@ -33,26 +37,39 @@ async function walkFiles(directoryPath) {
 	return filePaths.flat();
 }
 
+/**
+ * @param {string} content
+ * @param {number} index
+ */
 function getLineNumber(content, index) {
 	return content.slice(0, index).split("\n").length;
 }
 
+/** @param {string} filePath */
 function toRelativePath(filePath) {
 	return path.relative(repoRoot, filePath);
 }
 
+/** @param {string} specifiers */
 function parseNamedSpecifiers(specifiers) {
-	return specifiers
-		.split(",")
-		.map((rawSpecifier) => rawSpecifier.trim())
-		.filter(Boolean)
-		.map((rawSpecifier) => rawSpecifier.split(/\s+as\s+/)[0]?.trim())
-		.filter(Boolean);
+	const parsedSpecifiers = [];
+
+	for (const rawSpecifier of specifiers.split(",")) {
+		const trimmedSpecifier = rawSpecifier.trim();
+		if (!trimmedSpecifier) continue;
+
+		const [specifier] = trimmedSpecifier.split(/\s+as\s+/);
+		if (specifier) {
+			parsedSpecifiers.push(specifier.trim());
+		}
+	}
+
+	return parsedSpecifiers;
 }
 
 async function main() {
 	const violations = [];
-	const routersDirectory = path.join(repoRoot, "packages/apps/lms/api/src/routers");
+	const routersDirectory = path.join(repoRoot, "packages/apps/proto-cook/api/src/routers");
 	const routerFiles = (await walkFiles(routersDirectory)).filter((filePath) =>
 		filePath.endsWith(".ts"),
 	);

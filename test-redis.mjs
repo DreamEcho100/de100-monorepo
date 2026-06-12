@@ -3,11 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.deploy.local' });
 
-const url = process.env.APP_LMS_UPSTASH_REDIS_URL;
-const token = process.env.APP_LMS_UPSTASH_REDIS_TOKEN;
+const url = process.env.APP_PROTO_COOK_UPSTASH_REDIS_URL;
+const token = process.env.APP_PROTO_COOK_UPSTASH_REDIS_TOKEN;
 
 if (!url || !token) {
-  console.error('Failure: APP_LMS_UPSTASH_REDIS_URL or APP_LMS_UPSTASH_REDIS_TOKEN is missing in .env.deploy.local');
+  console.error('Failure: APP_PROTO_COOK_UPSTASH_REDIS_URL or APP_PROTO_COOK_UPSTASH_REDIS_TOKEN is missing in .env.deploy.local');
   process.exit(1);
 }
 

@@ -133,7 +133,7 @@ await runFilesProcessingJob({
 });
 ```
 
-The LMS app uses this pattern in its concrete processing bridge. Current generated variants are image `optimized`, video `poster`, and audio `waveform`. Images use `sharp` when available and a source-copy fallback otherwise. Video and audio variants require an injected ffmpeg-shaped adapter.
+The Proto Cook app uses this pattern in its concrete processing bridge. Current generated variants are image `optimized`, video `poster`, and audio `waveform`. Images use `sharp` when available and a source-copy fallback otherwise. Video and audio variants require an injected ffmpeg-shaped adapter.
 
 ## Course HLS player
 
@@ -170,11 +170,11 @@ export function CourseLessonVideo(props: {
 }
 ```
 
-The LMS lesson route uses the same package player for the recommended product path. Helper-only and external-adapter prototypes remain in the app as comparison paths.
+The Proto Cook lesson route uses the same package player for the recommended product path. Helper-only and external-adapter prototypes remain in the app as comparison paths.
 
 ## Encrypted HLS planning
 
-AES-128 HLS is selected by route/job policy, not by the player. The video processing addon exposes the planning pieces used by the LMS worker bridge:
+AES-128 HLS is selected by route/job policy, not by the player. The video processing addon exposes the planning pieces used by the Proto Cook worker bridge:
 
 ```ts
 import {
@@ -200,7 +200,7 @@ const keyObject = createFilesVideoHlsAes128KeyObject(plan);
 
 The app is responsible for writing the key-info file for ffmpeg, persisting `keyObject`, and making sure playback sessions for the artifact group use protection mode `aes-128`.
 
-## LMS routes to exercise
+## Proto Cook routes to exercise
 
 - Product flow: `/en/files`
 - Approach comparison: `/en/files-lab`

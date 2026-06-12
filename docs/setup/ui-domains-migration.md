@@ -81,6 +81,6 @@ Public adapter contract is unchanged:
 ```bash
 pnpm -F @de100/ui-shared type:check
 pnpm -F @de100/ui-domains-solidjs type:check
-pnpm -F @de100/apps-lms-web type:check
-pnpm -F @de100/apps-lms-web build
+pnpm -F @de100/apps-proto-cook-web type:check
+pnpm -F @de100/apps-proto-cook-web build
 ```

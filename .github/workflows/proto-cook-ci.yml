@@ -1,0 +1,173 @@
+name: Proto Cook CI
+
+on:
+  pull_request:
+    branches: ["*"]
+    paths:
+      - "apps/proto-cook-web/**"
+      - "packages/apps/proto-cook/**"
+      - "packages/files/**"
+      - "packages/ui/**"
+      - "packages/i18n/**"
+      - "scripts/**"
+      - "tooling/**"
+      - "turbo/**"
+      - "docs/proto-cook/**"
+      - "docs/architecture/**"
+      - "docs/setup/**"
+      - ".github/workflows/proto-cook-ci.yml"
+      - "docker-compose.yml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+  push:
+    branches: ["main"]
+    paths:
+      - "apps/proto-cook-web/**"
+      - "packages/apps/proto-cook/**"
+      - "packages/files/**"
+      - "packages/ui/**"
+      - "packages/i18n/**"
+      - "scripts/**"
+      - "tooling/**"
+      - "turbo/**"
+      - "docs/proto-cook/**"
+      - "docs/architecture/**"
+      - "docs/setup/**"
+      - ".github/workflows/proto-cook-ci.yml"
+      - "docker-compose.yml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  FORCE_COLOR: 3
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  TURBO_TEAM: ${{ vars.TURBO_TEAM || '' }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN || '' }}
+
+jobs:
+  validate:
+    name: Validate Proto Cook
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: de100_proto_cook
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -U postgres -d de100_proto_cook"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - "6379:6379"
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      minio:
+        image: bitnami/minio:latest
+        env:
+          MINIO_DEFAULT_BUCKETS: "public-files,private-files"
+          MINIO_ROOT_PASSWORD: minioadmin
+          MINIO_ROOT_USER: minioadmin
+        ports:
+          - "9000:9000"
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/ready || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup
+        uses: ./tooling/github/setup
+
+      - name: Write Proto Cook CI env
+        run: node ./scripts/write-proto-cook-ci-env.mjs
+
+      - name: Workspace lint
+        run: pnpm lint:ws
+
+      - name: Format and lint
+        run: pnpm format-and-lint:check
+
+      - name: Typecheck
+        run: pnpm type:check
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build web app
+        run: pnpm -F @de100/apps-proto-cook-web build
+
+      - name: Stale terminology scans
+        run: |
+          set -euo pipefail
+          ! rg -n "\b(lms|LMS|Lms)\b|APP_LMS|VITE_APP_LMS|@de100/apps-lms|apps/lms-web|packages/apps/lms" . \
+            --glob '!node_modules/**' \
+            --glob '!.git/**' \
+            --glob '!docs/archive/**' \
+            --glob '!_old/**' \
+            --glob '!_ignore/**' \
+            --glob '!**/.cache/**' \
+            --glob '!**/.turbo/**' \
+            --glob '!**/.output/**' \
+            --glob '!**/.nitro/**' \
+            --glob '!**/.wrangler/**' \
+            --glob '!dist/**' \
+            --glob '!pnpm-lock.yaml'
+          ! rg -n "APP.*MEDIA|MEDIA_|/api/media|orpc\\.media|media-storage|/media" . \
+            --glob '!node_modules/**' \
+            --glob '!.git/**' \
+            --glob '!docs/archive/**' \
+            --glob '!_old/**' \
+            --glob '!_ignore/**' \
+            --glob '!**/.cache/**' \
+            --glob '!**/.turbo/**' \
+            --glob '!**/.output/**' \
+            --glob '!**/.nitro/**' \
+            --glob '!**/.wrangler/**' \
+            --glob '!dist/**' \
+            --glob '!pnpm-lock.yaml'
+
+      - name: MinIO files smoke
+        run: pnpm files:minio:smoke
+
+      - name: Start built app
+        run: |
+          node apps/proto-cook-web/.output/server/index.mjs > /tmp/proto-cook-web.log 2>&1 &
+          echo $! > /tmp/proto-cook-web.pid
+
+      - name: Wait for health
+        run: curl --retry 20 --retry-all-errors --retry-delay 1 --silent --show-error --fail http://127.0.0.1:3000/health >/tmp/proto-cook-health.json
+
+      - name: Hosted smoke orchestration
+        run: pnpm -F @de100/apps-proto-cook-infra selfhost:smoke:hosted -- --url http://127.0.0.1:3000 --env ci --skip-evidence-init
+
+      - name: Show app logs on failure
+        if: failure()
+        run: cat /tmp/proto-cook-web.log || true
+
+      - name: Stop app
+        if: always()
+        run: |
+          if [[ -f /tmp/proto-cook-web.pid ]]; then
+            kill "$(cat /tmp/proto-cook-web.pid)" || true
+          fi

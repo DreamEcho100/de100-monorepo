@@ -16,19 +16,19 @@ Run in this sequence:
 pnpm install
 pnpm -F @de100/ui-shared format-and-lint:check
 pnpm -F @de100/ui-domains-solidjs format-and-lint:check
-pnpm -F @de100/apps-lms-web format-and-lint:check
+pnpm -F @de100/apps-proto-cook-web format-and-lint:check
 pnpm -F @de100/ui-shared type:check
 pnpm -F @de100/ui-domains-solidjs type:check
-pnpm -F @de100/apps-lms-web type:check
+pnpm -F @de100/apps-proto-cook-web type:check
 pnpm -F @de100/ui-shared test
 pnpm -F @de100/ui-domains-solidjs test
-pnpm -F @de100/apps-lms-web test
-pnpm -F @de100/apps-lms-web build
+pnpm -F @de100/apps-proto-cook-web test
+pnpm -F @de100/apps-proto-cook-web build
 ```
 
 ## Manual QA Checklist
 
-- keyboard-only navigation works on header, auth forms, media uploader actions, and todos
+- keyboard-only navigation works on header, auth forms, files uploader actions, and todos
 - uploader behaviors work:
   - drag/drop
   - pause/resume/cancel/retry

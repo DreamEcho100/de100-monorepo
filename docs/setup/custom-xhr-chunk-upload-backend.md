@@ -7,7 +7,7 @@ This document is a next-cycle spec. It does not change the current delivery.
 The current uploader platform has two layers:
 
 - `@de100/ui-domains-solidjs` owns the typed uploader contracts, Uppy-backed runtime, protocol selection, queue persistence, and provider adapter boundary.
-- `apps/lms-web` currently adapts the files page to the app files API through `@de100/files-client` and `@de100/files-domains-solidjs`.
+- `apps/proto-cook-web` currently adapts the files page to the app files API through `@de100/files-client` and `@de100/files-domains-solidjs`.
 
 The current app files API uploads starter-sized `File` payloads through oRPC and persists files rows with `draft`, `ready`, or `deleted` status. Large-file chunking is intentionally deferred.
 

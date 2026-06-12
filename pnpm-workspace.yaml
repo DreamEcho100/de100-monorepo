@@ -2,7 +2,7 @@ packages:
   - apps/*
   - packages/*
   - packages/apps/*
-  - packages/apps/lms/*
+  - packages/apps/proto-cook/*
   - packages/files/*
   - packages/files/domains/*
   - packages/ui/*

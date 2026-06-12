@@ -14,7 +14,7 @@ Coolify is the default deployment control plane for the self-host track.
 This file defines what to do.
 Execution details live in infra docs:
 
-- ../../../../packages/apps/lms/infra/docs/coolify-deployment/setup-from-scratch.md
+- ../../../../packages/apps/proto-cook/infra/docs/coolify-deployment/setup-from-scratch.md
 
 ## Acceptance Criteria
 
@@ -25,7 +25,7 @@ Execution details live in infra docs:
 
 ## Required Companions
 
-- Pre-deploy checklist: ../../../../packages/apps/lms/infra/docs/checklists/pre-deploy-checklist.md
-- Post-deploy smoke checklist: ../../../../packages/apps/lms/infra/docs/checklists/post-deploy-smoke-checklist.md
-- Migration runbook: ../../../../packages/apps/lms/infra/docs/runbooks/migration-cutover.md
-- Rollback runbook: ../../../../packages/apps/lms/infra/docs/runbooks/rollback-recovery.md
+- Pre-deploy checklist: ../../../../packages/apps/proto-cook/infra/docs/checklists/pre-deploy-checklist.md
+- Post-deploy smoke checklist: ../../../../packages/apps/proto-cook/infra/docs/checklists/post-deploy-smoke-checklist.md
+- Migration runbook: ../../../../packages/apps/proto-cook/infra/docs/runbooks/migration-cutover.md
+- Rollback runbook: ../../../../packages/apps/proto-cook/infra/docs/runbooks/rollback-recovery.md

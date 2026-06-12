@@ -3,10 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import { createLinkPreviewCardModel } from "./preview-card-model";
 
 const metadata = {
-	description: "API reference for LMS routes",
+	description: "API reference for Proto Cook routes",
 	images: [{ url: "https://cdn.de100.app/preview.png" }],
 	siteName: "Docs",
-	title: "LMS API",
+	title: "Proto Cook API",
 	url: "https://docs.de100.app/api",
 };
 
@@ -17,8 +17,8 @@ describe("createLinkPreviewCardModel", () => {
 			metadata,
 		});
 
-		expect(model.title).toBe("LMS API");
-		expect(model.description).toBe("API reference for LMS routes");
+		expect(model.title).toBe("Proto Cook API");
+		expect(model.description).toBe("API reference for Proto Cook routes");
 		expect(model.siteName).toBe("Docs");
 		expect(model.imageUrl).toBe("https://cdn.de100.app/preview.png");
 		expect(model.actions.map((action) => action.kind)).toEqual([

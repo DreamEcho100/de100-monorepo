@@ -1,0 +1,69 @@
+name: General Packages CI
+
+on:
+  pull_request:
+    branches: ["*"]
+    paths:
+      - "packages/files/**"
+      - "packages/ui/**"
+      - "packages/i18n/**"
+      - "tooling/**"
+      - "turbo/**"
+      - "scripts/**"
+      - "docs/**"
+      - ".github/workflows/general-packages-ci.yml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+  push:
+    branches: ["main"]
+    paths:
+      - "packages/files/**"
+      - "packages/ui/**"
+      - "packages/i18n/**"
+      - "tooling/**"
+      - "turbo/**"
+      - "scripts/**"
+      - "docs/**"
+      - ".github/workflows/general-packages-ci.yml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  FORCE_COLOR: 3
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  TURBO_TEAM: ${{ vars.TURBO_TEAM || '' }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN || '' }}
+
+jobs:
+  reusable-packages:
+    name: Reusable Packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup
+        uses: ./tooling/github/setup
+
+      - name: Write Proto Cook CI env
+        run: node ./scripts/write-proto-cook-ci-env.mjs
+
+      - name: Package script convention
+        run: pnpm lint:package-scripts
+
+      - name: Format and lint
+        run: pnpm format-and-lint:check
+
+      - name: Typecheck
+        run: pnpm type:check
+
+      - name: Test
+        run: pnpm test

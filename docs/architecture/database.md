@@ -2,26 +2,26 @@
 
 ## Goal
 
-The LMS starter should run against:
+The Proto Cook starter should run against:
 
 - local Postgres, including Docker-based development
 - hosted Neon without rewriting the app or auth packages
 
 ## Current design
 
-The DB package exposes a single factory in `packages/apps/lms/db/src/index.ts`.
+The DB package exposes a single factory in `packages/apps/proto-cook/db/src/index.ts`.
 
 That factory now selects one of two Drizzle clients:
 
 - `postgres` via `drizzle-orm/postgres-js`
 - `neon-http` via `drizzle-orm/neon-http`
 
-The selection logic lives in `packages/apps/lms/db/src/driver.ts`.
+The selection logic lives in `packages/apps/proto-cook/db/src/driver.ts`.
 
 ## Selection rules
 
-1. If `APP_LMS_DATABASE_DRIVER` is explicitly set to `postgres` or `neon-http`, that wins.
-2. If `APP_LMS_DATABASE_DRIVER=auto`, the code inspects `APP_LMS_DATABASE_URL`.
+1. If `APP_PROTO_COOK_DATABASE_DRIVER` is explicitly set to `postgres` or `neon-http`, that wins.
+2. If `APP_PROTO_COOK_DATABASE_DRIVER=auto`, the code inspects `APP_PROTO_COOK_DATABASE_URL`.
 3. Neon hosts resolve to `neon-http`.
 4. Everything else falls back to `postgres`.
 
@@ -34,4 +34,4 @@ The selection logic lives in `packages/apps/lms/db/src/driver.ts`.
 
 ## Validation
 
-The driver-selection rules are covered by `packages/apps/lms/db/src/driver.test.ts`.
+The driver-selection rules are covered by `packages/apps/proto-cook/db/src/driver.test.ts`.

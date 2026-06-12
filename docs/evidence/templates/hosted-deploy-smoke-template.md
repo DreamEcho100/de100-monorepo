@@ -1,58 +1,40 @@
-# Hosted Deploy Smoke Evidence Template
-
-Use this template to document post-deploy validation in production-like environments.
-
-## Metadata
+# Hosted Deploy Smoke Evidence
 
 - Date (UTC):
 - Environment:
 - Commit SHA:
 - Operator:
-- Reviewer:
-- Deployment path: Coolify or Traefik
 
-## Verification Commands
+## Command Results
 
-- pnpm -F @de100/apps-lms-infra selfhost:preflight: pass or fail
-- pnpm -F @de100/apps-lms-infra selfhost:health: pass or fail
-- pnpm -F @de100/apps-lms-infra selfhost:verify: pass or fail
-- pnpm -F @de100/apps-lms-infra selfhost:verify:full: pass or fail
+- `pnpm -F @de100/apps-proto-cook-infra selfhost:preflight`: pass or fail
+- `pnpm -F @de100/apps-proto-cook-infra selfhost:health`: pass or fail
+- `pnpm -F @de100/apps-proto-cook-infra selfhost:verify`: pass or fail
+- `pnpm -F @de100/apps-proto-cook-infra selfhost:verify:full`: pass or fail
 
 ## Route Checks
 
-- /en:
-- /ar:
-- /api/reference redirect:
-- /api/reference/spec.json:
+- `/health`:
+- `/en`:
+- `/ar`:
+- `/api/reference/spec.json`:
 
 ## Auth Checks
 
-- sign in:
-- sign out:
-- password reset or verify email:
+- Sign in:
+- Sign out:
+- Protected route redirect:
 
-## Media Checks
+## Files Checks
 
-- upload:
-- public read:
-- private read:
-- signed URL issue and read:
+- Upload target:
+- Public read:
+- Private read:
+- Signed read:
+- HLS playback session:
+- Range/artifact route:
 
-## Service Dependency Checks
+## Notes
 
-- database:
-- cache:
-- email:
-- object storage:
-
-## Logs And Notes
-
-- Relevant log snippets (redacted):
 - Unexpected behavior:
-- Follow-up issues:
-
-## Final Status
-
-- Result: pass or fail
-- Approver:
-- Approval timestamp (UTC):
+- Follow-up actions:

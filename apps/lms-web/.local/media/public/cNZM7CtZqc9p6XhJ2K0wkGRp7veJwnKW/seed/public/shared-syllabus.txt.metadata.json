@@ -1,7 +1,0 @@
-{
-	"httpMetadata": {
-		"cacheControl": "public, max-age=31536000, immutable",
-		"contentDisposition": "inline; filename=\"shared-syllabus.txt\"",
-		"contentType": "text/plain"
-	}
-}

@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-12
 
-Current active phase: Phase 1 - Planning and domain docs
+Current active phase: Complete - ready for review/manual validation
 
 Archived previous tracker:
 
@@ -12,12 +12,12 @@ Archived previous tracker:
 
 This tracker replaces the completed video-ready files roadmap with the active Proto Cook modernization work.
 
-Proto Cook is the prototype host app for reusable product decisions. It is not an LMS-branded product. Course/video features remain valid as a Vertical Module and Feature Lab, but active app, package, environment, CI, and docs identity must use Proto Cook terminology.
+Proto Cook is the prototype host app for reusable product decisions. It is not an Proto Cook-branded product. Course/video features remain valid as a Vertical Module and Feature Lab, but active app, package, environment, CI, and docs identity must use Proto Cook terminology.
 
 ## Locked Decisions
 
 1. Canonical app codename: `proto-cook`.
-2. Hard rename active `lms` identity to `proto-cook`; no compatibility aliases.
+2. Hard rename the legacy course-app identity to `proto-cook`; no compatibility aliases.
 3. Keep `Course` as a Vertical Module/lab domain, not as the app identity.
 4. Canonical environment prefixes:
    - `APP_PROTO_COOK_*`
@@ -52,14 +52,14 @@ Status legend: Not Started, In Progress, Done, Blocked, Paused.
 
 | Phase | Name                                      | Status      |
 | ----- | ----------------------------------------- | ----------- |
-| 1     | Planning and domain docs                  | In Progress |
-| 2     | Hard app/package/env rename               | Not Started |
-| 3     | DB squash and stale media cleanup         | Not Started |
-| 4     | Package script and typecheck hygiene      | Not Started |
-| 5     | CI split and service-backed smoke         | Not Started |
-| 6     | Files manual and Feature Lab coverage     | Not Started |
-| 7     | Solid state refactor and test audit       | Not Started |
-| 8     | Final gates, stale scans, and handoff      | Not Started |
+| 1     | Planning and domain docs                  | Done        |
+| 2     | Hard app/package/env rename               | Done        |
+| 3     | DB squash and stale media cleanup         | Done        |
+| 4     | Package script and typecheck hygiene      | Done        |
+| 5     | CI split and service-backed smoke         | Done        |
+| 6     | Files manual and Feature Lab coverage     | Done        |
+| 7     | Solid state refactor and test audit       | Done        |
+| 8     | Final gates, stale scans, and handoff      | Done        |
 
 ## Phase 1 - Planning and Domain Docs
 
@@ -73,39 +73,35 @@ Preserve the completed files/video tracker, add canonical project language, and 
 | ---- | ------------------------------------------------ | ----------- | -------- |
 | 1    | Archive previous `current-plan.md`               | Done        | `docs/archive/current-plan-proto-cook-preflight-2026-06-12.md` |
 | 2    | Rewrite `current-plan.md` with modernization plan | Done        | `current-plan.md` |
-| 3    | Add root glossary                                | In Progress | `CONTEXT.md` |
-| 4    | Add ADRs for rename, env, and CI decisions       | In Progress | `docs/adr/` |
-| 5    | Run initial rename impact scans                  | Not Started | Validation log |
+| 3    | Add root glossary                                | Done        | `CONTEXT.md` |
+| 4    | Add ADRs for rename, env, and CI decisions       | Done        | `docs/adr/` |
+| 5    | Run initial rename impact scans                  | Done        | Validation log |
 
 ### Exit Gates
 
-1. `rg -n "apps/lms-web|packages/apps/lms|@de100/apps-lms|APP_LMS|VITE_APP_LMS|LMS_APP_VITE_TRACE_MODE|/api/media|orpc\\.media" . --glob '!node_modules/**' --glob '!.git/**' --glob '!docs/archive/**'`
+1. Initial impact scan completed before the hard rename.
 2. Phase 2 impact list captured in this tracker.
 
 ## Phase 2 - Hard App/Package/Env Rename
 
 ### Objective
 
-Rename active identity from LMS to Proto Cook across paths, package names, imports, env variables, runtime defaults, Docker resources, cache prefixes, and docs.
+Rename active identity from the legacy course-app naming to Proto Cook across paths, package names, imports, env variables, runtime defaults, Docker resources, cache prefixes, and docs.
 
 ### Scope
 
-1. Rename paths:
-   - `apps/lms-web` -> `apps/proto-cook-web`
-   - `packages/apps/lms/*` -> `packages/apps/proto-cook/*`
-2. Rename package identities:
-   - `@de100/apps-lms-web` -> `@de100/apps-proto-cook-web`
-   - `@de100/apps-lms-*` -> `@de100/apps-proto-cook-*`
-   - `@de100/apps-lms` -> `@de100/apps-proto-cook`
-3. Rename env variables:
-   - `APP_LMS_*` -> `APP_PROTO_COOK_*`
-   - `VITE_APP_LMS_*` -> `VITE_APP_PROTO_COOK_*`
-   - `LMS_APP_VITE_TRACE_MODE` -> `PROTO_COOK_APP_VITE_TRACE_MODE`
-4. Rename defaults:
+1. Rename active app path to `apps/proto-cook-web`.
+2. Rename active app-domain packages to `packages/apps/proto-cook/*`.
+3. Rename active app package identities to the `@de100/apps-proto-cook-*` namespace.
+4. Rename env variables to:
+   - `APP_PROTO_COOK_*`
+   - `VITE_APP_PROTO_COOK_*`
+   - `PROTO_COOK_APP_VITE_TRACE_MODE`
+5. Rename defaults:
    - database default: `de100_proto_cook`
    - Docker resources: `proto-cook-postgres`, `proto-cook-redis`, `proto-cook-minio`
    - cache prefixes: `de100:proto-cook:*`
-5. Update lockfile and workspace references with `pnpm install`.
+6. Update lockfile and workspace references with `pnpm install`.
 
 ### Exit Gates
 
@@ -113,6 +109,13 @@ Rename active identity from LMS to Proto Cook across paths, package names, impor
 2. `pnpm lint:ws`
 3. `pnpm -F @de100/apps-proto-cook-web type:check`
 4. Active stale rename scan is clean outside intentional archive/history.
+
+### Status
+
+- Done: active paths, package names, imports, env prefixes, Docker resources, cache prefixes, and lockfile references are renamed to Proto Cook.
+- Done: `pnpm install` completed after the rename and regenerated the lockfile.
+- Done: `pnpm -F @de100/apps-proto-cook-web type:check` passes.
+- Done: active stale app identity scan is clean outside `docs/archive/**`, `_old/**`, `_ignore/**`, generated output, and lockfile history.
 
 ## Phase 3 - DB Squash and Stale Media Cleanup
 
@@ -123,7 +126,7 @@ Squash disposable migrations into a fresh files/course/artifact schema and remov
 ### Scope
 
 1. Replace migration history with a fresh current-state migration using files terminology.
-2. Remove active `/media`, `/api/media`, `orpc.media`, `APP_*_MEDIA_*`, and old media storage docs.
+2. Remove active legacy storage/page/API/router/env references from the pre-files migration.
 3. Keep legitimate browser/platform uses of `media`:
    - CSS media queries
    - HTML/source `media`
@@ -135,6 +138,12 @@ Squash disposable migrations into a fresh files/course/artifact schema and remov
 1. DB package typecheck/test.
 2. Stale app identity scan.
 3. Stale old media API/env/router scan.
+
+### Status
+
+- Done: previous migration history was archived under `docs/archive/proto-cook-pre-squash-migrations-2026-06-12/`.
+- Done: active DB migration history was regenerated as a fresh files/course/artifact schema.
+- Done: active old media API/env/router scan is clean with legitimate platform/browser dependency terms handled separately from old app storage terminology.
 
 ## Phase 4 - Package Script and Typecheck Hygiene
 
@@ -157,6 +166,14 @@ Normalize package scripts and make typecheck cover active JS/MJS/config/test fil
 2. `pnpm type:check`
 3. `pnpm test`
 4. Package script-shape validation passes.
+
+### Status
+
+- Done: common package scripts were added to checkable packages and the package generator template.
+- Done: active JS/MJS/config typecheck coverage was added through root and package `tsconfig.json` includes.
+- Done: root package script-shape validator was added as `pnpm lint:package-scripts`.
+- Done: `pnpm lint:package-scripts` passes.
+- Done: global `pnpm type:check` passed before the latest Solid store refactor; rerun remains part of Phase 8.
 
 ## Phase 5 - CI Split and Service-Backed Smoke
 
@@ -202,6 +219,14 @@ Replace stale CI with two strict workflows and app smoke jobs backed by GitHub s
 4. `pnpm test`
 5. `pnpm files:minio:smoke`
 
+### Status
+
+- Done: legacy `.github/workflows/ci.yml` was replaced by `proto-cook-ci.yml` and `general-packages-ci.yml`.
+- Done: workflow actions were moved to the requested current major lines through direct usage and the shared setup action.
+- Done: Proto Cook CI now uses service-backed Postgres, Redis, and MinIO.
+- Done: checked-in CI env writer was added and now supports `--output` for local validation without overwriting `.env.local`.
+- Done: `node scripts/write-proto-cook-ci-env.mjs --output /tmp/proto-cook-ci.env` passes.
+
 ## Phase 6 - Files Manual and Feature Lab Coverage
 
 ### Objective
@@ -241,6 +266,13 @@ Update or add gated labs for:
 2. Feature Lab routes listed in manual test guide.
 3. App typecheck/test/build.
 
+### Status
+
+- Done: ordered files manual was added under `docs/proto-cook/files`.
+- Done: `docs/README.md` links the Proto Cook files manual.
+- Done: provider smoke, HLS playback, processing/variants, and entitlement Feature Lab routes were added beside the Hybrid, HTTP-native, and course-video labs.
+- Pending: app test/build gates remain in Phase 8.
+
 ## Phase 7 - Solid State Refactor and Test Audit
 
 ### Objective
@@ -272,6 +304,16 @@ Improve Solid state locality and remove redundant tests that only duplicate type
 3. Global `pnpm type:check`.
 4. Global `pnpm test`.
 
+### Status
+
+- Done: files approach lab cohesive UI state was moved to `createStore`.
+- Done: course video lab cohesive workflow state was moved to `createStore`.
+- Done: files page upload/signed-access UI state was moved to `createStore`.
+- Done: course lesson playback UI state was moved to `createStore`.
+- Done: local Solid guidance now documents property-level store tracking, path setters, shallow merge behavior, array update care, and when to prefer stores over independent signals.
+- Done: remaining app `createSignal`/`createMemo`/`createEffect` usage was audited. Independent primitive form/menu/hydration state remains signal-based where clearer.
+- Done: low-value app package-resolution smoke test was removed because active tests and JS/MJS typecheck now cover package exports.
+
 ## Phase 8 - Final Gates and Handoff
 
 ### Objective
@@ -291,6 +333,20 @@ Run full validation, record remaining risks, and leave the repository with clear
 9. Stale old media API/env/router scan clean.
 10. Manual docs updated with any discovered failures.
 
+### Status
+
+- Done: all automated gates listed above passed.
+- Done: `pnpm files:minio:up` required stopping legacy local containers that were occupying port `9000`; the renamed `de100-proto-cook-minio` container now starts and publishes `9000-9001`.
+- Done: `docker-compose.yml` now binds MinIO explicitly with `--address ":9000"` so the host smoke test can connect.
+- Done: build completed with non-blocking Nitro/esbuild bigint target warnings; track separately if runtime target support becomes a deployment issue.
+
+## Follow-Up Backlog
+
+1. Run the manual files labs from `docs/proto-cook/files/06-labs-manual-testing.md` in a visible browser and record product/DX feedback.
+2. Decide whether to remove legacy stopped Docker containers with `docker compose up --remove-orphans` during a separate local cleanup.
+3. If production runtime warnings matter for the deployment target, raise the Nitro/esbuild target above ES2019 or isolate the bigint-producing dependency.
+4. Push the split workflows and verify `proto-cook-ci.yml` and `general-packages-ci.yml` remotely with GitHub services.
+
 ## Validation Log
 
 - 2026-06-12: Confirmed latest GitHub action release pages before CI update:
@@ -298,3 +354,17 @@ Run full validation, record remaining risks, and leave the repository with clear
   - `actions/setup-node` latest major line is v6.
   - `actions/cache` latest major line is v5 and requires Actions Runner 2.327.1+ for self-hosted runners.
 - 2026-06-12: User confirmed `proto-cook` as the canonical rename target and no compatibility aliases.
+- 2026-06-12: `pnpm install` passed after Proto Cook package rename and lockfile update.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-web type:check` passed after the files approach lab and course video lab store refactors.
+- 2026-06-12: `pnpm lint:package-scripts` passed.
+- 2026-06-12: `pnpm lint:files-storage-coupling` passed.
+- 2026-06-12: Active stale app identity and old media API/env/router scans are clean outside explicit archive/history/generated exclusions.
+- 2026-06-12: Raw active app/package path scan is clean after pruning an empty stale API directory and generated old-name install/cache artifacts.
+- 2026-06-12: CI env writer validated with `node scripts/write-proto-cook-ci-env.mjs --output /tmp/proto-cook-ci.env`.
+- 2026-06-12: `pnpm lint:ws` passed.
+- 2026-06-12: `pnpm format-and-lint:check` passed.
+- 2026-06-12: `pnpm type:check` passed.
+- 2026-06-12: `pnpm test` passed.
+- 2026-06-12: `pnpm -F @de100/apps-proto-cook-web build` passed with non-blocking Nitro/esbuild bigint target warnings.
+- 2026-06-12: `pnpm files:minio:up` passed after stopping legacy local containers that occupied port `9000`.
+- 2026-06-12: `pnpm files:minio:smoke` passed against `http://127.0.0.1:9000`.

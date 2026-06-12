@@ -1,6 +1,6 @@
 # @de100/ui-shared
 
-Shared UI foundation package for LMS apps.
+Shared UI foundation package for Proto Cook apps.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Shared UI foundation package for LMS apps.
 
 ## Public API
 
-From [package.json](/home/viavi/Desktop/workspaces/github/lms/packages/ui/shared/package.json):
+From [package.json](/home/viavi/Desktop/workspaces/github/proto-cook/packages/ui/shared/package.json):
 
 - `@de100/ui-shared`
 - `@de100/ui-shared/styles/base.css`

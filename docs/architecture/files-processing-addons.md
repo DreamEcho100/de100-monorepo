@@ -14,7 +14,7 @@ Current addon packages:
 ## Shared Rules
 
 1. Addons may plan work and validate output shape.
-2. Addons should not own LMS DB, auth, queue, storage credentials, or route policy.
+2. Addons should not own Proto Cook DB, auth, queue, storage credentials, or route policy.
 3. Addons should not require heavyweight native dependencies at import time.
 4. Apps inject real processors, binaries, worker transport, storage, and telemetry.
 5. Missing optional dependencies must fail explicitly or return skipped output, not silently degrade critical product paths.
@@ -29,7 +29,7 @@ Current capability:
 - output content-type selection
 - thumbnail/source-aware size planning
 
-Current LMS behavior:
+Current Proto Cook behavior:
 
 - image `optimized` variant
 - uses `sharp` when available
@@ -55,7 +55,7 @@ Current capability:
 - HLS artifact group and artifact input creation
 - AES-128 key-info planning and key artifact planning
 
-Current LMS behavior:
+Current Proto Cook behavior:
 
 - video `poster` variant through an injected ffmpeg-shaped adapter
 - `video-hls` worker job for normal HLS artifact groups
@@ -78,7 +78,7 @@ Current capability:
 - transcript hook planning
 - dependency planning for `music-metadata`, `ffmpeg`, and `ffprobe`
 
-Current LMS behavior:
+Current Proto Cook behavior:
 
 - audio `waveform` variant through an injected ffmpeg-shaped adapter
 
@@ -97,7 +97,7 @@ Current capability:
 - Office conversion proof-of-concept opt-in
 - document-kind detection
 
-Current LMS behavior:
+Current Proto Cook behavior:
 
 - document upload/read support through the generic files platform
 - no product PDF/Office preview flow yet
