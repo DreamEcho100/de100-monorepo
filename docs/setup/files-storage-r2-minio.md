@@ -66,27 +66,14 @@ APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
 APP_LMS_FILES_SIGNED_URL_TTL_SECONDS=3600
 ```
 
-Minimal local compose service:
+The repo compose file includes a local MinIO service:
 
-```yaml
-services:
-  lms-minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - lms-minio-data:/data
-
-volumes:
-  lms-minio-data:
+```sh
+pnpm files:minio:up
 ```
 
-Bucket initialization can be done from the MinIO console or with an `mc` init container. Keep the buckets separate:
+The smoke script creates buckets automatically, but normal local environments should keep
+the buckets separate:
 
 - `public-files`
 - `private-files`
@@ -146,7 +133,7 @@ APP_LMS_FILES_S3_PRIVATE_BUCKET=private-files
 APP_LMS_FILES_S3_FORCE_PATH_STYLE=true
 ```
 
-Provider-specific endpoint, addressing, CORS, multipart, and signed URL behavior must be validated in Phase 12 smoke tests before recommending it for product traffic.
+Provider-specific endpoint, addressing, CORS, multipart, and signed URL behavior must be validated with provider smoke tests before recommending it for product traffic.
 
 ## Upload Protocol Defaults
 
@@ -193,8 +180,9 @@ For MinIO parity:
 
 ```sh
 docker compose up -d lms-postgres lms-redis
-# start MinIO from your local compose override or the service snippet above
+pnpm files:minio:up
 pnpm -F @de100/apps-lms-db db:migrate
+pnpm files:minio:smoke
 pnpm -F @de100/apps-lms-web dev
 ```
 
@@ -205,3 +193,12 @@ Then verify:
 - `/en/files-lab/http` loads
 - `/api/files/config` reports the expected driver/provider
 - `/api/files/upload-mode` selects S3-compatible protocol paths for course-video route policy when configured
+
+`pnpm files:minio:smoke` validates the provider path directly:
+
+- creates public and private buckets when missing
+- writes and reads public/private objects
+- starts and aborts a multipart upload
+- generates a short encrypted HLS fixture with ffmpeg
+- uploads the original, manifest, AES key, and segment objects
+- verifies manifest, key, segment range read, object metadata, and cleanup behavior

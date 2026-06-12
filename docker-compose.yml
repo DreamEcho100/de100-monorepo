@@ -32,6 +32,21 @@ services:
     volumes:
       - lms-redis-data:/data
 
+  lms-minio:
+    image: minio/minio:latest
+    container_name: de100-lms-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+    volumes:
+      - lms-minio-data:/data
+
 volumes:
+  lms-minio-data:
   lms-postgres-data:
   lms-redis-data:

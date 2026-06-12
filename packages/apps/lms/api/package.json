@@ -10,6 +10,7 @@
 		}
 	},
 	"scripts": {
+		"files:minio-smoke": "node ./scripts/files-minio-smoke.mjs",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",

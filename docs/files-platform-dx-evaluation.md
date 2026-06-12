@@ -1,6 +1,6 @@
 # Files Platform DX Evaluation
 
-Last updated: 2026-06-08
+Last updated: 2026-06-12
 
 This report tracks the files API comparison after dropping RPC-native as a top-level approach. Hybrid is the recommended default candidate, HTTP-native is maintained as the full second path, and `orpc-direct` remains a small-file capability inside Hybrid.
 
@@ -99,3 +99,6 @@ No DRM path should become the product default until a real playback lab proves b
 - 2026-06-08: Full MinIO provider-backed smoke remains blocked: the repo compose file does not include MinIO, no local MinIO image is available, and pulling the image was rejected by the approval system. This should move to a provider-backed follow-up with either a repo-owned MinIO compose override or explicit local service setup.
 - 2026-06-08: Browser evaluation now covers product files unauthenticated gating, files lab unauthenticated gating, authenticated Hybrid/HTTP labs, course-video lab, and product lesson shell. Headless and headed Playwright both passed. No VS Code integrated browser automation is exposed to Codex here.
 - 2026-06-08: Recommendation is unchanged after final local QA: keep Hybrid as the default scalable path, keep HTTP-native as the maintained second path, keep signed HLS as the product protection default, treat AES-128 HLS as an opt-in stronger prototype, and keep DRM/provider-managed video as adapter/prototype work until real provider-backed playback evidence exists.
+- 2026-06-12: Provider-backed local MinIO smoke is now repo-owned through `docker-compose.yml`, `pnpm files:minio:up`, and `pnpm files:minio:smoke`. The smoke passed against `http://127.0.0.1:9000` with run id `phase13-2026-06-12T05-34-09-434Z-d768b94d-6f89-4f3f-909b-d09ba9dd78d2`.
+- 2026-06-12: MinIO evidence now covers public/private bucket creation, public/private object round trips, multipart init/abort, local ffmpeg AES-128 HLS generation, provider upload of original/manifest/key/segment artifacts, manifest/key readback, segment range read, object metadata, and cleanup.
+- 2026-06-12: DX note: local S3-compatible parity is no longer theoretical. MinIO now covers the self-owned R2-style storage path locally. Real R2 remains a credentialed production smoke, not a blocker for the local video-ready package recommendation.

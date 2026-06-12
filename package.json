@@ -11,6 +11,8 @@
 		"clean": "git clean -xdf node_modules",
 		"clean:workspaces": "turbo run clean",
 		"dev": "turbo watch dev --continue",
+		"files:minio:smoke": "pnpm -F @de100/apps-lms-api files:minio-smoke",
+		"files:minio:up": "docker compose up -d lms-minio",
 		"format-and-lint:check": "turbo run format-and-lint:check --continue -- && pnpm lint:error-i18n && pnpm lint:files-storage-coupling",
 		"format-and-lint:fix": "turbo run format-and-lint:fix --continue --",
 		"format:check": "turbo run format:check --continue --",
