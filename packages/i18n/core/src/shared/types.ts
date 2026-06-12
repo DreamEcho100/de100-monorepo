@@ -29,12 +29,20 @@ export interface ParamOptions {
 type DefineTranslation<TranslationKey extends string, TranslationOptions extends ParamOptions> = (
 	string: TranslationKey,
 	options: TranslationOptions,
-) => [TranslationKey, TranslationOptions];
+) => readonly [TranslationKey, TranslationOptions];
 
 /**
  * A translation message can be either a simple string or a defined translation with parameters
  */
 export type I18nMessage = string | ReturnType<DefineTranslation<string, ParamOptions>>;
+
+export type I18nLocaleMessages<TMessages> = TMessages extends I18nMessage
+	? I18nMessage
+	: TMessages extends object
+		? {
+				[Key in keyof TMessages]: I18nLocaleMessages<TMessages[Key]>;
+			}
+		: never;
 
 /**
  * Structure for language message files - nested object with string keys
@@ -60,7 +68,7 @@ export type I18nLocaleCode = I18nRegister extends { locales: infer TLocales }
 	? TLocales extends readonly (infer TLocale)[]
 		? TLocale
 		: never
-	: never;
+	: string;
 
 export type I18nLocaleDefShape<
 	TLocaleCode extends I18nLocaleCode = I18nLocaleCode,
@@ -69,7 +77,7 @@ export type I18nLocaleDefShape<
 	code: TLocaleCode;
 	dir: TextDirection;
 	label: string;
-	messages: TMessages;
+	messages: I18nLocaleMessages<TMessages>;
 };
 
 export type I18nLocaleDef = I18nLocaleCode extends string

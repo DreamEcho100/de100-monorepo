@@ -8,6 +8,7 @@ import { getRequestEvent, isServer } from "solid-js/web";
 import { getQueryClient } from "~/libs/@tanstack/query/query-client.js";
 
 import { getClientAppI18nSnapshot } from "../../../i18n/client";
+import { createLocalizedPath } from "../../../i18n/routing";
 import { getServerI18nState } from "../../../i18n/server";
 import { i18nLocales } from "../../../i18n/shared";
 
@@ -18,7 +19,11 @@ export default function Providers(props: ParentProps) {
 		: getClientAppI18nSnapshot();
 
 	return (
-		<I18nProvider initialSnapshot={initialSnapshot} locales={i18nLocales}>
+		<I18nProvider
+			createLocalizedPath={createLocalizedPath}
+			initialSnapshot={initialSnapshot}
+			locales={i18nLocales}
+		>
 			<QueryClientProvider client={queryClient}>
 				{props.children}
 				<SolidQueryDevtools />

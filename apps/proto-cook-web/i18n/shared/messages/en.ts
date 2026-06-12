@@ -1,3 +1,5 @@
+import { defineTranslation } from "@de100/i18n-core/shared";
+
 export const enMessages = {
 	about: {
 		badge: "SolidStart + Better Auth + oRPC",
@@ -346,6 +348,285 @@ export const enMessages = {
 		visibility: {
 			private: "Private",
 			public: "Public",
+		},
+	},
+	filesLab: {
+		actions: {
+			courseVideoLab: "Course video lab",
+			entitlements: "Entitlements",
+			files: "Files",
+			generateFixtures: "Generate fixtures",
+			hlsPlayback: "HLS playback",
+			httpNative: "HTTP-native",
+			httpNativeLab: "HTTP-native lab",
+			hybrid: "Hybrid",
+			hybridLab: "Hybrid lab",
+			lesson: "Lesson",
+			processing: "Processing",
+			providerSmoke: "Provider smoke",
+			uploadSelected: "Upload selected",
+		},
+		approach: {
+			description:
+				"Test image, video, audio, document, generic file, visibility, signed-read, range, variant, processing, disabled integration, and user-selected file workflows.",
+			httpTitle: "HTTP-native files lab",
+			hybridTitle: "Hybrid files lab",
+			metaTitle: "Files Approach Lab",
+		},
+		fields: {
+			storageProfile: "Storage profile",
+			track: "Track",
+			uploadProtocol: "Upload protocol",
+			visibility: "Visibility",
+		},
+		logs: {
+			httpDirectDownloadForbidden: "HTTP-only mode forbids direct oRPC download.",
+			httpDirectUploadForbidden: "HTTP-only mode forbids direct oRPC upload.",
+			missingFiles: "Choose or generate at least one file.",
+			uploadFailed: "Files lab upload failed.",
+			uploaded: defineTranslation(
+				"Uploaded {count:number} file(s) through {approach} / {track} / {storageBackend}.",
+				{},
+			),
+		},
+		matrix: {
+			description:
+				"Each upload run records the selected API approach, storage profile, and upload protocol.",
+			title: "Matrix controls",
+		},
+		runtime: {
+			description: "Progress, target selection, and records from the latest run.",
+			recordPrefix: "record:",
+			targetPrefix: "target:",
+			title: "Runtime status",
+		},
+		scenario: {
+			actions: {
+				courseVideoLab: "Course video lab",
+				httpNativeLab: "HTTP-native lab",
+				hybridLab: "Hybrid lab",
+			},
+			entitlements: {
+				badge: "Entitlements",
+				description:
+					"Exercise preview, enrolled, owner, admin, expired-token, and denied private playback states.",
+				scenarios: {
+					expiredSession: {
+						expected: "Expired or revoked session tokens fail on manifest and segment routes.",
+						name: "Expired session",
+						step1: "Create playback session.",
+						step2: "Expire or revoke token in the database.",
+						step3: "Reload manifest route.",
+					},
+					privateMatrix: {
+						expected: "Private lessons deny anonymous users and allow enrolled/admin users.",
+						name: "Private lesson matrix",
+						step1: "Sign out and request access.",
+						step2: "Sign in as enrolled user.",
+						step3: "Sign in as admin.",
+					},
+					previewLesson: {
+						expected: "Preview lessons issue playback access without enrollment.",
+						name: "Preview lesson",
+						step1: "Open seeded preview lesson.",
+						step2: "Request playback session.",
+						step3: "Confirm manifest loads.",
+					},
+				},
+				title: "Entitlement matrix lab",
+			},
+			hlsPlayback: {
+				badge: "HLS",
+				description:
+					"Verify signed HLS playback sessions, manifest reads, segment reads, and range-friendly delivery behavior.",
+				scenarios: {
+					playerPath: {
+						expected: "The product player uses native video with lazy hls.js when needed.",
+						name: "Player path",
+						step1: "Open course lesson.",
+						step2: "Start playback.",
+						step3: "Inspect network manifest and segment requests.",
+					},
+					segmentAccess: {
+						expected: "Segment reads are scoped to the same playback token.",
+						name: "Segment access",
+						step1: "Open manifest.",
+						step2: "Copy segment path.",
+						step3: "Request segment with and without token.",
+					},
+					signedManifest: {
+						expected: "Ready artifact groups produce playable HLS manifest URLs.",
+						name: "Signed manifest",
+						step1: "Attach ready artifact group.",
+						step2: "Request playback session.",
+						step3: "Open manifest URL.",
+					},
+				},
+				title: "HLS playback lab",
+			},
+			loading: "Loading files scenario lab session...",
+			processingVariants: {
+				badge: "Processing",
+				description:
+					"Validate variant and artifact outputs for images, audio, documents, and course video processing jobs.",
+				scenarios: {
+					disabledAdapters: {
+						expected:
+							"Audio waveform and document preview paths fail explicitly when adapters are disabled.",
+						name: "Disabled adapters",
+						step1: "Select audio or document fixture.",
+						step2: "Disable adapter.",
+						step3: "Run processing.",
+					},
+					imageVariant: {
+						expected: "Image optimized variant is readable through the variant route.",
+						name: "Image variant",
+						step1: "Upload image.",
+						step2: "Run processing.",
+						step3: "Open optimized variant route.",
+					},
+					videoArtifactGroup: {
+						expected:
+							"Video HLS processing writes artifact group records and staged objects are cleaned.",
+						name: "Video artifact group",
+						step1: "Upload video fixture.",
+						step2: "Queue HLS job.",
+						step3: "Inspect artifacts and storage keys.",
+					},
+				},
+				title: "Processing and variants lab",
+			},
+			providerSmoke: {
+				badge: "Provider",
+				description:
+					"Check local filesystem, MinIO S3-compatible, and R2-shaped configuration paths before product flows depend on them.",
+				scenarios: {
+					localFilesystem: {
+						expected: "Local filesystem mode writes under `.local/files` for offline development.",
+						name: "Local filesystem",
+						step1: "Switch storage driver to local.",
+						step2: "Seed or upload fixture.",
+						step3: "Inspect local files root.",
+					},
+					minioSmoke: {
+						expected:
+							"`pnpm -F @de100/apps-proto-cook-infra minio:smoke` passes with public/private buckets.",
+						name: "MinIO smoke",
+						step1: "Start MinIO.",
+						step2: "Run smoke command.",
+						step3: "Confirm JSON status is pass.",
+					},
+					missingProviderConfig: {
+						expected: "Disabled or incomplete S3 config fails before upload execution.",
+						name: "Missing provider config",
+						step1: "Unset S3 secret or bucket.",
+						step2: "Run preflight.",
+						step3: "Confirm explicit env error.",
+					},
+				},
+				title: "Provider smoke lab",
+			},
+		},
+		shell: {
+			description:
+				"Compare the two maintained files API approaches before choosing the long-term default for each product surface.",
+			loading: "Loading files lab session...",
+			metaTitle: "Files Lab",
+			phaseBadge: "Feature Lab",
+			title: "Files lab",
+		},
+		status: {
+			selectedFiles: defineTranslation("{count:number} file(s) selected.", {}),
+		},
+		uploads: {
+			description:
+				"Use generated fixtures for deterministic checks or choose local files manually.",
+			octetStream: "application/octet-stream",
+			title: "Fixture forms",
+		},
+	},
+	courseVideoLab: {
+		actions: {
+			attachVideo: "Attach video",
+			createChapter: "Create chapter",
+			createCourse: "Create course",
+			createLesson: "Create lesson",
+			requestPlayback: "Request playback",
+		},
+		asset: {
+			description: "Use a ready/stored video file ID from the Files page or upload API.",
+			title: "Video asset",
+		},
+		defaults: {
+			chapterTitle: "Intro",
+			courseTitle: "Video Lab Course",
+			lessonTitle: "HLS Preview",
+		},
+		fields: {
+			chapterSlug: "Chapter slug",
+			chapterTitle: "Chapter title",
+			courseSlug: "Course slug",
+			courseTitle: "Course title",
+			lessonSlug: "Lesson slug",
+			lessonTitle: "Lesson title",
+			lessonVisibility: "Lesson visibility",
+			videoFileId: "Video file ID",
+		},
+		logs: {
+			attachedVideo: defineTranslation("Attached video file {fileId}; asset is {status}.", {}),
+			chapterCreationFailed: "Chapter creation failed.",
+			courseCreationFailed: "Course creation failed.",
+			createdChapter: defineTranslation("Created chapter {slug}.", {}),
+			createdCourse: defineTranslation("Created course {slug}.", {}),
+			createdLesson: defineTranslation("Created lesson {slug}.", {}),
+			empty: "No course workflow events yet.",
+			lessonCreationFailed: "Lesson creation failed.",
+			playbackDecision: defineTranslation("Playback decision: {reason}.", {}),
+			playbackSessionFailed: "Playback session failed.",
+			videoAttachmentFailed: "Video attachment failed.",
+		},
+		lessonVisibility: {
+			enrolled: "Enrolled",
+			preview: "Preview",
+			private: "Private",
+		},
+		metaTitle: "Course Video Lab",
+		page: {
+			description:
+				"Attach uploaded videos to lessons, queue HLS processing, and request signed playback sessions.",
+			loading: "Loading course video lab session...",
+			phaseBadge: "Feature Lab",
+			title: "Course video lab",
+		},
+		runLog: {
+			description: "Course workflow results from this browser session.",
+			title: "Run log",
+		},
+		structure: {
+			description: "Owner-scoped course, chapter, and lesson creation.",
+			title: "Course structure",
+		},
+	},
+	courseLesson: {
+		actions: {
+			requestPlayback: "Request playback",
+		},
+		errors: {
+			playbackEventFailed: "Playback event failed.",
+			playbackSessionFailed: "Playback session failed.",
+		},
+		labels: {
+			captions: "Captions",
+			playerPrototype: "Player prototype",
+		},
+		metaTitle: "Course Lesson",
+		playerModes: {
+			external: "External adapter",
+			helper: "Helper-only player",
+			package: "Package player",
+		},
+		status: {
+			playbackDecision: defineTranslation("Playback decision: {reason}.", {}),
 		},
 	},
 	todos: {

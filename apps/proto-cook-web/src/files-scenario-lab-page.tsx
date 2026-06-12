@@ -26,129 +26,233 @@ type FilesScenarioLabKind =
 	| "provider-smoke";
 
 type Scenario = {
-	expected: string;
-	name: string;
-	steps: string[];
+	expectedKey: ScenarioTranslationKey;
+	nameKey: ScenarioTranslationKey;
+	stepKeys: ScenarioTranslationKey[];
 };
 
 type ScenarioConfig = {
-	badge: string;
-	description: string;
+	badgeKey: ScenarioTranslationKey;
+	descriptionKey: ScenarioTranslationKey;
 	scenarios: Scenario[];
-	title: string;
+	titleKey: ScenarioTranslationKey;
 };
 
 const scenarioConfigs = {
 	entitlements: {
-		badge: "Entitlements",
-		description:
-			"Exercise preview, enrolled, owner, admin, expired-token, and denied private playback states.",
+		badgeKey: "filesLab.scenario.entitlements.badge",
+		descriptionKey: "filesLab.scenario.entitlements.description",
 		scenarios: [
 			{
-				expected: "Preview lessons issue playback access without enrollment.",
-				name: "Preview lesson",
-				steps: [
-					"Open seeded preview lesson.",
-					"Request playback session.",
-					"Confirm manifest loads.",
+				expectedKey: "filesLab.scenario.entitlements.scenarios.previewLesson.expected",
+				nameKey: "filesLab.scenario.entitlements.scenarios.previewLesson.name",
+				stepKeys: [
+					"filesLab.scenario.entitlements.scenarios.previewLesson.step1",
+					"filesLab.scenario.entitlements.scenarios.previewLesson.step2",
+					"filesLab.scenario.entitlements.scenarios.previewLesson.step3",
 				],
 			},
 			{
-				expected: "Private lessons deny anonymous users and allow enrolled/admin users.",
-				name: "Private lesson matrix",
-				steps: ["Sign out and request access.", "Sign in as enrolled user.", "Sign in as admin."],
+				expectedKey: "filesLab.scenario.entitlements.scenarios.privateMatrix.expected",
+				nameKey: "filesLab.scenario.entitlements.scenarios.privateMatrix.name",
+				stepKeys: [
+					"filesLab.scenario.entitlements.scenarios.privateMatrix.step1",
+					"filesLab.scenario.entitlements.scenarios.privateMatrix.step2",
+					"filesLab.scenario.entitlements.scenarios.privateMatrix.step3",
+				],
 			},
 			{
-				expected: "Expired or revoked session tokens fail on manifest and segment routes.",
-				name: "Expired session",
-				steps: ["Create playback session.", "Expire/revoke token in DB.", "Reload manifest route."],
+				expectedKey: "filesLab.scenario.entitlements.scenarios.expiredSession.expected",
+				nameKey: "filesLab.scenario.entitlements.scenarios.expiredSession.name",
+				stepKeys: [
+					"filesLab.scenario.entitlements.scenarios.expiredSession.step1",
+					"filesLab.scenario.entitlements.scenarios.expiredSession.step2",
+					"filesLab.scenario.entitlements.scenarios.expiredSession.step3",
+				],
 			},
 		],
-		title: "Entitlement matrix lab",
+		titleKey: "filesLab.scenario.entitlements.title",
 	},
 	"hls-playback": {
-		badge: "HLS",
-		description:
-			"Verify signed HLS playback sessions, manifest reads, segment reads, and range-friendly delivery behavior.",
+		badgeKey: "filesLab.scenario.hlsPlayback.badge",
+		descriptionKey: "filesLab.scenario.hlsPlayback.description",
 		scenarios: [
 			{
-				expected: "Ready artifact groups produce playable HLS manifest URLs.",
-				name: "Signed manifest",
-				steps: ["Attach ready artifact group.", "Request playback session.", "Open manifest URL."],
+				expectedKey: "filesLab.scenario.hlsPlayback.scenarios.signedManifest.expected",
+				nameKey: "filesLab.scenario.hlsPlayback.scenarios.signedManifest.name",
+				stepKeys: [
+					"filesLab.scenario.hlsPlayback.scenarios.signedManifest.step1",
+					"filesLab.scenario.hlsPlayback.scenarios.signedManifest.step2",
+					"filesLab.scenario.hlsPlayback.scenarios.signedManifest.step3",
+				],
 			},
 			{
-				expected: "Segment reads are scoped to the same playback token.",
-				name: "Segment access",
-				steps: ["Open manifest.", "Copy segment path.", "Request segment with and without token."],
+				expectedKey: "filesLab.scenario.hlsPlayback.scenarios.segmentAccess.expected",
+				nameKey: "filesLab.scenario.hlsPlayback.scenarios.segmentAccess.name",
+				stepKeys: [
+					"filesLab.scenario.hlsPlayback.scenarios.segmentAccess.step1",
+					"filesLab.scenario.hlsPlayback.scenarios.segmentAccess.step2",
+					"filesLab.scenario.hlsPlayback.scenarios.segmentAccess.step3",
+				],
 			},
 			{
-				expected: "The product player uses native video with lazy hls.js when needed.",
-				name: "Player path",
-				steps: [
-					"Open course lesson.",
-					"Start playback.",
-					"Inspect network manifest/segment requests.",
+				expectedKey: "filesLab.scenario.hlsPlayback.scenarios.playerPath.expected",
+				nameKey: "filesLab.scenario.hlsPlayback.scenarios.playerPath.name",
+				stepKeys: [
+					"filesLab.scenario.hlsPlayback.scenarios.playerPath.step1",
+					"filesLab.scenario.hlsPlayback.scenarios.playerPath.step2",
+					"filesLab.scenario.hlsPlayback.scenarios.playerPath.step3",
 				],
 			},
 		],
-		title: "HLS playback lab",
+		titleKey: "filesLab.scenario.hlsPlayback.title",
 	},
 	"processing-variants": {
-		badge: "Processing",
-		description:
-			"Validate variant and artifact outputs for images, audio, documents, and course video processing jobs.",
+		badgeKey: "filesLab.scenario.processingVariants.badge",
+		descriptionKey: "filesLab.scenario.processingVariants.description",
 		scenarios: [
 			{
-				expected: "Image optimized variant is readable through the variant route.",
-				name: "Image variant",
-				steps: ["Upload image.", "Run processing.", "Open optimized variant route."],
+				expectedKey: "filesLab.scenario.processingVariants.scenarios.imageVariant.expected",
+				nameKey: "filesLab.scenario.processingVariants.scenarios.imageVariant.name",
+				stepKeys: [
+					"filesLab.scenario.processingVariants.scenarios.imageVariant.step1",
+					"filesLab.scenario.processingVariants.scenarios.imageVariant.step2",
+					"filesLab.scenario.processingVariants.scenarios.imageVariant.step3",
+				],
 			},
 			{
-				expected:
-					"Audio waveform and document preview paths fail explicitly when adapters are disabled.",
-				name: "Disabled adapters",
-				steps: ["Select audio/document fixture.", "Disable adapter.", "Run processing."],
+				expectedKey: "filesLab.scenario.processingVariants.scenarios.disabledAdapters.expected",
+				nameKey: "filesLab.scenario.processingVariants.scenarios.disabledAdapters.name",
+				stepKeys: [
+					"filesLab.scenario.processingVariants.scenarios.disabledAdapters.step1",
+					"filesLab.scenario.processingVariants.scenarios.disabledAdapters.step2",
+					"filesLab.scenario.processingVariants.scenarios.disabledAdapters.step3",
+				],
 			},
 			{
-				expected:
-					"Video HLS processing writes artifact group records and staged objects are cleaned.",
-				name: "Video artifact group",
-				steps: ["Upload video fixture.", "Queue HLS job.", "Inspect artifacts and storage keys."],
-			},
-		],
-		title: "Processing and variants lab",
-	},
-	"provider-smoke": {
-		badge: "Provider",
-		description:
-			"Check local filesystem, MinIO S3-compatible, and R2-shaped configuration paths before product flows depend on them.",
-		scenarios: [
-			{
-				expected: "`pnpm files:minio:smoke` passes with public/private buckets.",
-				name: "MinIO smoke",
-				steps: ["Start MinIO.", "Run smoke command.", "Confirm JSON status is pass."],
-			},
-			{
-				expected: "Disabled or incomplete S3 config fails before upload execution.",
-				name: "Missing provider config",
-				steps: ["Unset S3 secret or bucket.", "Run preflight.", "Confirm explicit env error."],
-			},
-			{
-				expected: "Local filesystem mode writes under `.local/files` for offline development.",
-				name: "Local filesystem",
-				steps: [
-					"Switch storage driver to local.",
-					"Seed or upload fixture.",
-					"Inspect local files root.",
+				expectedKey: "filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.expected",
+				nameKey: "filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.name",
+				stepKeys: [
+					"filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.step1",
+					"filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.step2",
+					"filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.step3",
 				],
 			},
 		],
-		title: "Provider smoke lab",
+		titleKey: "filesLab.scenario.processingVariants.title",
+	},
+	"provider-smoke": {
+		badgeKey: "filesLab.scenario.providerSmoke.badge",
+		descriptionKey: "filesLab.scenario.providerSmoke.description",
+		scenarios: [
+			{
+				expectedKey: "filesLab.scenario.providerSmoke.scenarios.minioSmoke.expected",
+				nameKey: "filesLab.scenario.providerSmoke.scenarios.minioSmoke.name",
+				stepKeys: [
+					"filesLab.scenario.providerSmoke.scenarios.minioSmoke.step1",
+					"filesLab.scenario.providerSmoke.scenarios.minioSmoke.step2",
+					"filesLab.scenario.providerSmoke.scenarios.minioSmoke.step3",
+				],
+			},
+			{
+				expectedKey: "filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.expected",
+				nameKey: "filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.name",
+				stepKeys: [
+					"filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.step1",
+					"filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.step2",
+					"filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.step3",
+				],
+			},
+			{
+				expectedKey: "filesLab.scenario.providerSmoke.scenarios.localFilesystem.expected",
+				nameKey: "filesLab.scenario.providerSmoke.scenarios.localFilesystem.name",
+				stepKeys: [
+					"filesLab.scenario.providerSmoke.scenarios.localFilesystem.step1",
+					"filesLab.scenario.providerSmoke.scenarios.localFilesystem.step2",
+					"filesLab.scenario.providerSmoke.scenarios.localFilesystem.step3",
+				],
+			},
+		],
+		titleKey: "filesLab.scenario.providerSmoke.title",
 	},
 } satisfies Record<FilesScenarioLabKind, ScenarioConfig>;
 
+type ScenarioTranslationKey =
+	| "filesLab.scenario.entitlements.badge"
+	| "filesLab.scenario.entitlements.description"
+	| "filesLab.scenario.entitlements.scenarios.expiredSession.expected"
+	| "filesLab.scenario.entitlements.scenarios.expiredSession.name"
+	| "filesLab.scenario.entitlements.scenarios.expiredSession.step1"
+	| "filesLab.scenario.entitlements.scenarios.expiredSession.step2"
+	| "filesLab.scenario.entitlements.scenarios.expiredSession.step3"
+	| "filesLab.scenario.entitlements.scenarios.privateMatrix.expected"
+	| "filesLab.scenario.entitlements.scenarios.privateMatrix.name"
+	| "filesLab.scenario.entitlements.scenarios.privateMatrix.step1"
+	| "filesLab.scenario.entitlements.scenarios.privateMatrix.step2"
+	| "filesLab.scenario.entitlements.scenarios.privateMatrix.step3"
+	| "filesLab.scenario.entitlements.scenarios.previewLesson.expected"
+	| "filesLab.scenario.entitlements.scenarios.previewLesson.name"
+	| "filesLab.scenario.entitlements.scenarios.previewLesson.step1"
+	| "filesLab.scenario.entitlements.scenarios.previewLesson.step2"
+	| "filesLab.scenario.entitlements.scenarios.previewLesson.step3"
+	| "filesLab.scenario.entitlements.title"
+	| "filesLab.scenario.hlsPlayback.badge"
+	| "filesLab.scenario.hlsPlayback.description"
+	| "filesLab.scenario.hlsPlayback.scenarios.playerPath.expected"
+	| "filesLab.scenario.hlsPlayback.scenarios.playerPath.name"
+	| "filesLab.scenario.hlsPlayback.scenarios.playerPath.step1"
+	| "filesLab.scenario.hlsPlayback.scenarios.playerPath.step2"
+	| "filesLab.scenario.hlsPlayback.scenarios.playerPath.step3"
+	| "filesLab.scenario.hlsPlayback.scenarios.segmentAccess.expected"
+	| "filesLab.scenario.hlsPlayback.scenarios.segmentAccess.name"
+	| "filesLab.scenario.hlsPlayback.scenarios.segmentAccess.step1"
+	| "filesLab.scenario.hlsPlayback.scenarios.segmentAccess.step2"
+	| "filesLab.scenario.hlsPlayback.scenarios.segmentAccess.step3"
+	| "filesLab.scenario.hlsPlayback.scenarios.signedManifest.expected"
+	| "filesLab.scenario.hlsPlayback.scenarios.signedManifest.name"
+	| "filesLab.scenario.hlsPlayback.scenarios.signedManifest.step1"
+	| "filesLab.scenario.hlsPlayback.scenarios.signedManifest.step2"
+	| "filesLab.scenario.hlsPlayback.scenarios.signedManifest.step3"
+	| "filesLab.scenario.hlsPlayback.title"
+	| "filesLab.scenario.processingVariants.badge"
+	| "filesLab.scenario.processingVariants.description"
+	| "filesLab.scenario.processingVariants.scenarios.disabledAdapters.expected"
+	| "filesLab.scenario.processingVariants.scenarios.disabledAdapters.name"
+	| "filesLab.scenario.processingVariants.scenarios.disabledAdapters.step1"
+	| "filesLab.scenario.processingVariants.scenarios.disabledAdapters.step2"
+	| "filesLab.scenario.processingVariants.scenarios.disabledAdapters.step3"
+	| "filesLab.scenario.processingVariants.scenarios.imageVariant.expected"
+	| "filesLab.scenario.processingVariants.scenarios.imageVariant.name"
+	| "filesLab.scenario.processingVariants.scenarios.imageVariant.step1"
+	| "filesLab.scenario.processingVariants.scenarios.imageVariant.step2"
+	| "filesLab.scenario.processingVariants.scenarios.imageVariant.step3"
+	| "filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.expected"
+	| "filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.name"
+	| "filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.step1"
+	| "filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.step2"
+	| "filesLab.scenario.processingVariants.scenarios.videoArtifactGroup.step3"
+	| "filesLab.scenario.processingVariants.title"
+	| "filesLab.scenario.providerSmoke.badge"
+	| "filesLab.scenario.providerSmoke.description"
+	| "filesLab.scenario.providerSmoke.scenarios.localFilesystem.expected"
+	| "filesLab.scenario.providerSmoke.scenarios.localFilesystem.name"
+	| "filesLab.scenario.providerSmoke.scenarios.localFilesystem.step1"
+	| "filesLab.scenario.providerSmoke.scenarios.localFilesystem.step2"
+	| "filesLab.scenario.providerSmoke.scenarios.localFilesystem.step3"
+	| "filesLab.scenario.providerSmoke.scenarios.minioSmoke.expected"
+	| "filesLab.scenario.providerSmoke.scenarios.minioSmoke.name"
+	| "filesLab.scenario.providerSmoke.scenarios.minioSmoke.step1"
+	| "filesLab.scenario.providerSmoke.scenarios.minioSmoke.step2"
+	| "filesLab.scenario.providerSmoke.scenarios.minioSmoke.step3"
+	| "filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.expected"
+	| "filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.name"
+	| "filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.step1"
+	| "filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.step2"
+	| "filesLab.scenario.providerSmoke.scenarios.missingProviderConfig.step3"
+	| "filesLab.scenario.providerSmoke.title";
+
 export default function FilesScenarioLabPage(props: { kind: FilesScenarioLabKind }) {
-	const { locale } = useI18n();
+	const { locale, t } = useI18n();
 	const navigate = useNavigate();
 	const session = authClient.useSession();
 	const [state, setState] = createStore({
@@ -172,11 +276,11 @@ export default function FilesScenarioLabPage(props: { kind: FilesScenarioLabKind
 			class="mx-auto grid w-full max-w-7xl gap-6 px-[clamp(1rem,2vw+0.5rem,2rem)] pt-8 pb-16"
 			id="main-content"
 		>
-			<Title>{config().title}</Title>
+			<Title>{t(config().titleKey)}</Title>
 			<Show
 				fallback={
 					<Alert role="status">
-						<AlertDescription>Loading files scenario lab session...</AlertDescription>
+						<AlertDescription>{t("filesLab.scenario.loading")}</AlertDescription>
 					</Alert>
 				}
 				when={canUseLab()}
@@ -185,10 +289,10 @@ export default function FilesScenarioLabPage(props: { kind: FilesScenarioLabKind
 					<CardHeader class="space-y-3">
 						<div class="flex flex-wrap items-start justify-between gap-3">
 							<div>
-								<CardTitle>{config().title}</CardTitle>
-								<CardDescription>{config().description}</CardDescription>
+								<CardTitle>{t(config().titleKey)}</CardTitle>
+								<CardDescription>{t(config().descriptionKey)}</CardDescription>
 							</div>
-							<Badge variant="secondary">{config().badge}</Badge>
+							<Badge variant="secondary">{t(config().badgeKey)}</Badge>
 						</div>
 					</CardHeader>
 					<CardContent class="grid gap-4 md:grid-cols-3">
@@ -196,12 +300,12 @@ export default function FilesScenarioLabPage(props: { kind: FilesScenarioLabKind
 							{(scenario) => (
 								<section class="grid gap-3 rounded-md border border-border/70 bg-background/80 p-4">
 									<div class="grid gap-1">
-										<h2 class="font-medium text-base leading-tight">{scenario.name}</h2>
-										<p class="text-muted-foreground text-sm">{scenario.expected}</p>
+										<h2 class="font-medium text-base leading-tight">{t(scenario.nameKey)}</h2>
+										<p class="text-muted-foreground text-sm">{t(scenario.expectedKey)}</p>
 									</div>
 									<div class="grid gap-3">
 										<ol class="grid list-decimal gap-2 pl-5 text-muted-foreground text-sm">
-											<For each={scenario.steps}>{(step) => <li>{step}</li>}</For>
+											<For each={scenario.stepKeys}>{(stepKey) => <li>{t(stepKey)}</li>}</For>
 										</ol>
 									</div>
 								</section>
@@ -217,21 +321,21 @@ export default function FilesScenarioLabPage(props: { kind: FilesScenarioLabKind
 							href={createLocalizedPath(locale(), "/files-lab/hybrid")}
 							variant="outline"
 						>
-							Hybrid lab
+							{t("filesLab.scenario.actions.hybridLab")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/http")}
 							variant="outline"
 						>
-							HTTP-native lab
+							{t("filesLab.scenario.actions.httpNativeLab")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/course-video")}
 							variant="outline"
 						>
-							Course video lab
+							{t("filesLab.scenario.actions.courseVideoLab")}
 						</Button>
 					</CardContent>
 				</Card>

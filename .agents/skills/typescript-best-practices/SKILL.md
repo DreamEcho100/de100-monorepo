@@ -122,3 +122,96 @@ import type { Opaque, PartialDeep } from 'type-fest';
 type UserId = Opaque<string, 'UserId'>;
 type UserPatch = PartialDeep<User>;
 ```
+
+## Package-Grade TypeScript APIs
+
+When editing reusable packages, design the public API around explicit seams. Do not bake application policy into a general package. Prefer injected predicates, adapters, config objects, and narrow interfaces over hardcoded assumptions.
+
+```ts
+// Good: package owns mechanics, app owns policy.
+type RouterOptions = {
+  locales: readonly { code: string }[];
+  shouldLocalizePathname?: (pathname: string, segments: readonly string[]) => boolean;
+};
+
+// Bad: package assumes every app excludes the same paths.
+const EXCLUDED_SEGMENTS = ["api", "_build", "assets"];
+```
+
+Use `as const satisfies` for registries that need literal inference and structural validation:
+
+```ts
+const messages = {
+  common: {
+    save: "Save",
+    selected: "{count:number} selected",
+  },
+} as const satisfies I18nMessagesShape;
+
+type MessageKey = DotPath<typeof messages>;
+```
+
+For source-registry patterns, keep the source registry as the type authority and let consumers augment package types:
+
+```ts
+declare module "@acme/i18n/shared" {
+  interface I18nRegister {
+    translations: typeof sourceMessages;
+    locales: "en" | "ar";
+  }
+}
+```
+
+Non-source registries should usually be shaped by the source registry without requiring identical literal strings:
+
+```ts
+const arMessages = {
+  common: {
+    save: "حفظ",
+    selected: "تم تحديد {count:number}",
+  },
+} satisfies I18nLocaleMessages<typeof sourceMessages>;
+```
+
+Use template literal, mapped, and conditional types when they encode a real contract that runtime tests cannot catch:
+
+```ts
+type DotPath<T> = {
+  [K in keyof T & string]: T[K] extends string
+    ? K
+    : `${K}.${DotPath<T[K]>}`;
+}[keyof T & string];
+
+type ExtractParams<S extends string> =
+  S extends `${string}{${infer Param}}${infer Rest}`
+    ? Param | ExtractParams<Rest>
+    : never;
+```
+
+Keep these types bounded. If type-level logic becomes hard to review, split it into named helper types and add type regression tests.
+
+## Type Regression Tests
+
+Use type tests for public API contracts. Prefer small compile-time assertions over runtime tests that only prove imports work.
+
+```ts
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends
+  (<T>() => T extends B ? 1 : 2)
+    ? true
+    : false;
+
+type Expect<T extends true> = T;
+
+type _KeyCheck = Expect<Equal<DotPath<typeof messages>, "common.save" | "common.selected">>;
+
+// @ts-expect-error missing required param
+t("common.selected");
+```
+
+Pair this skill with `typescript-advanced-types` when:
+
+- API safety depends on template-literal inference, recursive mapped types, or discriminated unions.
+- You are designing framework/package contracts, not just app-local code.
+- You need compile-time regression coverage for keys, params, event names, route slugs, or branded identifiers.
+- A simpler runtime-only API would leak invalid states to consumers.

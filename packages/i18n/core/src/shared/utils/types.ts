@@ -1,7 +1,6 @@
 import type { I18nMessage, I18nTranslations } from "../types";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TObj = Record<string, any>;
+type TObj = object;
 
 /**
  * Utility type to join two string keys with a dot
@@ -126,7 +125,7 @@ type TranslationAtKeyWithParams<
 type DefineTranslationReturn<
 	TranslationKey extends string,
 	TranslationOptions extends ExtractParamOptions<TranslationKey>,
-> = [TranslationKey, TranslationOptions];
+> = readonly [TranslationKey, TranslationOptions];
 
 /**
  * Normalize translation values to a consistent tuple format

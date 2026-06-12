@@ -37,7 +37,7 @@ type CourseVideoLabLog = {
 type LessonVisibility = "enrolled" | "preview" | "private";
 
 export default function CourseVideoLabPage() {
-	const { locale } = useI18n();
+	const { locale, t } = useI18n();
 	const navigate = useNavigate();
 	const session = authClient.useSession();
 	const [state, setState] = createStore<{
@@ -54,66 +54,149 @@ export default function CourseVideoLabPage() {
 		playbackToken: null | string;
 	}>({
 		chapterSlug: "intro",
-		chapterTitle: "Intro",
+		chapterTitle: t("courseVideoLab.defaults.chapterTitle"),
 		courseSlug: "video-lab-course",
-		courseTitle: "Video Lab Course",
+		courseTitle: t("courseVideoLab.defaults.courseTitle"),
 		fileId: "",
 		isHydrated: false,
 		lessonSlug: "hls-preview",
-		lessonTitle: "HLS Preview",
+		lessonTitle: t("courseVideoLab.defaults.lessonTitle"),
 		lessonVisibility: "preview",
 		logs: [],
 		playbackToken: null,
 	});
 	const canUseLab = () => state.isHydrated && !session().isPending && !!session().data;
 
+	function appendLog(message: string, status: CourseVideoLabLog["status"]) {
+		setState("logs", (current) => [
+			{
+				id: crypto.randomUUID(),
+				message,
+				status,
+			},
+			...current,
+		]);
+	}
+
 	const createCourseMutation = createMutation(() =>
 		orpc.courses.createCourse.mutationOptions({
-			onError: (error) => appendLog(readErrorMessage(error, "Course creation failed."), "error"),
+			onError: (error) =>
+				appendLog(readErrorMessage(error, t("courseVideoLab.logs.courseCreationFailed")), "error"),
 			onSuccess: (course) => {
-				appendLog(`Created course ${course.slug}.`, "success");
+				appendLog(t("courseVideoLab.logs.createdCourse", { slug: course.slug }), "success");
 			},
 		}),
 	);
+	async function createCourse() {
+		try {
+			await createCourseMutation.mutateAsync({
+				slug: state.courseSlug,
+				status: "published",
+				title: state.courseTitle,
+			});
+		} catch {
+			// handled by mutation options
+		}
+	}
+
 	const createChapterMutation = createMutation(() =>
 		orpc.courses.createChapter.mutationOptions({
-			onError: (error) => appendLog(readErrorMessage(error, "Chapter creation failed."), "error"),
+			onError: (error) =>
+				appendLog(readErrorMessage(error, t("courseVideoLab.logs.chapterCreationFailed")), "error"),
 			onSuccess: (chapter) => {
-				appendLog(`Created chapter ${chapter.slug}.`, "success");
+				appendLog(t("courseVideoLab.logs.createdChapter", { slug: chapter.slug }), "success");
 			},
 		}),
 	);
+	async function createChapter() {
+		try {
+			await createChapterMutation.mutateAsync({
+				courseSlug: state.courseSlug,
+				position: 1,
+				slug: state.chapterSlug,
+				title: state.chapterTitle,
+			});
+		} catch {
+			// handled by mutation options
+		}
+	}
+
 	const createLessonMutation = createMutation(() =>
 		orpc.courses.createLesson.mutationOptions({
-			onError: (error) => appendLog(readErrorMessage(error, "Lesson creation failed."), "error"),
+			onError: (error) =>
+				appendLog(readErrorMessage(error, t("courseVideoLab.logs.lessonCreationFailed")), "error"),
 			onSuccess: (lesson) => {
-				appendLog(`Created lesson ${lesson.slug}.`, "success");
+				appendLog(t("courseVideoLab.logs.createdLesson", { slug: lesson.slug }), "success");
 			},
 		}),
 	);
+	async function createLesson() {
+		try {
+			await createLessonMutation.mutateAsync({
+				chapterSlug: state.chapterSlug,
+				courseSlug: state.courseSlug,
+				position: 1,
+				slug: state.lessonSlug,
+				title: state.lessonTitle,
+				visibility: state.lessonVisibility,
+			});
+		} catch {
+			// handled by mutation options
+		}
+	}
+
 	const attachVideoMutation = createMutation(() =>
 		orpc.courses.attachLessonVideo.mutationOptions({
-			onError: (error) => appendLog(readErrorMessage(error, "Video attachment failed."), "error"),
+			onError: (error) =>
+				appendLog(readErrorMessage(error, t("courseVideoLab.logs.videoAttachmentFailed")), "error"),
 			onSuccess: (result) => {
 				appendLog(
-					`Attached video file ${result.file.id}; asset is ${result.asset.status}.`,
+					t("courseVideoLab.logs.attachedVideo", {
+						fileId: result.file.id,
+						status: result.asset.status,
+					}),
 					"success",
 				);
 			},
 		}),
 	);
+	async function attachVideo() {
+		try {
+			await attachVideoMutation.mutateAsync({
+				chapterSlug: state.chapterSlug,
+				courseSlug: state.courseSlug,
+				fileId: state.fileId.trim(),
+				lessonSlug: state.lessonSlug,
+			});
+		} catch {
+			// handled by mutation options
+		}
+	}
+
 	const playbackMutation = createMutation(() =>
 		orpc.courses.createPlaybackSession.mutationOptions({
-			onError: (error) => appendLog(readErrorMessage(error, "Playback session failed."), "error"),
+			onError: (error) =>
+				appendLog(readErrorMessage(error, t("courseVideoLab.logs.playbackSessionFailed")), "error"),
 			onSuccess: (result) => {
 				setState("playbackToken", result.session?.token ?? null);
 				appendLog(
-					`Playback decision: ${result.decision.reason}.`,
+					t("courseVideoLab.logs.playbackDecision", { reason: result.decision.reason }),
 					result.session ? "success" : "info",
 				);
 			},
 		}),
 	);
+	async function requestPlaybackSession() {
+		try {
+			await playbackMutation.mutateAsync({
+				chapterSlug: state.chapterSlug,
+				courseSlug: state.courseSlug,
+				lessonSlug: state.lessonSlug,
+			});
+		} catch {
+			// handled by mutation options
+		}
+	}
 
 	onMount(() => {
 		setState({
@@ -133,11 +216,11 @@ export default function CourseVideoLabPage() {
 			class="mx-auto grid w-full max-w-7xl gap-6 px-[clamp(1rem,2vw+0.5rem,2rem)] pt-8 pb-16"
 			id="main-content"
 		>
-			<Title>Course Video Lab</Title>
+			<Title>{t("courseVideoLab.metaTitle")}</Title>
 			<Show
 				fallback={
 					<Alert role="status">
-						<AlertDescription>Loading course video lab session...</AlertDescription>
+						<AlertDescription>{t("courseVideoLab.page.loading")}</AlertDescription>
 					</Alert>
 				}
 				when={canUseLab()}
@@ -146,13 +229,10 @@ export default function CourseVideoLabPage() {
 					<CardHeader class="space-y-3">
 						<div class="flex flex-wrap items-start justify-between gap-3">
 							<div>
-								<CardTitle>Course video lab</CardTitle>
-								<CardDescription>
-									Attach uploaded videos to lessons, queue HLS processing, and request signed
-									playback sessions.
-								</CardDescription>
+								<CardTitle>{t("courseVideoLab.page.title")}</CardTitle>
+								<CardDescription>{t("courseVideoLab.page.description")}</CardDescription>
 							</div>
-							<Badge variant="secondary">Phase 8</Badge>
+							<Badge variant="secondary">{t("courseVideoLab.page.phaseBadge")}</Badge>
 						</div>
 					</CardHeader>
 				</Card>
@@ -160,12 +240,14 @@ export default function CourseVideoLabPage() {
 				<div class="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
 					<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 						<CardHeader>
-							<CardTitle>Course structure</CardTitle>
-							<CardDescription>Owner-scoped course, chapter, and lesson creation.</CardDescription>
+							<CardTitle>{t("courseVideoLab.structure.title")}</CardTitle>
+							<CardDescription>{t("courseVideoLab.structure.description")}</CardDescription>
 						</CardHeader>
 						<CardContent class="grid gap-4">
 							<Field class="grid gap-2">
-								<FieldLabel for="course-video-lab-course-slug">Course slug</FieldLabel>
+								<FieldLabel for="course-video-lab-course-slug">
+									{t("courseVideoLab.fields.courseSlug")}
+								</FieldLabel>
 								<FieldContent>
 									<Input
 										id="course-video-lab-course-slug"
@@ -175,7 +257,9 @@ export default function CourseVideoLabPage() {
 								</FieldContent>
 							</Field>
 							<Field class="grid gap-2">
-								<FieldLabel for="course-video-lab-course-title">Course title</FieldLabel>
+								<FieldLabel for="course-video-lab-course-title">
+									{t("courseVideoLab.fields.courseTitle")}
+								</FieldLabel>
 								<FieldContent>
 									<Input
 										id="course-video-lab-course-title"
@@ -189,12 +273,14 @@ export default function CourseVideoLabPage() {
 								onClick={createCourse}
 								type="button"
 							>
-								Create course
+								{t("courseVideoLab.actions.createCourse")}
 							</Button>
 
 							<div class="grid gap-3 border-border border-t pt-4">
 								<Field class="grid gap-2">
-									<FieldLabel for="course-video-lab-chapter-slug">Chapter slug</FieldLabel>
+									<FieldLabel for="course-video-lab-chapter-slug">
+										{t("courseVideoLab.fields.chapterSlug")}
+									</FieldLabel>
 									<FieldContent>
 										<Input
 											id="course-video-lab-chapter-slug"
@@ -204,7 +290,9 @@ export default function CourseVideoLabPage() {
 									</FieldContent>
 								</Field>
 								<Field class="grid gap-2">
-									<FieldLabel for="course-video-lab-chapter-title">Chapter title</FieldLabel>
+									<FieldLabel for="course-video-lab-chapter-title">
+										{t("courseVideoLab.fields.chapterTitle")}
+									</FieldLabel>
 									<FieldContent>
 										<Input
 											id="course-video-lab-chapter-title"
@@ -219,13 +307,15 @@ export default function CourseVideoLabPage() {
 									type="button"
 									variant="secondary"
 								>
-									Create chapter
+									{t("courseVideoLab.actions.createChapter")}
 								</Button>
 							</div>
 
 							<div class="grid gap-3 border-border border-t pt-4">
 								<Field class="grid gap-2">
-									<FieldLabel for="course-video-lab-lesson-slug">Lesson slug</FieldLabel>
+									<FieldLabel for="course-video-lab-lesson-slug">
+										{t("courseVideoLab.fields.lessonSlug")}
+									</FieldLabel>
 									<FieldContent>
 										<Input
 											id="course-video-lab-lesson-slug"
@@ -235,7 +325,9 @@ export default function CourseVideoLabPage() {
 									</FieldContent>
 								</Field>
 								<Field class="grid gap-2">
-									<FieldLabel for="course-video-lab-lesson-title">Lesson title</FieldLabel>
+									<FieldLabel for="course-video-lab-lesson-title">
+										{t("courseVideoLab.fields.lessonTitle")}
+									</FieldLabel>
 									<FieldContent>
 										<Input
 											id="course-video-lab-lesson-title"
@@ -246,7 +338,7 @@ export default function CourseVideoLabPage() {
 								</Field>
 								<Field class="grid gap-2">
 									<FieldLabel for="course-video-lab-lesson-visibility">
-										Lesson visibility
+										{t("courseVideoLab.fields.lessonVisibility")}
 									</FieldLabel>
 									<FieldContent>
 										<NativeSelect
@@ -256,9 +348,15 @@ export default function CourseVideoLabPage() {
 											}
 											value={state.lessonVisibility}
 										>
-											<NativeSelectOption value="preview">preview</NativeSelectOption>
-											<NativeSelectOption value="enrolled">enrolled</NativeSelectOption>
-											<NativeSelectOption value="private">private</NativeSelectOption>
+											<NativeSelectOption value="preview">
+												{t("courseVideoLab.lessonVisibility.preview")}
+											</NativeSelectOption>
+											<NativeSelectOption value="enrolled">
+												{t("courseVideoLab.lessonVisibility.enrolled")}
+											</NativeSelectOption>
+											<NativeSelectOption value="private">
+												{t("courseVideoLab.lessonVisibility.private")}
+											</NativeSelectOption>
 										</NativeSelect>
 									</FieldContent>
 								</Field>
@@ -268,7 +366,7 @@ export default function CourseVideoLabPage() {
 									type="button"
 									variant="secondary"
 								>
-									Create lesson
+									{t("courseVideoLab.actions.createLesson")}
 								</Button>
 							</div>
 						</CardContent>
@@ -276,14 +374,14 @@ export default function CourseVideoLabPage() {
 
 					<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 						<CardHeader>
-							<CardTitle>Video asset</CardTitle>
-							<CardDescription>
-								Use a ready/stored video file ID from the Files page or upload API.
-							</CardDescription>
+							<CardTitle>{t("courseVideoLab.asset.title")}</CardTitle>
+							<CardDescription>{t("courseVideoLab.asset.description")}</CardDescription>
 						</CardHeader>
 						<CardContent class="grid gap-4">
 							<Field class="grid gap-2">
-								<FieldLabel for="course-video-lab-file-id">Video file ID</FieldLabel>
+								<FieldLabel for="course-video-lab-file-id">
+									{t("courseVideoLab.fields.videoFileId")}
+								</FieldLabel>
 								<FieldContent>
 									<Input
 										id="course-video-lab-file-id"
@@ -298,7 +396,7 @@ export default function CourseVideoLabPage() {
 									onClick={attachVideo}
 									type="button"
 								>
-									Attach video
+									{t("courseVideoLab.actions.attachVideo")}
 								</Button>
 								<Button
 									disabled={playbackMutation.isPending}
@@ -306,7 +404,7 @@ export default function CourseVideoLabPage() {
 									type="button"
 									variant="outline"
 								>
-									Request playback
+									{t("courseVideoLab.actions.requestPlayback")}
 								</Button>
 							</div>
 							<Show when={state.playbackToken}>
@@ -323,7 +421,7 @@ export default function CourseVideoLabPage() {
 									type="button"
 									variant="outline"
 								>
-									Files
+									{t("filesLab.actions.files")}
 								</Button>
 								<Button
 									as="a"
@@ -334,7 +432,7 @@ export default function CourseVideoLabPage() {
 									type="button"
 									variant="outline"
 								>
-									Lesson
+									{t("filesLab.actions.lesson")}
 								</Button>
 							</div>
 						</CardContent>
@@ -343,14 +441,14 @@ export default function CourseVideoLabPage() {
 
 				<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 					<CardHeader>
-						<CardTitle>Run log</CardTitle>
-						<CardDescription>Course workflow results from this browser session.</CardDescription>
+						<CardTitle>{t("courseVideoLab.runLog.title")}</CardTitle>
+						<CardDescription>{t("courseVideoLab.runLog.description")}</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<ul class="grid gap-2">
 							<Show
 								fallback={
-									<P class="text-muted-foreground text-sm">No course workflow events yet.</P>
+									<P class="text-muted-foreground text-sm">{t("courseVideoLab.logs.empty")}</P>
 								}
 								when={state.logs.length > 0}
 							>
@@ -372,82 +470,6 @@ export default function CourseVideoLabPage() {
 			</Show>
 		</main>
 	);
-
-	async function createCourse() {
-		try {
-			await createCourseMutation.mutateAsync({
-				slug: state.courseSlug,
-				status: "published",
-				title: state.courseTitle,
-			});
-		} catch {
-			// handled by mutation options
-		}
-	}
-
-	async function createChapter() {
-		try {
-			await createChapterMutation.mutateAsync({
-				courseSlug: state.courseSlug,
-				position: 1,
-				slug: state.chapterSlug,
-				title: state.chapterTitle,
-			});
-		} catch {
-			// handled by mutation options
-		}
-	}
-
-	async function createLesson() {
-		try {
-			await createLessonMutation.mutateAsync({
-				chapterSlug: state.chapterSlug,
-				courseSlug: state.courseSlug,
-				position: 1,
-				slug: state.lessonSlug,
-				title: state.lessonTitle,
-				visibility: state.lessonVisibility,
-			});
-		} catch {
-			// handled by mutation options
-		}
-	}
-
-	async function attachVideo() {
-		try {
-			await attachVideoMutation.mutateAsync({
-				chapterSlug: state.chapterSlug,
-				courseSlug: state.courseSlug,
-				fileId: state.fileId.trim(),
-				lessonSlug: state.lessonSlug,
-			});
-		} catch {
-			// handled by mutation options
-		}
-	}
-
-	async function requestPlaybackSession() {
-		try {
-			await playbackMutation.mutateAsync({
-				chapterSlug: state.chapterSlug,
-				courseSlug: state.courseSlug,
-				lessonSlug: state.lessonSlug,
-			});
-		} catch {
-			// handled by mutation options
-		}
-	}
-
-	function appendLog(message: string, status: CourseVideoLabLog["status"]) {
-		setState("logs", (current) => [
-			{
-				id: crypto.randomUUID(),
-				message,
-				status,
-			},
-			...current,
-		]);
-	}
 }
 
 function readErrorMessage(error: unknown, fallback: string) {

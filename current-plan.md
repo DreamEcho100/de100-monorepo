@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-12
 
-Current active phase: Complete - Phase 10 ready
+Current active phase: Phase 10A - Lab i18n, lifecycle docs, and manual hardening
 
 Archived previous tracker:
 
@@ -62,7 +62,9 @@ Status legend: Not Started, In Progress, Done, Blocked, Paused.
 | 7     | Solid state refactor and test audit       | Done        |
 | 8     | Final gates, stale scans, and handoff      | Done        |
 | 9     | Root script ownership cleanup             | Done        |
-| 10    | I18n, lifecycle docs, and lab manual hardening | Not Started |
+| 10A   | Lab i18n, lifecycle docs, and manual hardening | In Progress |
+| 10B   | i18n package parity and type consistency | Not Started |
+| 11    | Final QA, visible browser evaluation, and handoff | Not Started |
 
 ## Phase 1 - Planning and Domain Docs
 
@@ -389,7 +391,7 @@ Remove package/domain-specific commands from the root manifest and make root scr
 - Done: CI and active docs now call package-owned service/smoke scripts.
 - Done: Phase 9 exit gates passed.
 
-## Phase 10 - I18n, Lifecycle Docs, and Lab Manual Hardening
+## Phase 10A - Lab i18n, Lifecycle Docs, and Manual Hardening
 
 ### Objective
 
@@ -405,7 +407,18 @@ Address the remaining active-app hardening feedback: all visible UI text should 
 6. Document foreground dev-server shutdown versus package-owned Docker service lifecycle.
 7. Keep root scripts workspace-only.
 
-### Initial Exit Gates
+### Step Tracker
+
+| Step | Task | Status | Evidence |
+| ---- | ---- | ------ | -------- |
+| 1 | Localize active lab/course/player UI copy through app i18n messages | Done | `apps/proto-cook-web/i18n/shared/messages/*`, lab pages |
+| 2 | Add package-owned active lab UI-copy scanner | Done | `scripts/check-proto-cook-lab-ui-copy.mjs`, web package scripts |
+| 3 | Finish per-lab tutorial docs | Done | `docs/proto-cook/files/labs/*` |
+| 4 | Link lab tutorials from files manual index and overview | Done | `docs/proto-cook/files/00-index.md`, `06-labs-manual-testing.md` |
+| 5 | Document dev-server and Docker service lifecycle | Done | `docs/proto-cook/files/07-troubleshooting-and-expected-failures.md` |
+| 6 | Run Phase 10A focused checks | Pending | Validation log |
+
+### Exit Gates
 
 1. `pnpm format-and-lint:check`
 2. `pnpm type:check`
@@ -414,13 +427,73 @@ Address the remaining active-app hardening feedback: all visible UI text should 
 5. Hardcoded active UI copy scan clean or only allowed data literals.
 6. Stale active terminology scan clean outside archives/build/vendor paths.
 
+## Phase 10B - i18n Package Parity and Type Consistency
+
+### Objective
+
+Keep the current `defineTranslation` API compatible with the passed-on Maze pattern while making the i18n packages less brittle, better tested, and easier to consume from Solid and SolidStart.
+
+### Scope
+
+1. Keep `defineTranslation` exported for plural, enum, and formatter metadata.
+2. Keep source-locale module augmentation as the source of typed keys and params.
+3. Type non-source locale files with `I18nLocaleMessages<typeof sourceMessages>` so translated strings do not need to match source literals exactly.
+4. Add core tests for plain params, typed params, plural, enum, repeated placeholders, fallback locales, missing keys, and `onError`.
+5. Make Solid `t` reactive after locale changes and pass all available locale messages plus fallback locale into `generateI18nConfig`.
+6. Add useful Maze parity through cleaner interfaces:
+   - optional lazy locale loading
+   - `isLoadingTranslations`
+   - overlapping load interruption
+   - localized path helpers
+   - `I18nA`
+   - SolidStart request-locale and localized redirect helpers
+7. Update the local TypeScript skill with package-grade TypeScript guidance.
+
+### Step Tracker
+
+| Step | Task | Status | Evidence |
+| ---- | ---- | ------ | -------- |
+| 1 | Add i18n core behavior tests and package test script | Done | `@de100/i18n-core test` |
+| 2 | Tighten core types/runtime around locale messages and formatting | Done | `packages/i18n/core` |
+| 3 | Add Solid provider lazy-loading/reactive translation parity | Done | `packages/i18n/domains/solidjs` |
+| 4 | Add localized link and route helper exports | Done | `packages/i18n/domains/solidjs` |
+| 5 | Migrate app helpers mechanically where covered by tests | Done | `apps/proto-cook-web/i18n` wraps package routing helper |
+| 6 | Update TypeScript skill guidance | Done | `.agents/skills/typescript-best-practices/SKILL.md` |
+| 7 | Run Phase 10B focused checks | In Progress | Core and Solid domain focused checks passed; app checks pending. |
+
+### Exit Gates
+
+1. `pnpm -F @de100/i18n-core type:check`
+2. `pnpm -F @de100/i18n-core test`
+3. `pnpm -F @de100/i18n-domains-solidjs type:check`
+4. `pnpm -F @de100/i18n-domains-solidjs test`
+5. `pnpm -F @de100/apps-proto-cook-web type:check`
+6. `pnpm -F @de100/apps-proto-cook-web lint:lab-ui-copy`
+
+## Phase 11 - Final QA, Browser Evaluation, and Handoff
+
+### Objective
+
+Run final package/app gates, stale scans, visible browser lab evaluation, and record final handoff notes.
+
+### Execution Order
+
+1. Run package script-shape validation.
+2. Run global format/lint check and fix only if needed.
+3. Run global typecheck.
+4. Run global tests.
+5. Build Proto Cook web.
+6. Run stale terminology and no-`formatI18nTemplate` scans.
+7. Run visible/manual browser evaluation from `docs/proto-cook/files/labs`.
+8. Record final DX/UX notes and residual risks.
+
 ## Follow-Up Backlog
 
 1. Run the manual files labs from `docs/proto-cook/files/06-labs-manual-testing.md` in a visible browser and record product/DX feedback.
 2. Decide whether to remove legacy stopped Docker containers with `docker compose up --remove-orphans` during a separate local cleanup.
 3. If production runtime warnings matter for the deployment target, raise the Nitro/esbuild target above ES2019 or isolate the bigint-producing dependency.
 4. Push the split workflows and verify `proto-cook-ci.yml` and `general-packages-ci.yml` remotely with GitHub services.
-5. Start Phase 10 i18n/docs/lab hardening.
+5. Complete Phase 10A/10B before opening new Files Platform feature work.
 
 ## Validation Log
 
@@ -454,3 +527,10 @@ Address the remaining active-app hardening feedback: all visible UI text should 
 - 2026-06-12: generic root `pnpm test` passed after removing hardcoded package filters.
 - 2026-06-12: `pnpm -F @de100/apps-proto-cook-web build` passed with the existing non-blocking Nitro/esbuild bigint target warnings.
 - 2026-06-12: `pnpm -F @de100/apps-proto-cook-infra minio:smoke` passed against `http://127.0.0.1:9000` with run id `phase13-2026-06-12T16-02-24-559Z-8e796edd-50cd-409b-8a25-c2ed37478f77`.
+- 2026-06-12: Phase 10A/10B started. Decision recorded: keep `defineTranslation`, remove `formatI18nTemplate`, finish lab docs, and improve i18n parity without breaking the passed-on Maze pattern.
+- 2026-06-12: Removed app-specific route exclusion/static asset assumptions from `@de100/i18n-core`; apps now inject `shouldLocalizePathname`.
+- 2026-06-12: `pnpm -F @de100/i18n-core type:check` passed after i18n tuple/message typing and routing helper updates.
+- 2026-06-12: `pnpm -F @de100/i18n-core test` passed with 10 runtime tests.
+- 2026-06-12: `pnpm -F @de100/i18n-domains-solidjs type:check` passed after reactive `t`, lazy translation loading, loading state, localized link, and SolidStart helper updates.
+- 2026-06-12: `pnpm -F @de100/i18n-domains-solidjs test` passed with 2 server helper tests.
+- 2026-06-12: Updated local `typescript-best-practices` skill with package-grade API seams, module augmentation, `as const satisfies`, template-literal inference, and type-test guidance.

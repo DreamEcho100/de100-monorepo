@@ -12,6 +12,18 @@ Read in order:
 6. `06-labs-manual-testing.md` - manual lab routes, scenarios, inputs, and expected behavior.
 7. `07-troubleshooting-and-expected-failures.md` - known failure modes and diagnosis steps.
 
+Per-lab tutorials live under `labs/`:
+
+1. `labs/00-lab-setup.md` - shared setup, service lifecycle, and run notes.
+2. `labs/01-hybrid-upload-lab.md` - recommended Hybrid API checks.
+3. `labs/02-http-native-upload-lab.md` - maintained HTTP-native path checks.
+4. `labs/03-provider-smoke-lab.md` - local-fs, MinIO, and provider-shape checks.
+5. `labs/04-course-video-lab.md` - course video upload and artifact workflow.
+6. `labs/05-hls-playback-session-lab.md` - signed HLS playback session checks.
+7. `labs/06-processing-variants-lab.md` - variants, processing jobs, and artifacts.
+8. `labs/07-entitlement-matrix-lab.md` - preview, private, enrolled, admin, and expiry checks.
+9. `labs/08-cleanup-and-feedback.md` - cleanup, service shutdown, and feedback format.
+
 Canonical local checks:
 
 ```sh
@@ -19,6 +31,7 @@ pnpm install
 pnpm type:check
 pnpm test
 pnpm -F @de100/apps-proto-cook-web build
+pnpm -F @de100/apps-proto-cook-infra services:status
 pnpm -F @de100/apps-proto-cook-infra minio:up
 pnpm -F @de100/apps-proto-cook-infra minio:smoke
 ```

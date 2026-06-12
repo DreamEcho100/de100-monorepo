@@ -1,110 +1,41 @@
+import { createI18nRouting } from "@de100/i18n-core/shared";
+
 import type { I18nLocaleCode } from "./shared";
 import { i18nDefaultLocale, i18nLocales } from "./shared";
 
-const appLocaleLookup = new Set<string>(i18nLocales.map((locale) => locale.code));
 const excludedTopLevelSegments = new Set(["api", "_build", "assets", "health"]);
 const staticAssetPattern = /\.[a-z0-9]+$/i;
 
-function normalizePathname(pathname: string) {
-	if (!pathname) {
-		return "/";
-	}
+const appI18nRouting = createI18nRouting<I18nLocaleCode>({
+	defaultLocale: i18nDefaultLocale,
+	locales: i18nLocales,
+	shouldLocalizePathname(pathnameWithoutLocale, pathnameSegments) {
+		const firstSegment = pathnameSegments[0];
 
-	const collapsedPathname = pathname.replace(/\/+/g, "/");
-	const withLeadingSlash = collapsedPathname.startsWith("/")
-		? collapsedPathname
-		: `/${collapsedPathname}`;
-
-	if (withLeadingSlash.length > 1 && withLeadingSlash.endsWith("/")) {
-		return withLeadingSlash.slice(0, -1);
-	}
-
-	return withLeadingSlash;
-}
-
-export function isI18nLocale(value: string | undefined): value is I18nLocaleCode {
-	return typeof value === "string" && appLocaleLookup.has(value);
-}
-
-export function splitLocaleFromPathname(pathname: string) {
-	const normalizedPathname = normalizePathname(pathname);
-	const pathnameSegments = normalizedPathname.split("/").filter(Boolean);
-	const [firstSegment, ...remainingSegments] = pathnameSegments;
-
-	if (!isI18nLocale(firstSegment)) {
-		return {
-			localeInPathname: undefined,
-			pathnameWithoutLocale: normalizedPathname,
-			pathnameWithoutLocaleSegments: pathnameSegments,
-		};
-	}
-
-	const pathnameWithoutLocale =
-		remainingSegments.length > 0 ? `/${remainingSegments.join("/")}` : "/";
-
-	return {
-		localeInPathname: firstSegment,
-		pathnameWithoutLocale,
-		pathnameWithoutLocaleSegments: remainingSegments,
-	};
-}
-
-export function createLocalizedPath(locale: string, pathname: string) {
-	const resolvedLocale = isI18nLocale(locale) ? locale : i18nDefaultLocale;
-	const normalizedPathname = normalizePathname(pathname);
-	const { pathnameWithoutLocale, pathnameWithoutLocaleSegments } =
-		splitLocaleFromPathname(normalizedPathname);
-
-	if (pathnameWithoutLocale === "/") {
-		return `/${resolvedLocale}`;
-	}
-
-	return `/${resolvedLocale}/${pathnameWithoutLocaleSegments.join("/")}`;
-}
-
-export function resolvePreferredLocale(options?: {
-	cookieLocale?: string | null | undefined;
-	headerLocale?: string | null | undefined;
-}): I18nLocaleCode {
-	const cookieLocale = options?.cookieLocale ?? undefined;
-	if (isI18nLocale(cookieLocale)) {
-		return cookieLocale;
-	}
-
-	const headerLocale = options?.headerLocale?.trim().toLowerCase();
-	if (headerLocale) {
-		for (const languagePart of headerLocale.split(",")) {
-			const baseTag = languagePart.split(";")[0]?.trim().split("-")[0];
-			if (isI18nLocale(baseTag)) {
-				return baseTag;
-			}
+		if (pathnameWithoutLocale === "/api/reference") {
+			return true;
 		}
-	}
 
-	return i18nDefaultLocale;
-}
+		if (pathnameWithoutLocale === "/api" || pathnameWithoutLocale.startsWith("/api/")) {
+			return false;
+		}
 
-export function isLocaleManagedPathname(pathname: string) {
-	const normalizedPathname = normalizePathname(pathname);
-	const { pathnameWithoutLocale } = splitLocaleFromPathname(normalizedPathname);
-	const pathnameSegments = pathnameWithoutLocale.split("/").filter(Boolean);
-	const firstSegment = pathnameSegments[0];
+		if (!firstSegment) {
+			return true;
+		}
 
-	if (pathnameWithoutLocale === "/api/reference") {
-		return true;
-	}
+		if (excludedTopLevelSegments.has(firstSegment)) {
+			return false;
+		}
 
-	if (pathnameWithoutLocale === "/api" || pathnameWithoutLocale.startsWith("/api/")) {
-		return false;
-	}
+		return !staticAssetPattern.test(firstSegment);
+	},
+});
 
-	if (!firstSegment) {
-		return true;
-	}
-
-	if (excludedTopLevelSegments.has(firstSegment)) {
-		return false;
-	}
-
-	return !staticAssetPattern.test(firstSegment);
-}
+export const {
+	createLocalizedPath,
+	isI18nLocale,
+	isLocaleManagedPathname,
+	resolvePreferredLocale,
+	splitLocaleFromPathname,
+} = appI18nRouting;

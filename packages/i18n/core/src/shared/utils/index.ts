@@ -6,6 +6,7 @@
 import type {
 	I18nLocalCodeToDef,
 	I18nLocaleDef,
+	I18nLocaleMessages,
 	I18nMessage,
 	I18nTranslations,
 	I18nTranslationsShape,
@@ -22,14 +23,17 @@ import type {
 export function defineTranslation<
 	TranslationKey extends string,
 	TranslationOptions extends ExtractParamOptions<TranslationKey>,
->(string: TranslationKey, options: TranslationOptions): [TranslationKey, TranslationOptions] {
+>(
+	string: TranslationKey,
+	options: TranslationOptions,
+): readonly [TranslationKey, TranslationOptions] {
 	return [string, options];
 }
 
 /**
  * Error class for i18n-related errors with enhanced debugging information
  */
-class I18nError extends Error {
+export class I18nError extends Error {
 	constructor(
 		message: string,
 		public readonly locale: string,
@@ -116,18 +120,36 @@ function getRelativeTimeFormatter(
 const pluralRulesCache = new Map<string, Intl.PluralRules>();
 function getPluralRules(locale: string, type?: Intl.PluralRuleType): Intl.PluralRules {
 	const key = `${locale}-${type ?? "cardinal"}`;
-	if (!pluralRulesCache.has(key)) {
-		pluralRulesCache.set(key, new Intl.PluralRules(locale, { type }));
+	const cachedPluralRules = pluralRulesCache.get(key);
+	if (cachedPluralRules) {
+		return cachedPluralRules;
 	}
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	return pluralRulesCache.get(key)!;
+
+	const pluralRules = new Intl.PluralRules(locale, { type });
+	pluralRulesCache.set(key, pluralRules);
+	return pluralRules;
 }
 
 /**
  * Pre-compiled regex patterns for better performance
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _PARAM_REGEX = /\{([^:}]+)(?::([^}]*))?\}/g;
+const PARAM_REGEX = /\{([^:}]+)(?::([^}]*))?\}/g;
+
+function escapeRegExp(value: string) {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function createParamRegex(argKey: string) {
+	return new RegExp(`\\{${escapeRegExp(argKey)}(?::([^}]*))?\\}`, "g");
+}
+
+function getParamType(str: string, argKey: string) {
+	PARAM_REGEX.lastIndex = 0;
+	for (const match of str.matchAll(PARAM_REGEX)) {
+		if (match[1] === argKey) return match[2];
+	}
+	return undefined;
+}
 
 /**
  * Initialize the i18n system with locale configuration and translations
@@ -143,7 +165,7 @@ export function generateI18nConfig({
 	locale: string;
 	// defaultLocale: string;
 	fallbackLocale?: string | string[] | readonly string[];
-	translations: Record<string, I18nTranslations>; // I18nTranslations;
+	translations: Record<string, I18nLocaleMessages<I18nTranslations>>;
 	onError?: (error: I18nError) => void;
 	i18nLocales: readonly I18nLocaleDef[];
 }) {
@@ -291,10 +313,8 @@ function performSubstitution(
 ): string {
 	return Object.entries(args).reduce((result, [argKey, argValue]) => {
 		try {
-			// Use pre-compiled regex to find parameter pattern
-			const match = new RegExp(`\\{${argKey}:?([^}]*)?\\}`).exec(result);
-			// const match = result.match(new RegExp(`\\{${argKey}:?([^}]*)?\\}`));
-			const [replaceKey, argType] = match ?? [`{${argKey}}`, undefined];
+			const argType = getParamType(result, argKey);
+			const replaceRegex = createParamRegex(argKey);
 
 			switch (argType) {
 				case "plural": {
@@ -332,7 +352,7 @@ function performSubstitution(
 
 					const numberFormatter = getNumberFormatter(locale, pluralMap.formatter);
 					return result.replace(
-						replaceKey,
+						replaceRegex,
 						replacement.replace("{?}", numberFormatter.format(argValue)),
 					);
 				}
@@ -367,7 +387,7 @@ function performSubstitution(
 						);
 					}
 
-					return result.replace(replaceKey, replacement);
+					return result.replace(replaceRegex, replacement);
 				}
 
 				case "number": {
@@ -381,7 +401,7 @@ function performSubstitution(
 					}
 
 					const numberFormatter = getNumberFormatter(locale, translationParams.number?.[argKey]);
-					return result.replace(replaceKey, numberFormatter.format(argValue));
+					return result.replace(replaceRegex, numberFormatter.format(argValue));
 				}
 
 				case "list": {
@@ -395,7 +415,7 @@ function performSubstitution(
 					}
 
 					const listFormatter = getListFormatter(locale, translationParams.list?.[argKey]);
-					return result.replace(replaceKey, listFormatter.format(argValue));
+					return result.replace(replaceRegex, listFormatter.format(argValue));
 				}
 
 				case "date": {
@@ -409,7 +429,7 @@ function performSubstitution(
 					}
 
 					const dateFormatter = getDateTimeFormatter(locale, translationParams.date?.[argKey]);
-					return result.replace(replaceKey, dateFormatter.format(argValue));
+					return result.replace(replaceRegex, dateFormatter.format(argValue));
 				}
 
 				case "relativeTime": {
@@ -444,12 +464,12 @@ function performSubstitution(
 						locale,
 						translationParams.relativeTime?.[argKey],
 					);
-					return result.replace(replaceKey, relativeTimeFormatter.format(value, unit));
+					return result.replace(replaceRegex, relativeTimeFormatter.format(value, unit));
 				}
 
 				default:
 					// Default to string conversion for untyped parameters
-					return result.replace(replaceKey, String(argValue));
+					return result.replace(replaceRegex, String(argValue));
 			}
 		} catch (error) {
 			// Re-throw I18nError, wrap other errors

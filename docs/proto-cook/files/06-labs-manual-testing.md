@@ -2,6 +2,8 @@
 
 Labs are gated Feature Labs. They are intended for local/manual evaluation, not normal product navigation.
 
+Start with `labs/00-lab-setup.md`, then use the tutorial for the specific lab route. This page is the short route map; the per-lab files are the step-by-step manuals.
+
 Routes:
 
 - `/en/files`
@@ -19,11 +21,26 @@ Baseline before testing:
 
 ```sh
 pnpm install
+pnpm -F @de100/apps-proto-cook-infra services:status
 pnpm -F @de100/apps-proto-cook-infra minio:up
 pnpm -F @de100/apps-proto-cook-db db:migrate
 pnpm -F @de100/apps-proto-cook-web db:seed
 pnpm dev
 ```
+
+Detailed tutorials:
+
+| Lab | Tutorial |
+| --- | --- |
+| Shared setup | `labs/00-lab-setup.md` |
+| Hybrid upload | `labs/01-hybrid-upload-lab.md` |
+| HTTP-native upload | `labs/02-http-native-upload-lab.md` |
+| Provider smoke | `labs/03-provider-smoke-lab.md` |
+| Course video | `labs/04-course-video-lab.md` |
+| HLS playback | `labs/05-hls-playback-session-lab.md` |
+| Processing and variants | `labs/06-processing-variants-lab.md` |
+| Entitlement matrix | `labs/07-entitlement-matrix-lab.md` |
+| Cleanup and feedback | `labs/08-cleanup-and-feedback.md` |
 
 Hybrid lab checks:
 
@@ -58,3 +75,5 @@ Visible browser evaluation:
 pnpm -F @de100/apps-proto-cook-web test:browser:headed
 pnpm -F @de100/apps-proto-cook-web test:browser:ui
 ```
+
+After testing, run `labs/08-cleanup-and-feedback.md` so ports, containers, and temporary sessions do not leak into the next lab pass.

@@ -52,7 +52,7 @@ type FilesApproachLabPageProps = {
 };
 
 export function FilesApproachLabShellPage() {
-	const { locale } = useI18n();
+	const { locale, t } = useI18n();
 	const navigate = useNavigate();
 	const session = authClient.useSession();
 	const [isHydrated, setIsHydrated] = createSignal(false);
@@ -74,11 +74,11 @@ export function FilesApproachLabShellPage() {
 			class="mx-auto grid w-full max-w-7xl gap-6 px-[clamp(1rem,2vw+0.5rem,2rem)] pt-8 pb-16"
 			id="main-content"
 		>
-			<Title>Files Lab</Title>
+			<Title>{t("filesLab.shell.metaTitle")}</Title>
 			<Show
 				fallback={
 					<Alert role="status">
-						<AlertDescription>Loading files lab session...</AlertDescription>
+						<AlertDescription>{t("filesLab.shell.loading")}</AlertDescription>
 					</Alert>
 				}
 				when={canUseLab()}
@@ -87,60 +87,57 @@ export function FilesApproachLabShellPage() {
 					<CardHeader class="space-y-3">
 						<div class="flex flex-wrap items-start justify-between gap-3">
 							<div>
-								<CardTitle>Files lab</CardTitle>
-								<CardDescription>
-									Compare the two maintained files API approaches before choosing the long-term
-									default for each product surface.
-								</CardDescription>
+								<CardTitle>{t("filesLab.shell.title")}</CardTitle>
+								<CardDescription>{t("filesLab.shell.description")}</CardDescription>
 							</div>
-							<Badge variant="secondary">Phase 9C</Badge>
+							<Badge variant="secondary">{t("filesLab.shell.phaseBadge")}</Badge>
 						</div>
 					</CardHeader>
 					<CardContent class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
 						<Button as="a" href={createLocalizedPath(locale(), "/files-lab/hybrid")}>
-							Hybrid lab
+							{t("filesLab.actions.hybridLab")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/http")}
 							variant="outline"
 						>
-							HTTP-native lab
+							{t("filesLab.actions.httpNativeLab")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/course-video")}
 							variant="outline"
 						>
-							Course video lab
+							{t("filesLab.actions.courseVideoLab")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/provider-smoke")}
 							variant="outline"
 						>
-							Provider smoke
+							{t("filesLab.actions.providerSmoke")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/hls-playback")}
 							variant="outline"
 						>
-							HLS playback
+							{t("filesLab.actions.hlsPlayback")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/processing-variants")}
 							variant="outline"
 						>
-							Processing
+							{t("filesLab.actions.processing")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/entitlements")}
 							variant="outline"
 						>
-							Entitlements
+							{t("filesLab.actions.entitlements")}
 						</Button>
 					</CardContent>
 				</Card>
@@ -150,7 +147,7 @@ export function FilesApproachLabShellPage() {
 }
 
 export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
-	const { locale } = useI18n();
+	const { locale, t } = useI18n();
 	const navigate = useNavigate();
 	const session = authClient.useSession();
 	const [state, setState] = createStore<{
@@ -189,7 +186,7 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 
 	async function uploadFiles(files: File[]) {
 		if (files.length === 0) {
-			appendLog("Choose or generate at least one file.", "error");
+			appendLog(t("filesLab.logs.missingFiles"), "error");
 			return;
 		}
 
@@ -198,6 +195,10 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 		try {
 			const client = createLabClient({
 				approach: props.approach,
+				errorMessages: {
+					directDownloadForbidden: t("filesLab.logs.httpDirectDownloadForbidden"),
+					directUploadForbidden: t("filesLab.logs.httpDirectUploadForbidden"),
+				},
 				forcedProtocol: state.forcedProtocol,
 				storageBackend: state.storageBackend,
 				track: state.track,
@@ -218,11 +219,16 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 			});
 			await runtime.uploadAll();
 			appendLog(
-				`Uploaded ${files.length} file(s) through ${props.approach} / ${state.track} / ${state.storageBackend}.`,
+				t("filesLab.logs.uploaded", {
+					approach: props.approach,
+					count: files.length,
+					storageBackend: state.storageBackend,
+					track: state.track,
+				}),
 				"success",
 			);
 		} catch (error) {
-			appendLog(error instanceof Error ? error.message : "Files lab upload failed.", "error");
+			appendLog(error instanceof Error ? error.message : t("filesLab.logs.uploadFailed"), "error");
 		} finally {
 			setState("isUploading", false);
 		}
@@ -233,20 +239,19 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 			class="mx-auto grid w-full max-w-7xl gap-6 px-[clamp(1rem,2vw+0.5rem,2rem)] pt-8 pb-16"
 			id="main-content"
 		>
-			<Title>Files Approach Lab</Title>
+			<Title>{t("filesLab.approach.metaTitle")}</Title>
 			<Card class="border-primary/10 bg-card/95 shadow-black/5 shadow-sm">
 				<CardHeader class="space-y-3">
 					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div>
 							<CardTitle>
-								{props.approach === "hybrid" ? "Hybrid files lab" : "HTTP-native files lab"}
+								{props.approach === "hybrid"
+									? t("filesLab.approach.hybridTitle")
+									: t("filesLab.approach.httpTitle")}
 							</CardTitle>
-							<CardDescription>
-								Test image, video, audio, document, generic file, visibility, signed-read, range,
-								variant, processing, disabled integration, and user-selected file workflows.
-							</CardDescription>
+							<CardDescription>{t("filesLab.approach.description")}</CardDescription>
 						</div>
-						<Badge variant="secondary">Phase 9C</Badge>
+						<Badge variant="secondary">{t("filesLab.shell.phaseBadge")}</Badge>
 					</div>
 					<div class="flex flex-wrap gap-2">
 						<Button
@@ -254,14 +259,14 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 							href={createLocalizedPath(locale(), "/files-lab/hybrid")}
 							variant={props.approach === "hybrid" ? "secondary" : "outline"}
 						>
-							Hybrid
+							{t("filesLab.actions.hybrid")}
 						</Button>
 						<Button
 							as="a"
 							href={createLocalizedPath(locale(), "/files-lab/http")}
 							variant={props.approach === "http-native" ? "secondary" : "outline"}
 						>
-							HTTP-native
+							{t("filesLab.actions.httpNative")}
 						</Button>
 					</div>
 				</CardHeader>
@@ -270,7 +275,7 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 			<Show
 				fallback={
 					<Alert role="status">
-						<AlertDescription>Loading files lab session...</AlertDescription>
+						<AlertDescription>{t("filesLab.shell.loading")}</AlertDescription>
 					</Alert>
 				}
 				when={canUseLab()}
@@ -278,15 +283,12 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 				<div class="grid gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
 					<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 						<CardHeader>
-							<CardTitle>Matrix controls</CardTitle>
-							<CardDescription>
-								Each upload run records the selected API approach, storage profile, and upload
-								protocol.
-							</CardDescription>
+							<CardTitle>{t("filesLab.matrix.title")}</CardTitle>
+							<CardDescription>{t("filesLab.matrix.description")}</CardDescription>
 						</CardHeader>
 						<CardContent class="grid gap-4">
 							<Field class="grid gap-2">
-								<FieldLabel for="files-lab-track">Track</FieldLabel>
+								<FieldLabel for="files-lab-track">{t("filesLab.fields.track")}</FieldLabel>
 								<FieldContent>
 									<NativeSelect
 										id="files-lab-track"
@@ -302,7 +304,9 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 								</FieldContent>
 							</Field>
 							<Field class="grid gap-2">
-								<FieldLabel for="files-lab-storage">Storage profile</FieldLabel>
+								<FieldLabel for="files-lab-storage">
+									{t("filesLab.fields.storageProfile")}
+								</FieldLabel>
 								<FieldContent>
 									<NativeSelect
 										id="files-lab-storage"
@@ -318,7 +322,9 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 								</FieldContent>
 							</Field>
 							<Field class="grid gap-2">
-								<FieldLabel for="files-lab-protocol">Upload protocol</FieldLabel>
+								<FieldLabel for="files-lab-protocol">
+									{t("filesLab.fields.uploadProtocol")}
+								</FieldLabel>
 								<FieldContent>
 									<NativeSelect
 										id="files-lab-protocol"
@@ -337,7 +343,9 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 								</FieldContent>
 							</Field>
 							<Field class="grid gap-2">
-								<FieldLabel for="files-lab-visibility">Visibility</FieldLabel>
+								<FieldLabel for="files-lab-visibility">
+									{t("filesLab.fields.visibility")}
+								</FieldLabel>
 								<FieldContent>
 									<NativeSelect
 										id="files-lab-visibility"
@@ -349,8 +357,12 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 										}
 										value={state.visibility}
 									>
-										<NativeSelectOption value="private">private</NativeSelectOption>
-										<NativeSelectOption value="public">public</NativeSelectOption>
+										<NativeSelectOption value="private">
+											{t("files.visibility.private")}
+										</NativeSelectOption>
+										<NativeSelectOption value="public">
+											{t("files.visibility.public")}
+										</NativeSelectOption>
 									</NativeSelect>
 								</FieldContent>
 							</Field>
@@ -359,10 +371,8 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 
 					<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 						<CardHeader>
-							<CardTitle>Fixture forms</CardTitle>
-							<CardDescription>
-								Use generated fixtures for deterministic checks or choose local files manually.
-							</CardDescription>
+							<CardTitle>{t("filesLab.uploads.title")}</CardTitle>
+							<CardDescription>{t("filesLab.uploads.description")}</CardDescription>
 						</CardHeader>
 						<CardContent class="grid gap-4">
 							<div class="flex flex-wrap gap-2">
@@ -371,14 +381,14 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 									type="button"
 									variant="secondary"
 								>
-									Generate fixtures
+									{t("filesLab.actions.generateFixtures")}
 								</Button>
 								<Button
 									disabled={state.isUploading}
 									onClick={() => void uploadFiles(state.selectedFiles)}
 									type="button"
 								>
-									Upload selected
+									{t("filesLab.actions.uploadSelected")}
 								</Button>
 							</div>
 							<input
@@ -389,13 +399,14 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 								type="file"
 							/>
 							<P class="text-muted-foreground text-sm" role="status">
-								{state.selectedFiles.length} file(s) selected.
+								{t("filesLab.status.selectedFiles", { count: state.selectedFiles.length })}
 							</P>
 							<ul class="grid gap-2">
 								<For each={state.selectedFiles}>
 									{(file) => (
 										<li class="rounded-lg border border-border/70 px-3 py-2 text-sm">
-											{file.name} - {file.type || "application/octet-stream"} - {file.size} bytes
+											{file.name} - {file.type || t("filesLab.uploads.octetStream")} - {file.size}{" "}
+											{t("files.units.bytes")}
 										</li>
 									)}
 								</For>
@@ -406,10 +417,8 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 
 				<Card class="border-border/70 bg-card/95 shadow-black/5 shadow-sm">
 					<CardHeader>
-						<CardTitle>Runtime status</CardTitle>
-						<CardDescription>
-							Progress, target selection, and records from the latest run.
-						</CardDescription>
+						<CardTitle>{t("filesLab.runtime.title")}</CardTitle>
+						<CardDescription>{t("filesLab.runtime.description")}</CardDescription>
 					</CardHeader>
 					<CardContent class="grid gap-4">
 						<ul class="grid gap-2">
@@ -426,13 +435,15 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 										<Show when={item.target}>
 											{(target) => (
 												<P class="mt-2 text-muted-foreground text-xs">
-													target: {target().protocol} {target().method}
+													{t("filesLab.runtime.targetPrefix")} {target().protocol} {target().method}
 												</P>
 											)}
 										</Show>
 										<Show when={item.record}>
 											{(record) => (
-												<P class="mt-2 text-muted-foreground text-xs">record: {record().id}</P>
+												<P class="mt-2 text-muted-foreground text-xs">
+													{t("filesLab.runtime.recordPrefix")} {record().id}
+												</P>
 											)}
 										</Show>
 										<Show when={item.error}>
@@ -479,6 +490,7 @@ export default function FilesApproachLabPage(props: FilesApproachLabPageProps) {
 
 function createLabClient(options: {
 	approach: FilesLabApproach;
+	errorMessages: FilesLabErrorMessages;
 	forcedProtocol: "auto" | FilesUploadProtocol;
 	storageBackend: FilesStorageBackend;
 	track: FilesLabTrack;
@@ -492,6 +504,7 @@ function createLabClient(options: {
 
 function createHttpOnlyFilesClient(options: {
 	approach: FilesLabApproach;
+	errorMessages: FilesLabErrorMessages;
 	forcedProtocol: "auto" | FilesUploadProtocol;
 	storageBackend: FilesStorageBackend;
 	track: FilesLabTrack;
@@ -501,7 +514,7 @@ function createHttpOnlyFilesClient(options: {
 	return {
 		...client,
 		downloadDirect: async () => {
-			throw new Error("HTTP-only mode forbids direct oRPC download.");
+			throw new Error(options.errorMessages.directDownloadForbidden);
 		},
 		resolveUploadMode: async (input) => {
 			if (options.forcedProtocol !== "auto" && options.forcedProtocol !== "orpc-direct") {
@@ -523,7 +536,7 @@ function createHttpOnlyFilesClient(options: {
 			);
 		},
 		uploadDirect: async () => {
-			throw new Error("HTTP-only mode forbids direct oRPC upload.");
+			throw new Error(options.errorMessages.directUploadForbidden);
 		},
 		watchProcessing: async function* () {},
 		watchUpload: async function* () {},
@@ -532,6 +545,7 @@ function createHttpOnlyFilesClient(options: {
 
 function createHybridFilesClient(options: {
 	approach: FilesLabApproach;
+	errorMessages: FilesLabErrorMessages;
 	forcedProtocol: "auto" | FilesUploadProtocol;
 	storageBackend: FilesStorageBackend;
 	track: FilesLabTrack;
@@ -574,3 +588,8 @@ function createHybridFilesClient(options: {
 		},
 	};
 }
+
+type FilesLabErrorMessages = {
+	directDownloadForbidden: string;
+	directUploadForbidden: string;
+};

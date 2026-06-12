@@ -1,5 +1,6 @@
 import type { HlsVideoPlayerQoeEvent } from "@de100/files-domains-solidjs/client";
 import { createHlsVideoPlayerQoeEvent, HlsVideoPlayer } from "@de100/files-domains-solidjs/client";
+import { useI18n } from "@de100/i18n-domains-solidjs/client";
 import {
 	Alert,
 	AlertDescription,
@@ -38,6 +39,7 @@ type CoursePlaybackSource = {
 const emptyCaptionsTrack = "data:text/vtt,WEBVTT%0A";
 
 export default function CourseLessonPage() {
+	const { t } = useI18n();
 	const params = useParams<{
 		chapterSlug: string;
 		courseSlug: string;
@@ -58,14 +60,17 @@ export default function CourseLessonPage() {
 		orpc.courses.createPlaybackSession.mutationOptions({
 			onError: (error) => {
 				setState({
-					message: error instanceof Error ? error.message : "Playback session failed.",
+					message:
+						error instanceof Error ? error.message : t("courseLesson.errors.playbackSessionFailed"),
 					playbackSource: null,
 					playbackToken: null,
 				});
 			},
 			onSuccess: (result) => {
 				setState({
-					message: `Playback decision: ${result.decision.reason}.`,
+					message: t("courseLesson.status.playbackDecision", {
+						reason: result.decision.reason,
+					}),
 					playbackSource: result.playback,
 					playbackToken: result.session?.token ?? null,
 				});
@@ -75,7 +80,10 @@ export default function CourseLessonPage() {
 	const qoeMutation = createMutation(() =>
 		orpc.courses.recordPlaybackEvent.mutationOptions({
 			onError: (error) => {
-				setState("message", error instanceof Error ? error.message : "Playback event failed.");
+				setState(
+					"message",
+					error instanceof Error ? error.message : t("courseLesson.errors.playbackEventFailed"),
+				);
 			},
 		}),
 	);
@@ -85,7 +93,7 @@ export default function CourseLessonPage() {
 			class="mx-auto grid w-full max-w-5xl gap-6 px-[clamp(1rem,2vw+0.5rem,2rem)] pt-8 pb-16"
 			id="main-content"
 		>
-			<Title>Course Lesson</Title>
+			<Title>{t("courseLesson.metaTitle")}</Title>
 			<Card class="border-primary/10 bg-card/95 shadow-black/5 shadow-sm">
 				<CardHeader class="space-y-3">
 					<div>
@@ -105,15 +113,21 @@ export default function CourseLessonPage() {
 						{(source) => (
 							<div class="grid gap-3">
 								<NativeSelect
-									aria-label="Player prototype"
+									aria-label={t("courseLesson.labels.playerPrototype")}
 									onChange={(event) =>
 										setState("playerMode", event.currentTarget.value as CoursePlayerMode)
 									}
 									value={state.playerMode}
 								>
-									<NativeSelectOption value="package">Package player</NativeSelectOption>
-									<NativeSelectOption value="helper">Helper-only player</NativeSelectOption>
-									<NativeSelectOption value="external">External adapter</NativeSelectOption>
+									<NativeSelectOption value="package">
+										{t("courseLesson.playerModes.package")}
+									</NativeSelectOption>
+									<NativeSelectOption value="helper">
+										{t("courseLesson.playerModes.helper")}
+									</NativeSelectOption>
+									<NativeSelectOption value="external">
+										{t("courseLesson.playerModes.external")}
+									</NativeSelectOption>
 								</NativeSelect>
 								<Switch>
 									<Match when={state.playerMode === "package"}>
@@ -124,7 +138,11 @@ export default function CourseLessonPage() {
 										/>
 									</Match>
 									<Match when={state.playerMode === "helper"}>
-										<HelperOnlyCoursePlayer onQoeEvent={recordPlaybackEvent} source={source()} />
+										<HelperOnlyCoursePlayer
+											captionsLabel={t("courseLesson.labels.captions")}
+											onQoeEvent={recordPlaybackEvent}
+											source={source()}
+										/>
 									</Match>
 									<Match when={state.playerMode === "external"}>
 										<ExternalCoursePlayerPrototype
@@ -142,7 +160,7 @@ export default function CourseLessonPage() {
 							onClick={requestPlaybackSession}
 							type="button"
 						>
-							Request playback
+							{t("courseLesson.actions.requestPlayback")}
 						</Button>
 					</div>
 					<Show when={state.message}>
@@ -202,6 +220,7 @@ export default function CourseLessonPage() {
 }
 
 function HelperOnlyCoursePlayer(props: {
+	captionsLabel: string;
 	onQoeEvent: (event: HlsVideoPlayerQoeEvent) => void;
 	source: CoursePlaybackSource;
 }) {
@@ -221,7 +240,7 @@ function HelperOnlyCoursePlayer(props: {
 			}
 			src={props.source.masterUrl}
 		>
-			<track default kind="captions" label="Captions" src={emptyCaptionsTrack} />
+			<track default kind="captions" label={props.captionsLabel} src={emptyCaptionsTrack} />
 			<For each={props.source.captionTracks}>
 				{(track) => (
 					<track

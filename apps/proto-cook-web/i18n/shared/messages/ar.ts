@@ -1,6 +1,8 @@
-import type { I18nTranslations } from "@de100/i18n-core/shared";
+import type { I18nLocaleMessages } from "@de100/i18n-core/shared";
 
-export const arMessages: I18nTranslations = {
+import type { enMessages } from "./en";
+
+export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 	about: {
 		badge: "SolidStart + Better Auth + oRPC",
 		ctas: {
@@ -240,10 +242,10 @@ export const arMessages: I18nTranslations = {
 		},
 		lede: "استخدم مسار المصادقة لإنشاء جلسة، ثم انتقل إلى لوحة التحكم وصفحة المهام للتحقق من الحزمة المشتركة من البداية إلى النهاية.",
 		stackBadge: "SolidStart + Better Auth + oRPC",
-		title: "بداية منصة DE100 التعليمية",
+		title: "بداية DE100 Proto Cook",
 	},
 	meta: {
-		appTitle: "منصة DE100 التعليمية",
+		appTitle: "DE100 Proto Cook",
 	},
 	files: {
 		actions: {
@@ -348,6 +350,278 @@ export const arMessages: I18nTranslations = {
 		visibility: {
 			private: "خاص",
 			public: "عام",
+		},
+	},
+	filesLab: {
+		actions: {
+			courseVideoLab: "مختبر فيديو الدروس",
+			entitlements: "الصلاحيات",
+			files: "الملفات",
+			generateFixtures: "توليد ملفات اختبار",
+			hlsPlayback: "تشغيل HLS",
+			httpNative: "HTTP-native",
+			httpNativeLab: "مختبر HTTP-native",
+			hybrid: "Hybrid",
+			hybridLab: "مختبر Hybrid",
+			lesson: "الدرس",
+			processing: "المعالجة",
+			providerSmoke: "اختبار مزود التخزين",
+			uploadSelected: "رفع المحدد",
+		},
+		approach: {
+			description:
+				"اختبر الصور والفيديو والصوت والمستندات والملفات العامة، وإمكانية الوصول، والقراءة الموقعة، والقراءة الجزئية، والنسخ، والمعالجة، والتكاملات المعطلة، والملفات التي يختارها المستخدم.",
+			httpTitle: "مختبر ملفات HTTP-native",
+			hybridTitle: "مختبر ملفات Hybrid",
+			metaTitle: "مختبر مقاربات الملفات",
+		},
+		fields: {
+			storageProfile: "ملف التخزين",
+			track: "المسار",
+			uploadProtocol: "بروتوكول الرفع",
+			visibility: "إمكانية الوصول",
+		},
+		logs: {
+			httpDirectDownloadForbidden: "يمنع وضع HTTP-only التنزيل المباشر عبر oRPC.",
+			httpDirectUploadForbidden: "يمنع وضع HTTP-only الرفع المباشر عبر oRPC.",
+			missingFiles: "اختر أو ولد ملفا واحدا على الأقل.",
+			uploadFailed: "فشل رفع ملفات المختبر.",
+			uploaded: "تم رفع {count:number} ملف عبر {approach} / {track} / {storageBackend}.",
+		},
+		matrix: {
+			description: "يسجل كل تشغيل للرفع مقاربة الواجهة، وملف التخزين، وبروتوكول الرفع المختار.",
+			title: "ضوابط المصفوفة",
+		},
+		runtime: {
+			description: "التقدم، واختيار الهدف، والسجلات من آخر تشغيل.",
+			recordPrefix: "السجل:",
+			targetPrefix: "الهدف:",
+			title: "حالة التشغيل",
+		},
+		scenario: {
+			actions: {
+				courseVideoLab: "مختبر فيديو الدروس",
+				httpNativeLab: "مختبر HTTP-native",
+				hybridLab: "مختبر Hybrid",
+			},
+			entitlements: {
+				badge: "الصلاحيات",
+				description:
+					"اختبر حالات المعاينة، والمستخدم المسجل، والمالك، والمدير، والرمز المنتهي، ومنع تشغيل الدروس الخاصة.",
+				scenarios: {
+					expiredSession: {
+						expected: "تفشل رموز جلسات التشغيل المنتهية أو الملغاة على مسارات البيان والمقاطع.",
+						name: "جلسة منتهية",
+						step1: "أنشئ جلسة تشغيل.",
+						step2: "أنه أو ألغ الرمز في قاعدة البيانات.",
+						step3: "أعد تحميل مسار البيان.",
+					},
+					privateMatrix: {
+						expected: "ترفض الدروس الخاصة المستخدمين غير المعروفين وتسمح للمسجلين والمديرين.",
+						name: "مصفوفة الدرس الخاص",
+						step1: "سجل الخروج واطلب الوصول.",
+						step2: "سجل الدخول كمستخدم مسجل في الدرس.",
+						step3: "سجل الدخول كمدير.",
+					},
+					previewLesson: {
+						expected: "تصدر دروس المعاينة وصول التشغيل دون تسجيل في الدرس.",
+						name: "درس معاينة",
+						step1: "افتح درس المعاينة المزروع.",
+						step2: "اطلب جلسة تشغيل.",
+						step3: "أكد تحميل بيان HLS.",
+					},
+				},
+				title: "مختبر مصفوفة الصلاحيات",
+			},
+			hlsPlayback: {
+				badge: "HLS",
+				description:
+					"تحقق من جلسات تشغيل HLS الموقعة، وقراءة البيان، وقراءة المقاطع، وسلوك التسليم المناسب للقراءة الجزئية.",
+				scenarios: {
+					playerPath: {
+						expected: "يستخدم مشغل المنتج عنصر الفيديو الأصلي مع hls.js عند الحاجة.",
+						name: "مسار المشغل",
+						step1: "افتح درس الدورة.",
+						step2: "ابدأ التشغيل.",
+						step3: "افحص طلبات الشبكة للبيان والمقاطع.",
+					},
+					segmentAccess: {
+						expected: "تكون قراءة المقاطع مقيدة برمز جلسة التشغيل نفسه.",
+						name: "وصول المقاطع",
+						step1: "افتح البيان.",
+						step2: "انسخ مسار مقطع.",
+						step3: "اطلب المقطع مع الرمز وبدونه.",
+					},
+					signedManifest: {
+						expected: "تنتج مجموعات الآثار الجاهزة روابط بيان HLS قابلة للتشغيل.",
+						name: "بيان موقع",
+						step1: "اربط مجموعة آثار جاهزة.",
+						step2: "اطلب جلسة تشغيل.",
+						step3: "افتح رابط البيان.",
+					},
+				},
+				title: "مختبر تشغيل HLS",
+			},
+			loading: "جار تحميل جلسة مختبر سيناريوهات الملفات...",
+			processingVariants: {
+				badge: "المعالجة",
+				description:
+					"تحقق من مخرجات النسخ والآثار للصور والصوت والمستندات ومهام معالجة فيديو الدروس.",
+				scenarios: {
+					disabledAdapters: {
+						expected: "تفشل مسارات موجة الصوت ومعاينة المستند بوضوح عندما تكون المحولات معطلة.",
+						name: "محولات معطلة",
+						step1: "اختر ملف اختبار صوتيا أو مستندا.",
+						step2: "عطل المحول.",
+						step3: "شغل المعالجة.",
+					},
+					imageVariant: {
+						expected: "يمكن قراءة نسخة الصورة المحسنة عبر مسار النسخ.",
+						name: "نسخة صورة",
+						step1: "ارفع صورة.",
+						step2: "شغل المعالجة.",
+						step3: "افتح مسار النسخة المحسنة.",
+					},
+					videoArtifactGroup: {
+						expected: "تكتب معالجة HLS للفيديو سجلات مجموعة الآثار وتنظف كائنات التجهيز المؤقت.",
+						name: "مجموعة آثار الفيديو",
+						step1: "ارفع ملف اختبار فيديو.",
+						step2: "أضف مهمة HLS إلى الصف.",
+						step3: "افحص الآثار ومفاتيح التخزين.",
+					},
+				},
+				title: "مختبر المعالجة والنسخ",
+			},
+			providerSmoke: {
+				badge: "المزود",
+				description:
+					"تحقق من مسارات نظام الملفات المحلي وMinIO المتوافق مع S3 وإعدادات R2 قبل اعتماد تدفقات المنتج عليها.",
+				scenarios: {
+					localFilesystem: {
+						expected: "يكتب وضع نظام الملفات المحلي داخل `.local/files` للتطوير دون اتصال.",
+						name: "نظام الملفات المحلي",
+						step1: "بدل مشغل التخزين إلى local.",
+						step2: "ازرع أو ارفع ملف اختبار.",
+						step3: "افحص جذر الملفات المحلي.",
+					},
+					minioSmoke: {
+						expected:
+							"ينجح `pnpm -F @de100/apps-proto-cook-infra minio:smoke` مع حاويات عامة وخاصة.",
+						name: "اختبار MinIO",
+						step1: "شغل MinIO.",
+						step2: "شغل أمر الاختبار.",
+						step3: "أكد أن حالة JSON هي pass.",
+					},
+					missingProviderConfig: {
+						expected: "يفشل إعداد S3 المعطل أو الناقص قبل تنفيذ الرفع.",
+						name: "إعداد مزود ناقص",
+						step1: "أزل سر S3 أو اسم الحاوية.",
+						step2: "شغل فحص ما قبل التشغيل.",
+						step3: "أكد ظهور خطأ إعداد واضح.",
+					},
+				},
+				title: "مختبر مزود التخزين",
+			},
+		},
+		shell: {
+			description:
+				"قارن بين مقاربتي واجهة الملفات المدعومتين قبل اختيار الافتراضي الطويل الأمد لكل سطح منتج.",
+			loading: "جار تحميل جلسة مختبر الملفات...",
+			metaTitle: "مختبر الملفات",
+			phaseBadge: "مختبر ميزة",
+			title: "مختبر الملفات",
+		},
+		status: {
+			selectedFiles: "تم اختيار {count:number} ملف.",
+		},
+		uploads: {
+			description: "استخدم ملفات اختبار مولدة لفحوص متكررة أو اختر ملفات محلية يدويا.",
+			octetStream: "application/octet-stream",
+			title: "نماذج ملفات الاختبار",
+		},
+	},
+	courseVideoLab: {
+		actions: {
+			attachVideo: "ربط الفيديو",
+			createChapter: "إنشاء فصل",
+			createCourse: "إنشاء دورة",
+			createLesson: "إنشاء درس",
+			requestPlayback: "طلب التشغيل",
+		},
+		asset: {
+			description: "استخدم معرف ملف فيديو جاهز أو مخزن من صفحة الملفات أو واجهة الرفع.",
+			title: "أصل الفيديو",
+		},
+		defaults: {
+			chapterTitle: "المقدمة",
+			courseTitle: "دورة مختبر الفيديو",
+			lessonTitle: "معاينة HLS",
+		},
+		fields: {
+			chapterSlug: "معرف الفصل",
+			chapterTitle: "عنوان الفصل",
+			courseSlug: "معرف الدورة",
+			courseTitle: "عنوان الدورة",
+			lessonSlug: "معرف الدرس",
+			lessonTitle: "عنوان الدرس",
+			lessonVisibility: "إمكانية وصول الدرس",
+			videoFileId: "معرف ملف الفيديو",
+		},
+		logs: {
+			attachedVideo: "تم ربط ملف الفيديو {fileId}؛ حالة الأصل {status}.",
+			chapterCreationFailed: "فشل إنشاء الفصل.",
+			courseCreationFailed: "فشل إنشاء الدورة.",
+			createdChapter: "تم إنشاء الفصل {slug}.",
+			createdCourse: "تم إنشاء الدورة {slug}.",
+			createdLesson: "تم إنشاء الدرس {slug}.",
+			empty: "لا توجد أحداث لتدفق الدورة بعد.",
+			lessonCreationFailed: "فشل إنشاء الدرس.",
+			playbackDecision: "قرار التشغيل: {reason}.",
+			playbackSessionFailed: "فشل إنشاء جلسة التشغيل.",
+			videoAttachmentFailed: "فشل ربط الفيديو.",
+		},
+		lessonVisibility: {
+			enrolled: "المسجلون",
+			preview: "معاينة",
+			private: "خاص",
+		},
+		metaTitle: "مختبر فيديو الدروس",
+		page: {
+			description:
+				"اربط الفيديوهات المرفوعة بالدروس، وأضف معالجة HLS إلى الصف، واطلب جلسات تشغيل موقعة.",
+			loading: "جار تحميل جلسة مختبر فيديو الدروس...",
+			phaseBadge: "مختبر ميزة",
+			title: "مختبر فيديو الدروس",
+		},
+		runLog: {
+			description: "نتائج تدفق الدورة من جلسة المتصفح الحالية.",
+			title: "سجل التشغيل",
+		},
+		structure: {
+			description: "إنشاء دورة وفصل ودرس ضمن نطاق المالك.",
+			title: "بنية الدورة",
+		},
+	},
+	courseLesson: {
+		actions: {
+			requestPlayback: "طلب التشغيل",
+		},
+		errors: {
+			playbackEventFailed: "فشل تسجيل حدث التشغيل.",
+			playbackSessionFailed: "فشل إنشاء جلسة التشغيل.",
+		},
+		labels: {
+			captions: "الترجمات",
+			playerPrototype: "نموذج المشغل",
+		},
+		metaTitle: "درس الدورة",
+		playerModes: {
+			external: "محول خارجي",
+			helper: "مشغل مساعد فقط",
+			package: "مشغل الحزمة",
+		},
+		status: {
+			playbackDecision: "قرار التشغيل: {reason}.",
 		},
 	},
 	todos: {
