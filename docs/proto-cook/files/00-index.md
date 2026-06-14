@@ -2,6 +2,12 @@
 
 This directory is the operator and developer manual for the Files Platform inside Proto Cook.
 
+Use it in three passes:
+
+1. **Manual tester pass** - follow the lab tutorials exactly and record expected versus actual behavior.
+2. **Operator pass** - verify services, ports, env, storage providers, and cleanup commands.
+3. **QA pass** - use the compact checklists to decide whether a scenario passes, fails, or needs better docs.
+
 Read in order:
 
 1. `01-architecture.md` - package topology, app adapters, and API approach.
@@ -55,3 +61,38 @@ Video:
   app -> signed playback session
   player -> native video + lazy hls.js
 ```
+
+## Manual Test Standard
+
+Every lab result should produce enough evidence that another engineer can reproduce it without asking what happened:
+
+```txt
+Route:
+Signed-in state:
+Storage profile:
+API approach:
+Upload protocol:
+Delivery strategy:
+Expected UI result:
+Actual UI result:
+Network/API evidence:
+Storage evidence:
+Database or run-log evidence:
+Cleanup performed:
+Decision or defect:
+```
+
+Treat a lab as incomplete if it only says "works" or "fails". It must show which layer accepted or rejected the operation: browser UI, app route, oRPC procedure, HTTP file route, storage adapter, worker, entitlement policy, or delivery route.
+
+## Service Ownership
+
+All service commands are package-owned. Do not add root feature aliases for files or MinIO:
+
+```sh
+pnpm -F @de100/apps-proto-cook-infra services:status
+pnpm -F @de100/apps-proto-cook-infra services:up
+pnpm -F @de100/apps-proto-cook-infra minio:smoke
+pnpm -F @de100/apps-proto-cook-infra services:down
+```
+
+If a port stays occupied after shutdown, inspect containers first and stop only Proto Cook-owned services. Do not kill unrelated local containers just to make a lab pass.

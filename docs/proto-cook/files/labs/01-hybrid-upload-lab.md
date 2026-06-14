@@ -44,6 +44,13 @@ Expected:
 - Private files are not readable through public URL behavior.
 - Small files can use app-server friendly paths.
 
+Evidence to capture:
+
+- UI: selected track, storage profile, upload protocol, and visibility.
+- Network: oRPC control-plane request plus the selected byte path.
+- Policy: private/public decision for at least one completed file.
+- Storage: local-fs path or explicit storage profile log.
+
 ## Forced XHR Check
 
 1. Keep storage profile `local-fs`.
@@ -55,6 +62,12 @@ Expected:
 - The app uses the HTTP upload route.
 - Progress moves from pending to completed.
 - Completion still happens through the typed files client runtime.
+
+Evidence to capture:
+
+- Network request under `/api/files/*`.
+- Progress or run-log state before and after completion.
+- Completed file record ID.
 
 ## Forced oRPC-Direct Check
 
@@ -68,6 +81,12 @@ Expected:
 - Oversized files fail with an explicit limit error.
 - This remains a Hybrid capability, not a top-level RPC-native architecture.
 
+Evidence to capture:
+
+- Accepted small-file run-log entry.
+- Rejected oversized-file error copy.
+- Confirmation that the error names the limit instead of silently falling back.
+
 ## S3-Shaped Planning Check
 
 1. Switch storage profile to `minio-s3`.
@@ -79,6 +98,22 @@ Expected:
 - Planner prefers S3-compatible direct object behavior when available.
 - Large or stress-track files move toward multipart-shaped planning.
 - If MinIO is not running, the error is explicit and points to provider availability.
+
+Evidence to capture:
+
+- Planner result for `auto`.
+- MinIO/provider availability status.
+- Any disabled or incomplete provider error.
+
+## QA Checklist
+
+| Check | Pass condition |
+| --- | --- |
+| Auto local-fs | Upload completes and policy evidence is visible |
+| Forced XHR | Network uses `/api/files/*` and completion still records typed file metadata |
+| Forced oRPC-direct | Small file succeeds; oversized file fails explicitly |
+| MinIO/S3-shaped planning | Planner names S3-compatible path or provider config error |
+| Localization | All visible labels and errors come from i18n copy |
 
 ## Feedback To Capture
 

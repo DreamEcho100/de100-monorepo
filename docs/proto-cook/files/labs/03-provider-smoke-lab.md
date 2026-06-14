@@ -40,6 +40,12 @@ Expected:
 - `minio:smoke` verifies public/private bucket behavior.
 - `minio:down` releases ports and containers.
 
+Evidence to capture:
+
+- `minio:status` output before and after the test.
+- Smoke command pass/fail JSON or terminal summary.
+- Any port conflict and the owning container name.
+
 ## Local-FS Scenario
 
 1. Set storage driver to local.
@@ -51,6 +57,12 @@ Expected:
 - Files are written under the configured local root.
 - This mode does not claim S3 parity.
 - Public/private behavior is still enforced by app policy.
+
+Evidence to capture:
+
+- Configured local root path.
+- File or directory created by the upload.
+- Read-policy result for public and private visibility.
 
 ## MinIO Scenario
 
@@ -65,6 +77,12 @@ Expected:
 - Private objects are not accidentally public.
 - Public object paths are only public when route policy allows.
 
+Evidence to capture:
+
+- Public and private bucket names.
+- Smoke command object verification result.
+- Private object denial from anonymous context.
+
 ## Missing Provider Config Scenario
 
 1. Remove one S3 setting in `.env.local`.
@@ -76,6 +94,22 @@ Expected:
 - Failure happens before byte upload.
 - Error names the missing config class.
 - The app does not silently fall back to local storage.
+
+Evidence to capture:
+
+- Missing config key or config class.
+- Pre-upload failure status.
+- Confirmation that no fallback object was written.
+
+## QA Checklist
+
+| Check | Pass condition |
+| --- | --- |
+| Service lifecycle | MinIO starts, smokes, logs, and stops through infra package commands |
+| Local-fs | Writes locally and keeps app policy enforcement |
+| MinIO | Public/private buckets exist and pass smoke verification |
+| Missing config | Fails before upload with an explicit provider config error |
+| Cleanup | `services:status` shows no unexpected owned services after shutdown |
 
 ## Feedback To Capture
 

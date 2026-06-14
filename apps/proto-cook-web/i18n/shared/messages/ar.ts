@@ -55,7 +55,7 @@ export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 			title: "أنشئ كلمة مرور جديدة",
 		},
 		signIn: {
-			description: "سجّل الدخول لمراجعة الميزانيات والمعاملات وآخر نشاط للحساب.",
+			description: "سجّل الدخول لمراجعة مختبرات Proto Cook والملفات والمهام وتدفقات API الخاصة.",
 			emailLabel: "البريد الإلكتروني",
 			eyebrow: "المصادقة",
 			forgotPasswordLink: "هل نسيت كلمة المرور؟",
@@ -67,7 +67,7 @@ export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 			verifyEmailLink: "هل تحتاج إلى رسالة تحقق؟",
 		},
 		signUp: {
-			description: "أنشئ حسابًا لإدارة الميزانيات والفئات واتجاهات الإنفاق.",
+			description: "أنشئ حسابًا لاختبار تدفقات Proto Cook التي تحتاج إلى مصادقة.",
 			emailLabel: "البريد الإلكتروني",
 			eyebrow: "إنشاء حساب",
 			nameLabel: "الاسم",
@@ -75,7 +75,7 @@ export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 			submit: "إنشاء حساب",
 			submitting: "جارٍ إنشاء الحساب...",
 			switchPrompt: "لديك حساب بالفعل؟ سجّل الدخول",
-			title: "ابدأ التتبع",
+			title: "أنشئ مساحة العمل",
 			verifyEmailLink: "أنشأت حسابًا بالفعل؟ أرسل رسالة تحقق",
 		},
 		verifyEmail: {
@@ -199,7 +199,7 @@ export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 		description: "هذا المسار ليس جزءًا من سطح تطبيق SolidStart الذي تمت هجرته.",
 		eyebrow: "مسار مفقود",
 		helpLinkLabel: "start.solidjs.com",
-		helpPrefix: "زر",
+		helpPrefix: "زُر",
 		helpSuffix: "لمعرفة المزيد حول بناء تطبيقات SolidStart.",
 		metaTitle: "غير موجود",
 		title: "الصفحة غير موجودة",
@@ -300,7 +300,7 @@ export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 			readyDescription: "يمكن إعادة فتح العناصر المؤكدة وإدارتها من هنا.",
 			readyTitle: "مكتبة الملفات الجاهزة",
 			uploadDescription:
-				"يستخدم هذا السطح المهاجر الرفع المباشر عبر oRPC للملفات المؤهلة؛ مسارات الملفات الثنائية ستأتي في مرحلة 8B.",
+				"يستخدم هذا السطح رفع oRPC المباشر للملفات المؤهلة، مع إبقاء مسارات HTTP والمزود الثنائية متاحة للتدفقات الأكبر أو الخاصة ببروتوكول معين.",
 			uploadTitle: "رفع ملف",
 		},
 		status: {
@@ -370,13 +370,13 @@ export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 		},
 		approach: {
 			description:
-				"اختبر الصور والفيديو والصوت والمستندات والملفات العامة، وإمكانية الوصول، والقراءة الموقعة، والقراءة الجزئية، والنسخ، والمعالجة، والتكاملات المعطلة، والملفات التي يختارها المستخدم.",
+				"اختبر الصور والفيديو والصوت والمستندات والملفات ذات النوع العام، وإمكانية الوصول، والقراءة الموقعة، والقراءة الجزئية، والنسخ، والمعالجة، والتكاملات المعطلة، والملفات التي يختارها المستخدم.",
 			httpTitle: "مختبر ملفات HTTP-native",
 			hybridTitle: "مختبر ملفات Hybrid",
 			metaTitle: "مختبر مقاربات الملفات",
 		},
 		fields: {
-			storageProfile: "ملف التخزين",
+			storageProfile: "نمط التخزين",
 			track: "المسار",
 			uploadProtocol: "بروتوكول الرفع",
 			visibility: "إمكانية الوصول",
@@ -384,12 +384,12 @@ export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 		logs: {
 			httpDirectDownloadForbidden: "يمنع وضع HTTP-only التنزيل المباشر عبر oRPC.",
 			httpDirectUploadForbidden: "يمنع وضع HTTP-only الرفع المباشر عبر oRPC.",
-			missingFiles: "اختر أو ولد ملفا واحدا على الأقل.",
+			missingFiles: "اختر أو ولّد ملفًا واحدًا على الأقل.",
 			uploadFailed: "فشل رفع ملفات المختبر.",
 			uploaded: "تم رفع {count:number} ملف عبر {approach} / {track} / {storageBackend}.",
 		},
 		matrix: {
-			description: "يسجل كل تشغيل للرفع مقاربة الواجهة، وملف التخزين، وبروتوكول الرفع المختار.",
+			description: "يسجل كل تشغيل للرفع مقاربة الواجهة، ونمط التخزين، وبروتوكول الرفع المختار.",
 			title: "ضوابط المصفوفة",
 		},
 		runtime: {
@@ -420,11 +420,11 @@ export const arMessages: I18nLocaleMessages<typeof enMessages> = {
 						expected: "ترفض الدروس الخاصة المستخدمين غير المعروفين وتسمح للمسجلين والمديرين.",
 						name: "مصفوفة الدرس الخاص",
 						step1: "سجل الخروج واطلب الوصول.",
-						step2: "سجل الدخول كمستخدم مسجل في الدرس.",
+						step2: "سجل الدخول كمستخدم مسجل في الدورة.",
 						step3: "سجل الدخول كمدير.",
 					},
 					previewLesson: {
-						expected: "تصدر دروس المعاينة وصول التشغيل دون تسجيل في الدرس.",
+						expected: "تصدر دروس المعاينة وصول التشغيل دون تسجيل في الدورة.",
 						name: "درس معاينة",
 						step1: "افتح درس المعاينة المزروع.",
 						step2: "اطلب جلسة تشغيل.",

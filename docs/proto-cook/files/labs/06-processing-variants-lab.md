@@ -38,6 +38,12 @@ Expected:
 - Missing optional image adapters fail explicitly.
 - Original retention follows route policy.
 
+Evidence to capture:
+
+- Source file ID and optimized variant URL.
+- Variant route status code.
+- Adapter-disabled error when image processing dependencies are unavailable.
+
 ## Video Artifact Scenario
 
 1. Upload a small MP4, MOV, WebM, or MKV file.
@@ -51,6 +57,12 @@ Expected:
 - Staging-prefix writes are promoted only after validation.
 - Failed staging output is cleaned or marked for cleanup.
 
+Evidence to capture:
+
+- Artifact group ID or run-log entry.
+- Master manifest, rendition manifest, segment, poster, or metadata artifact names.
+- Staging cleanup or failed-job cleanup result.
+
 ## Disabled Adapter Scenario
 
 1. Disable an optional adapter such as ffmpeg, ffprobe, audio metadata, or document preview.
@@ -61,6 +73,22 @@ Expected:
 - The job fails with a clear disabled-adapter reason.
 - The system does not pretend the variant exists.
 - Retry behavior preserves enough state to diagnose the failed stage.
+
+Evidence to capture:
+
+- Disabled adapter name.
+- Failed job stage.
+- Retry state before and after retry.
+
+## QA Checklist
+
+| Check | Pass condition |
+| --- | --- |
+| Image variant | Optimized image is readable through the variant route |
+| Video artifacts | HLS outputs are artifact groups, not single-file variants |
+| Disabled adapter | Missing optional dependency fails explicitly and does not fake output |
+| Cleanup | Failed staging output is removed or marked for cleanup |
+| Retry | Retry preserves useful diagnosis state |
 
 ## Feedback To Capture
 

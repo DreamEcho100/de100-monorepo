@@ -1,8 +1,11 @@
 name: Proto Cook CI
 
+# This workflow intentionally uses workflow-level path filters. Do not configure
+# it as a required branch-protection check unless skipped required workflows are
+# acceptable for this repository, or replace it with an always-report wrapper.
 on:
   pull_request:
-    branches: ["*"]
+    branches: ["**"]
     paths:
       - "apps/proto-cook-web/**"
       - "packages/apps/proto-cook/**"
@@ -13,6 +16,11 @@ on:
       - "tooling/**"
       - "turbo/**"
       - "docs/proto-cook/**"
+      - "docs/files-platform-dx-evaluation.md"
+      - "docs/flows/files-flow.md"
+      - "docs/flows/todo-flow.md"
+      - "docs/onboarding.md"
+      - "docs/adr/**"
       - "docs/architecture/**"
       - "docs/setup/**"
       - ".github/workflows/proto-cook-ci.yml"
@@ -43,6 +51,9 @@ on:
       - "turbo.json"
   merge_group:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
@@ -57,6 +68,7 @@ jobs:
   validate:
     name: Validate Proto Cook
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:16-alpine

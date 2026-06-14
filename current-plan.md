@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-14
 
-Current active phase: Phase 12 complete - awaiting manual feedback or next scope
+Current active phase: Phase 13 complete - awaiting manual feedback or next scope
 
 Archived previous tracker:
 
@@ -47,6 +47,8 @@ Proto Cook is the prototype host app for reusable product decisions. It is not a
 17. `docs/archive/**` may preserve historical terminology. Active docs/source may not.
 18. Root `package.json` scripts are workspace orchestration only. Package/domain/service-specific commands must live in the owning package and be reached through Turbo or explicit `pnpm -F` commands.
 19. Reusable packages may export safe defaults, but app/domain policy must be injectable through options, adapters, predicates, or props. Hardcoded app assumptions do not belong in general packages.
+20. Proto Cook Arabic localization uses Dev Arabic: natural Arabic UI prose with technical product, framework, provider, protocol, and storage names kept in English where that improves developer clarity.
+21. CI remains workflow-level path filtered by explicit decision. These workflows should not be configured as required branch-protection checks unless skipped required workflow behavior is acceptable or an always-report wrapper is added.
 
 ## Phase Board
 
@@ -67,6 +69,7 @@ Status legend: Not Started, In Progress, Done, Blocked, Paused.
 | 10B   | i18n package parity and type consistency | Done |
 | 11    | Final QA, visible browser evaluation, and handoff | Done |
 | 12    | Reusable package assumption audit       | Done |
+| 13    | Localization, docs, and CI hardening    | Done |
 
 ## Phase 1 - Planning and Domain Docs
 
@@ -564,6 +567,60 @@ Audit workspace-global packages for app-owned assumptions, fix concrete leaks wi
 - Done: reusable UI package READMEs no longer describe themselves as Proto Cook-only packages.
 - Done: stale absolute docs links to the old `proto-cook` workspace path were replaced with stable repo-relative path text.
 
+## Phase 13 - Localization, Docs, and CI Hardening
+
+### Objective
+
+Close the user-reported gaps around Arabic locale parity, manual files lab documentation depth, and CI workflow ownership without changing app runtime behavior or files-platform APIs.
+
+### Scope
+
+1. Add a locale parity behavior test for Proto Cook messages:
+   - recursive key parity between English and Arabic
+   - placeholder name/type parity
+   - no requirement that translated strings equal English literals
+2. Fix known English/Arabic semantic drift:
+   - stale finance auth copy
+   - obsolete future-phase upload copy
+   - Arabic wording that confuses generic files with public files
+   - Arabic course/enrollment wording around course video labs
+3. Upgrade `docs/proto-cook/files` into a usable manual for:
+   - manual UI testing
+   - operator/service lifecycle checks
+   - concise QA pass/fail checks
+4. Tighten CI ownership while keeping workflow-level path filters:
+   - Proto Cook CI owns app env, service containers, stale scans, web build, MinIO smoke, and hosted smoke
+   - General Packages CI owns reusable package-family validation
+   - no root feature/service scripts are added
+5. Document the GitHub Actions path-filter caveat in workflow files.
+
+### Step Tracker
+
+| Step | Task | Status | Evidence |
+| ---- | ---- | ------ | -------- |
+| 1 | Add locale parity test and fix known locale drift | Done | `apps/proto-cook-web/i18n/shared/messages/locale-parity.test.ts` |
+| 2 | Upgrade files lab docs with evidence/checklist structure | Done | `docs/proto-cook/files` |
+| 3 | Tighten CI workflow ownership and path-filter notes | Done | `.github/workflows/*.yml` |
+| 4 | Run focused app locale tests | Done | Validation log |
+| 5 | Run final Phase 13 gates | Done | Validation log |
+
+### Status
+
+- Done: English and Arabic auth/files lab copy was realigned around Proto Cook, files, labs, and course-video terminology.
+- Done: locale parity is now tested by recursive key and placeholder comparison instead of relying only on structural TypeScript compatibility.
+- Done: files lab tutorials now include evidence capture, expected failure modes, service lifecycle checks, and QA checklists.
+- Done: Proto Cook CI remains app/service-smoke focused; General Packages CI now runs reusable package-family Turbo filters instead of full workspace app checks.
+- Done: generated Playwright output is excluded from the Proto Cook web Biome scan.
+
+### Exit Gates
+
+1. `pnpm -F @de100/apps-proto-cook-web test`
+2. `pnpm format-and-lint:check`
+3. `pnpm type:check`
+4. `pnpm test`
+5. `pnpm -F @de100/apps-proto-cook-web build`
+6. Active stale scan remains clean outside intentional scanner patterns, archives, generated output, and historical tracker text.
+
 ## Validation Log
 
 - 2026-06-12: Confirmed latest GitHub action release pages before CI update:
@@ -641,3 +698,13 @@ Audit workspace-global packages for app-owned assumptions, fix concrete leaks wi
 - 2026-06-14: `pnpm format-and-lint:check` passed for Phase 12.
 - 2026-06-14: `pnpm type:check` passed with 43 Turbo tasks.
 - 2026-06-14: `pnpm test` passed with 19 Turbo test tasks.
+- 2026-06-14: Phase 13 started to fix Arabic/English locale drift, deepen `docs/proto-cook/files` manual testing docs, and tighten CI workflow ownership while keeping workflow-level path filters.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-web test -- i18n/shared/messages/locale-parity.test.ts` passed; Vitest also ran the existing app test suite for 13 files and 42 tests.
+- 2026-06-14: `pnpm format-and-lint:check` initially failed because generated `apps/proto-cook-web/test-results/.last-run.json` was ignored by Git but included by Biome. Fixed by excluding `test-results` and `playwright-report` in the app Biome config.
+- 2026-06-14: `pnpm format-and-lint:check` passed after the generated-output exclude.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-web type:check` passed after tightening the locale placeholder parser.
+- 2026-06-14: `pnpm type:check` passed with 43 Turbo tasks.
+- 2026-06-14: `pnpm test` passed with 19 Turbo test tasks.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-web build` passed with the existing non-blocking Nitro/esbuild bigint target warnings.
+- 2026-06-14: Active stale app identity scan is clean. Active old media terminology scan only reports historical tracker wording and legitimate dependency naming such as `@solid-primitives/media`.
+- 2026-06-14: Turbo dry runs for the General Packages CI package-family filters succeeded for reusable package `type:check` and `test` tasks.

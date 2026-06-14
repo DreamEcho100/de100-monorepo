@@ -44,6 +44,12 @@ Expected:
 - Duplicate slugs should fail clearly.
 - Labels are localized through the app i18n messages.
 
+Evidence to capture:
+
+- Run-log entries for course, chapter, and lesson creation.
+- The selected lesson visibility.
+- Localized duplicate-slug or validation error if repeated.
+
 ## Attach A Video File
 
 1. Open `/en/files` or `/en/files-lab/hybrid`.
@@ -58,6 +64,12 @@ Expected:
 - Non-video files should fail validation or policy checks.
 - A stored source can exist before HLS artifacts are ready.
 
+Evidence to capture:
+
+- Source file ID copied from Files.
+- Video asset status after attachment.
+- Rejection message for a non-video file, if tested.
+
 ## Request Playback
 
 1. Click `Request playback`.
@@ -69,6 +81,22 @@ Expected:
 - Preview lessons can issue playback based on policy.
 - Enrolled/private lessons require the right session and entitlement.
 - If artifacts are not ready, the failure should identify readiness, not auth.
+
+Evidence to capture:
+
+- Playback decision reason.
+- Session token or explicit readiness failure.
+- Lesson route result after opening the lab button.
+
+## QA Checklist
+
+| Check | Pass condition |
+| --- | --- |
+| Course structure | Course, chapter, and lesson create in order with localized labels |
+| Video attachment | Ready/stored video file attaches; invalid file kind fails clearly |
+| Playback request | Preview/enrolled/private policy is visible in the decision |
+| Artifact readiness | Missing HLS artifacts are reported separately from auth denial |
+| Source versus asset | UI and docs make the copied file ID expectation clear |
 
 ## Feedback To Capture
 

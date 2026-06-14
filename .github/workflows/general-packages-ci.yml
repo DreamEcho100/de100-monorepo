@@ -1,16 +1,24 @@
 name: General Packages CI
 
+# This workflow intentionally uses workflow-level path filters. Do not configure
+# it as a required branch-protection check unless skipped required workflows are
+# acceptable for this repository, or replace it with an always-report wrapper.
 on:
   pull_request:
-    branches: ["*"]
+    branches: ["**"]
     paths:
       - "packages/files/**"
       - "packages/ui/**"
       - "packages/i18n/**"
       - "tooling/**"
       - "turbo/**"
-      - "scripts/**"
-      - "docs/**"
+      - "scripts/check-package-scripts.mjs"
+      - "docs/README.md"
+      - "docs/architecture/**"
+      - "docs/flows/**"
+      - "docs/setup/files-platform-examples.md"
+      - "docs/setup/files-status-migration.md"
+      - "docs/setup/ui-domains-migration.md"
       - ".github/workflows/general-packages-ci.yml"
       - "package.json"
       - "pnpm-lock.yaml"
@@ -24,14 +32,22 @@ on:
       - "packages/i18n/**"
       - "tooling/**"
       - "turbo/**"
-      - "scripts/**"
-      - "docs/**"
+      - "scripts/check-package-scripts.mjs"
+      - "docs/README.md"
+      - "docs/architecture/**"
+      - "docs/flows/**"
+      - "docs/setup/files-platform-examples.md"
+      - "docs/setup/files-status-migration.md"
+      - "docs/setup/ui-domains-migration.md"
       - ".github/workflows/general-packages-ci.yml"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "turbo.json"
   merge_group:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -47,23 +63,21 @@ jobs:
   reusable-packages:
     name: Reusable Packages
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
 
       - name: Setup
         uses: ./tooling/github/setup
 
-      - name: Write Proto Cook CI env
-        run: node ./scripts/write-proto-cook-ci-env.mjs
-
       - name: Package script convention
         run: pnpm lint:workspace-package-scripts
 
-      - name: Format and lint
-        run: pnpm format-and-lint:check
+      - name: Format and lint reusable packages
+        run: pnpm turbo run format-and-lint:check --filter="./packages/files/**" --filter="./packages/i18n/**" --filter="./packages/ui/**" --continue
 
-      - name: Typecheck
-        run: pnpm type:check
+      - name: Typecheck reusable packages
+        run: pnpm turbo run type:check --filter="./packages/files/**" --filter="./packages/i18n/**" --filter="./packages/ui/**" --continue
 
-      - name: Test
-        run: pnpm test
+      - name: Test reusable packages
+        run: pnpm turbo run test --filter="./packages/files/**" --filter="./packages/i18n/**" --filter="./packages/ui/**" --continue

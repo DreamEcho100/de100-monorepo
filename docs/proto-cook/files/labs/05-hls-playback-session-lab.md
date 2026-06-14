@@ -40,6 +40,12 @@ Expected:
 - If a session is issued, the player receives a manifest URL.
 - Browser network requests include manifest and segment paths when artifacts are available.
 
+Evidence to capture:
+
+- Playback decision text and reason.
+- Manifest URL shape without exposing private storage credentials.
+- Network entries for manifest and segment requests when available.
+
 ## Player Prototype Comparison
 
 1. Request playback.
@@ -55,6 +61,12 @@ Expected:
 - QoE metadata includes enough detail to identify the prototype path.
 - The package player remains the recommended product default.
 
+Evidence to capture:
+
+- Selected player mode.
+- QoE event or run-log entry for play, pause, wait, or complete.
+- Any difference between package, helper-only, and external adapter behavior.
+
 ## Token Scope Check
 
 1. Copy a manifest URL.
@@ -67,6 +79,22 @@ Expected:
 - Valid token plus valid entitlement can read.
 - Missing, expired, or revoked token fails.
 - Segment access is scoped to the same playback session policy as the manifest.
+
+Evidence to capture:
+
+- Same-session success.
+- Signed-out or expired-token failure.
+- Segment request following the same allow/deny behavior as the manifest.
+
+## QA Checklist
+
+| Check | Pass condition |
+| --- | --- |
+| Signed manifest | Tokenized manifest access succeeds only when policy allows |
+| Segment policy | Segments follow the same session policy as the manifest |
+| Player modes | Prototype switch does not bypass entitlement decisions |
+| QoE | Playback events identify player mode and meaningful state |
+| Raw MP4 avoidance | Main course-video path uses HLS artifact playback, not raw MP4 delivery |
 
 ## Feedback To Capture
 

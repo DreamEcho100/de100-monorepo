@@ -38,6 +38,12 @@ Expected:
 - The run still records upload target and file record status.
 - The UI rejects direct oRPC paths with localized policy errors if forced.
 
+Evidence to capture:
+
+- `/api/files/*` target or upload request in DevTools.
+- Localized policy error when direct oRPC paths are forced.
+- Completed file record ID and status.
+
 ## Public File Check
 
 1. Change visibility to `public`.
@@ -49,6 +55,12 @@ Expected:
 - Public delivery is allowed by policy.
 - Private-only read checks should not be required for that object.
 - The file metadata still records owner and route.
+
+Evidence to capture:
+
+- Public read request path and status code.
+- File visibility in UI or run log.
+- Confirmation that the object is not accidentally treated as private-only.
 
 ## Private File Check
 
@@ -63,6 +75,12 @@ Expected:
 - Owner read succeeds through private route or signed route behavior.
 - Logs differentiate auth failure from storage failure.
 
+Evidence to capture:
+
+- Anonymous browser request and failure status.
+- Owner browser request and success status.
+- Error copy that separates auth denial from object-not-found.
+
 ## Range Read Check
 
 1. Upload or use a video/audio fixture.
@@ -74,6 +92,22 @@ Expected:
 - Range reads are delivery policy, not upload policy.
 - The route supports byte serving only where configured.
 - Unauthorized range requests fail the same as full-object requests.
+
+Evidence to capture:
+
+- Request headers showing the range request.
+- Response status and content-range behavior when supported.
+- Denied anonymous range read for private content.
+
+## QA Checklist
+
+| Check | Pass condition |
+| --- | --- |
+| Local XHR | Upload and completion use HTTP routes, not direct oRPC byte transfer |
+| Public read | Public file can be read through the documented delivery path |
+| Private read | Anonymous denied; owner allowed; denial reason is clear |
+| Range read | Range support is visible where enabled and policy-gated where private |
+| Localization | Forced-policy errors are localized and actionable |
 
 ## Feedback To Capture
 

@@ -53,7 +53,7 @@ export const enMessages = {
 			title: "Create a new password",
 		},
 		signIn: {
-			description: "Sign in to review budgets, transactions, and recent account activity.",
+			description: "Sign in to review Proto Cook labs, files, todos, and private API flows.",
 			emailLabel: "Email",
 			eyebrow: "Authentication",
 			forgotPasswordLink: "Forgot password?",
@@ -65,7 +65,7 @@ export const enMessages = {
 			verifyEmailLink: "Need a verification email?",
 		},
 		signUp: {
-			description: "Create an account to manage budgets, categories, and spending trends.",
+			description: "Create an account to test authenticated Proto Cook workflows.",
 			emailLabel: "Email",
 			eyebrow: "Create account",
 			nameLabel: "Name",
@@ -73,7 +73,7 @@ export const enMessages = {
 			submit: "Sign Up",
 			submitting: "Creating account...",
 			switchPrompt: "Already have an account? Sign in",
-			title: "Start tracking",
+			title: "Create your workspace",
 			verifyEmailLink: "Already signed up? Send a verification email",
 		},
 		verifyEmail: {
@@ -298,7 +298,7 @@ export const enMessages = {
 			readyDescription: "Completed items can be reopened and managed from here.",
 			readyTitle: "Ready files library",
 			uploadDescription:
-				"This first migrated surface uses direct oRPC upload for eligible files; route-based binary paths land in the Phase 8B compatibility slice.",
+				"This surface uses direct oRPC upload for eligible files and keeps HTTP/provider byte paths available for larger or protocol-specific flows.",
 			uploadTitle: "Upload file",
 		},
 		status: {

@@ -136,3 +136,13 @@ Capture this table for each run:
 | Private | Admin |  | Allow |  |  |  |
 | Expired token | Enrolled |  | Deny |  |  |  |
 
+## QA Checklist
+
+| Check | Pass condition |
+| --- | --- |
+| Preview anonymous | Allowed only because preview policy allows it |
+| Private anonymous | Denied before private storage keys or provider URLs are exposed |
+| Private enrolled | Allowed through enrollment policy and scoped signed access |
+| Private admin | Allowed through admin policy without raw private bucket exposure |
+| Expired token | Manifest and segment requests both fail after expiry |
+| Error clarity | Denial reason distinguishes auth, entitlement, token expiry, and missing object |

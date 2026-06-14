@@ -4,6 +4,8 @@ Labs are gated Feature Labs. They are intended for local/manual evaluation, not 
 
 Start with `labs/00-lab-setup.md`, then use the tutorial for the specific lab route. This page is the short route map; the per-lab files are the step-by-step manuals.
 
+Use this page when you want a compact checklist. Use the per-lab files when you want the full tutorial, expected evidence, failure mode, and cleanup detail.
+
 Routes:
 
 - `/en/files`
@@ -77,3 +79,26 @@ pnpm -F @de100/apps-proto-cook-web test:browser:ui
 ```
 
 After testing, run `labs/08-cleanup-and-feedback.md` so ports, containers, and temporary sessions do not leak into the next lab pass.
+
+## Evidence Checklist
+
+For every lab, capture at least one item from each layer that is involved:
+
+| Layer | Evidence |
+| --- | --- |
+| UI | Screenshot or copied run-log line that shows selected approach/profile/protocol |
+| Network | Request path, status code, and whether the call was oRPC, `/api/files/*`, or provider URL |
+| Storage | Local file path, MinIO object, or explicit disabled-provider error |
+| Policy | Visibility, entitlement, signed token, or disabled integration decision |
+| Cleanup | Service status after shutdown or confirmation that seeded state was reset |
+
+## Pass Or Fail Rules
+
+| Result | Meaning |
+| --- | --- |
+| Pass | Behavior matches the tutorial and the evidence identifies the responsible layer |
+| Product defect | Security, upload, storage, playback, or entitlement behavior is wrong |
+| Documentation defect | Behavior is correct but the tutorial did not predict it |
+| UX/DX defect | Behavior is technically correct but hard to understand, inspect, or recover from |
+
+Stop testing and file a defect immediately if anonymous access can read private files, manifests, segments, or provider URLs.
