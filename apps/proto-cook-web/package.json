@@ -22,7 +22,10 @@
 		"lint:lab-ui-copy": "node ../../scripts/check-proto-cook-lab-ui-copy.mjs",
 		"type:check": "tsc -p tsconfig.json --noEmit",
 		"with-env": "dotenv -e ../../.env -e ../../.env.local --",
-		"with-trace-env": "dotenv -e ../../.env -e ../../.env.local --"
+		"with-trace-env": "dotenv -e ../../.env -e ../../.env.local --",
+		"ci:proto-cook:format-and-lint": "pnpm format-and-lint:check",
+		"ci:proto-cook:type:check": "pnpm type:check",
+		"ci:proto-cook:test": "pnpm test"
 	},
 	"dependencies": {
 		"@de100/apps-proto-cook-api": "workspace:*",

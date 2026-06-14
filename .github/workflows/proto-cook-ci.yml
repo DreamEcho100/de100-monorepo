@@ -24,7 +24,7 @@ on:
       - "docs/architecture/**"
       - "docs/setup/**"
       - ".github/workflows/proto-cook-ci.yml"
-      - "docker-compose.yml"
+      - "packages/apps/proto-cook/infra/docker-compose.yml"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -44,7 +44,7 @@ on:
       - "docs/architecture/**"
       - "docs/setup/**"
       - ".github/workflows/proto-cook-ci.yml"
-      - "docker-compose.yml"
+      - "packages/apps/proto-cook/infra/docker-compose.yml"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -93,9 +93,9 @@ jobs:
           --health-timeout 5s
           --health-retries 10
       minio:
-        image: bitnami/minio:latest
+        image: minio/minio:latest
+        command: server /data --address ":9000" --console-address ":9001"
         env:
-          MINIO_DEFAULT_BUCKETS: "public-files,private-files"
           MINIO_ROOT_PASSWORD: minioadmin
           MINIO_ROOT_USER: minioadmin
         ports:
@@ -118,13 +118,13 @@ jobs:
         run: pnpm lint:ws
 
       - name: Format and lint
-        run: pnpm format-and-lint:check
+        run: pnpm turbo run ci:proto-cook:format-and-lint --continue
 
       - name: Typecheck
-        run: pnpm type:check
+        run: pnpm turbo run ci:proto-cook:type:check --continue
 
       - name: Test
-        run: pnpm test
+        run: pnpm turbo run ci:proto-cook:test --continue
 
       - name: Build web app
         run: pnpm -F @de100/apps-proto-cook-web build

@@ -41,6 +41,32 @@
 			"cache": false,
 			"outputLogs": "new-only"
 		},
+		"ci:proto-cook:format-and-lint": {
+			"dependsOn": ["^topo"],
+			"outputLogs": "new-only"
+		},
+		"ci:proto-cook:type:check": {
+			"dependsOn": ["^topo", "^build"],
+			"outputs": [".cache/tsbuildinfo.json"]
+		},
+		"ci:proto-cook:test": {
+			"dependsOn": ["^topo"],
+			"cache": false,
+			"outputLogs": "new-only"
+		},
+		"ci:general:format-and-lint": {
+			"dependsOn": ["^topo"],
+			"outputLogs": "new-only"
+		},
+		"ci:general:type:check": {
+			"dependsOn": ["^topo", "^build"],
+			"outputs": [".cache/tsbuildinfo.json"]
+		},
+		"ci:general:test": {
+			"dependsOn": ["^topo"],
+			"cache": false,
+			"outputLogs": "new-only"
+		},
 		"test:watch": {
 			"dependsOn": ["^topo"],
 			"cache": false,

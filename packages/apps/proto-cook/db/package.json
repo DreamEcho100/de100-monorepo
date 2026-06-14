@@ -12,10 +12,10 @@
 	"scripts": {
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"db:up": "docker compose -f ../../../../docker-compose.yml up -d --wait proto-cook-postgres",
-		"db:down": "docker compose -f ../../../../docker-compose.yml down",
-		"db:logs": "docker compose -f ../../../../docker-compose.yml logs -f proto-cook-postgres",
-		"db:reset": "docker compose -f ../../../../docker-compose.yml down -v && docker compose -f ../../../../docker-compose.yml up -d --wait proto-cook-postgres",
+		"db:up": "docker compose --project-directory ../../../.. -f ../infra/docker-compose.yml up -d --wait proto-cook-postgres",
+		"db:down": "docker compose --project-directory ../../../.. -f ../infra/docker-compose.yml down",
+		"db:logs": "docker compose --project-directory ../../../.. -f ../infra/docker-compose.yml logs -f proto-cook-postgres",
+		"db:reset": "docker compose --project-directory ../../../.. -f ../infra/docker-compose.yml down -v && docker compose --project-directory ../../../.. -f ../infra/docker-compose.yml up -d --wait proto-cook-postgres",
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:studio": "drizzle-kit studio",
@@ -27,7 +27,10 @@
 		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
 		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
-		"type:check": "tsc -p tsconfig.json --noEmit"
+		"type:check": "tsc -p tsconfig.json --noEmit",
+		"ci:proto-cook:format-and-lint": "pnpm format-and-lint:check",
+		"ci:proto-cook:type:check": "pnpm type:check",
+		"ci:proto-cook:test": "pnpm test"
 	},
 	"dependencies": {
 		"@de100/apps-proto-cook-env": "workspace:*",

@@ -15,7 +15,12 @@
 		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
 		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
-		"type:check": "tsc -p tsconfig.json --noEmit"
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"type:check": "tsc -p tsconfig.json --noEmit",
+		"ci:proto-cook:format-and-lint": "pnpm format-and-lint:check",
+		"ci:proto-cook:type:check": "pnpm type:check",
+		"ci:proto-cook:test": "pnpm test"
 	},
 	"dependencies": {
 		"@t3-oss/env-core": "catalog:",
@@ -28,6 +33,7 @@
 		"@de100/biome-config": "workspace:*",
 		"@de100/tsconfig": "workspace:*",
 		"@types/node": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

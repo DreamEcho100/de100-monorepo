@@ -179,7 +179,7 @@ pnpm -F @de100/apps-proto-cook-web dev
 For MinIO parity:
 
 ```sh
-docker compose up -d proto-cook-postgres proto-cook-redis
+pnpm -F @de100/apps-proto-cook-infra services:up
 pnpm -F @de100/apps-proto-cook-infra minio:up
 pnpm -F @de100/apps-proto-cook-db db:migrate
 pnpm -F @de100/apps-proto-cook-infra minio:smoke

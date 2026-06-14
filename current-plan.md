@@ -1,8 +1,8 @@
 # Current Plan: Proto Cook Modernization
 
-Last updated: 2026-06-14
+Last updated: 2026-06-15
 
-Current active phase: Phase 13 complete - awaiting manual feedback or next scope
+Current active phase: Phase 14 complete - awaiting remote CI verification and manual feedback
 
 Archived previous tracker:
 
@@ -49,6 +49,9 @@ Proto Cook is the prototype host app for reusable product decisions. It is not a
 19. Reusable packages may export safe defaults, but app/domain policy must be injectable through options, adapters, predicates, or props. Hardcoded app assumptions do not belong in general packages.
 20. Proto Cook Arabic localization uses Dev Arabic: natural Arabic UI prose with technical product, framework, provider, protocol, and storage names kept in English where that improves developer clarity.
 21. CI remains workflow-level path filtered by explicit decision. These workflows should not be configured as required branch-protection checks unless skipped required workflow behavior is acceptable or an always-report wrapper is added.
+22. Proto Cook local Docker Compose belongs to `@de100/apps-proto-cook-infra` at `packages/apps/proto-cook/infra/docker-compose.yml`; no root Compose compatibility file is kept for app-specific services.
+23. CI workflow package selection is encoded by package-owned `ci:proto-cook:*` and `ci:general:*` scripts plus Turbo tasks, not root feature aliases.
+24. CI MinIO uses the official `minio/minio:latest` image with bucket bootstrap handled by the MinIO smoke script.
 
 ## Phase Board
 
@@ -70,6 +73,7 @@ Status legend: Not Started, In Progress, Done, Blocked, Paused.
 | 11    | Final QA, visible browser evaluation, and handoff | Done |
 | 12    | Reusable package assumption audit       | Done |
 | 13    | Localization, docs, and CI hardening    | Done |
+| 14    | CI, env, infra ownership, and docs hardening | Done |
 
 ## Phase 1 - Planning and Domain Docs
 
@@ -347,7 +351,7 @@ Run full validation, record remaining risks, and leave the repository with clear
 
 - Done: all automated gates listed above passed.
 - Done: `pnpm -F @de100/apps-proto-cook-infra minio:up` required stopping legacy local containers that were occupying port `9000`; the renamed `de100-proto-cook-minio` container now starts and publishes `9000-9001`.
-- Done: `docker-compose.yml` now binds MinIO explicitly with `--address ":9000"` so the host smoke test can connect.
+- Done: the Proto Cook infra Compose file now binds MinIO explicitly with `--address ":9000"` so the host smoke test can connect.
 - Done: build completed with non-blocking Nitro/esbuild bigint target warnings; track separately if runtime target support becomes a deployment issue.
 
 ## Phase 9 - Root Script Ownership Cleanup
@@ -504,12 +508,13 @@ Run final package/app gates, stale scans, visible browser lab evaluation, and re
 ## Follow-Up Backlog
 
 1. Run the full manual files lab tutorials from `docs/proto-cook/files/06-labs-manual-testing.md` as a human walkthrough and record subjective product/DX feedback.
-2. Decide whether to remove legacy stopped Docker containers with `docker compose up --remove-orphans` during a separate local cleanup.
-3. If production runtime warnings matter for the deployment target, raise the Nitro/esbuild target above ES2019 or isolate the bigint-producing dependency.
-4. Push the split workflows and verify `proto-cook-ci.yml` and `general-packages-ci.yml` remotely with GitHub services.
-5. Continue manual feedback after Phase 12, using the files lab tutorials as the checklist.
-6. Package topology candidate: `packages/*/domains/solidjs` currently names framework integrations as `domains`; consider a future `integrations/solidjs` package-family rename only if the churn is justified by onboarding friction.
-7. Package docs candidate: add package READMEs for major package families beyond the current UI README coverage.
+2. Decide whether to add a package-owned orphan-cleanup command or run a direct one-off Docker cleanup during a separate local maintenance pass.
+3. Clean up old local Docker containers named with the legacy `de100-lms-*` prefix during a separate maintenance pass if they are no longer needed.
+4. If production runtime warnings matter for the deployment target, raise the Nitro/esbuild target above ES2019 or isolate the bigint-producing dependency.
+5. Push the split workflows and verify `proto-cook-ci.yml` and `general-packages-ci.yml` remotely with GitHub services.
+6. Continue manual feedback after Phase 12, using the files lab tutorials as the checklist.
+7. Package topology candidate: `packages/*/domains/solidjs` currently names framework integrations as `domains`; consider a future `integrations/solidjs` package-family rename only if the churn is justified by onboarding friction.
+8. Package docs candidate: add package READMEs for major package families beyond the current UI README coverage.
 
 ## Phase 12 - Reusable Package Assumption Audit
 
@@ -621,6 +626,70 @@ Close the user-reported gaps around Arabic locale parity, manual files lab docum
 5. `pnpm -F @de100/apps-proto-cook-web build`
 6. Active stale scan remains clean outside intentional scanner patterns, archives, generated output, and historical tracker text.
 
+## Phase 14 - CI, Env, Infra Ownership, And Docs Hardening
+
+### Objective
+
+Fix the CI failures reported from GitHub Actions and make ownership explicit for env parsing, local services, workflow-scoped Turbo scripts, and docs.
+
+### Scope
+
+1. Parse CI-style boolean env strings in `@de100/apps-proto-cook-env`:
+   - `APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE`
+   - `DISABLE_ORPC_OUTPUT_VALIDATION`
+2. Keep projected/internal env values typed as real booleans after parsing.
+3. Add env tests for string boolean values such as `"true"`, `"false"`, `"1"`, and `"0"`.
+4. Move Proto Cook Compose ownership from root to `packages/apps/proto-cook/infra/docker-compose.yml`.
+5. Update infra and DB scripts so package-owned commands use the moved Compose file.
+6. Fix GitHub Actions MinIO startup:
+   - official `minio/minio:latest` image
+   - explicit `server /data --address ":9000" --console-address ":9001"` command
+   - bucket creation remains in the MinIO smoke script
+7. Add workflow-scoped CI package scripts:
+   - `ci:proto-cook:*`
+   - `ci:general:*`
+8. Define matching Turbo tasks and update workflows to run the scoped task names.
+9. Update setup, storage, CI, lab, and troubleshooting docs to use infra/package-owned commands.
+
+### Step Tracker
+
+| Step | Task | Status | Evidence |
+| ---- | ---- | ------ | -------- |
+| 1 | Fix env boolean parsing and add tests | Done | `packages/apps/proto-cook/env/src/server.ts`, `server.test.ts` |
+| 2 | Move Compose file into infra ownership | Done | `packages/apps/proto-cook/infra/docker-compose.yml` |
+| 3 | Update package scripts for infra, DB, and workflow-scoped CI | Done | package manifests, `turbo.json` |
+| 4 | Fix CI MinIO service and workflow commands | Done | `.github/workflows/*.yml` |
+| 5 | Update docs for command ownership and CI convention | Done | `docs/setup/ci-workflows.md`, setup docs |
+| 6 | Run focused and full validation gates | Done | Validation log |
+
+### Status
+
+- Done: CI-style env booleans now parse string inputs with `z.stringbool()` while the projected server env remains typed as real booleans.
+- Done: Proto Cook Compose ownership moved from the repo root to `@de100/apps-proto-cook-infra`, with infra and DB scripts updated to use the package-owned file.
+- Done: GitHub Actions MinIO startup now uses the official `minio/minio:latest` image and an explicit server command; bucket bootstrap remains in the MinIO smoke script.
+- Done: workflow-scoped Turbo task ownership is encoded through package `ci:proto-cook:*` and `ci:general:*` scripts plus `turbo.json` tasks.
+- Done: setup, storage, DX, README, and CI docs now point to package-owned service commands and explain the CI script convention.
+- Done: focused, full, and infra validation gates passed locally. Remote GitHub workflow verification remains a follow-up because it requires pushing the workflow changes.
+
+### Exit Gates
+
+1. `pnpm install`
+2. `pnpm -F @de100/apps-proto-cook-env type:check`
+3. `pnpm -F @de100/apps-proto-cook-env test`
+4. `env APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE=true pnpm -F @de100/apps-proto-cook-api test -- src/files-storage.test.ts`
+5. `pnpm turbo run ci:proto-cook:type:check --dry=json`
+6. `pnpm turbo run ci:proto-cook:test --dry=json`
+7. `pnpm turbo run ci:general:type:check --dry=json`
+8. `pnpm turbo run ci:general:test --dry=json`
+9. `pnpm format-and-lint:check`
+10. `pnpm type:check`
+11. `pnpm test`
+12. `pnpm -F @de100/apps-proto-cook-web build`
+13. `pnpm -F @de100/apps-proto-cook-infra services:up`
+14. `pnpm -F @de100/apps-proto-cook-infra services:status`
+15. `pnpm -F @de100/apps-proto-cook-infra minio:smoke`
+16. `pnpm -F @de100/apps-proto-cook-infra services:down`
+
 ## Validation Log
 
 - 2026-06-12: Confirmed latest GitHub action release pages before CI update:
@@ -708,3 +777,15 @@ Close the user-reported gaps around Arabic locale parity, manual files lab docum
 - 2026-06-14: `pnpm -F @de100/apps-proto-cook-web build` passed with the existing non-blocking Nitro/esbuild bigint target warnings.
 - 2026-06-14: Active stale app identity scan is clean. Active old media terminology scan only reports historical tracker wording and legitimate dependency naming such as `@solid-primitives/media`.
 - 2026-06-14: Turbo dry runs for the General Packages CI package-family filters succeeded for reusable package `type:check` and `test` tasks.
+- 2026-06-15: Phase 14 started from reported GitHub Actions failures: string boolean env parsing rejected `APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE`, and CI MinIO could not pull `bitnami/minio:latest`.
+- 2026-06-15: `pnpm install` passed after adding the Proto Cook env test dependency and updating package scripts.
+- 2026-06-15: `pnpm -F @de100/apps-proto-cook-env type:check` passed.
+- 2026-06-15: `pnpm -F @de100/apps-proto-cook-env test` passed after covering CI-style boolean strings and isolating the test env from local `.env.local` leakage.
+- 2026-06-15: `env APP_PROTO_COOK_FILES_S3_FORCE_PATH_STYLE=true pnpm -F @de100/apps-proto-cook-api test -- src/files-storage.test.ts` passed; Vitest ran the API suite with 7 files and 27 tests.
+- 2026-06-15: Turbo dry runs passed for `ci:proto-cook:type:check`, `ci:proto-cook:test`, `ci:general:type:check`, and `ci:general:test`.
+- 2026-06-15: `pnpm format-and-lint:check` passed after formatting the new env test.
+- 2026-06-15: `pnpm type:check` passed with 43 Turbo tasks.
+- 2026-06-15: `pnpm test` passed with 20 Turbo test tasks after increasing the env dynamic-import test timeout.
+- 2026-06-15: `pnpm -F @de100/apps-proto-cook-web build` passed with the existing non-blocking Nitro/esbuild bigint target warnings.
+- 2026-06-15: `pnpm -F @de100/apps-proto-cook-infra services:up`, `services:status`, `minio:smoke`, and `services:down` passed using the infra-owned Compose file. Docker reported old orphan `de100-lms-*` containers; cleanup is tracked as a follow-up.
+- 2026-06-15: Active stale env/app/media scan is clean except intentional CI scanner regexes and historical archive material.

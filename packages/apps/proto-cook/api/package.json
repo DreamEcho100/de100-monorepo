@@ -22,7 +22,10 @@
 		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
 		"lint:files-storage-coupling": "node ../../../../scripts/check-files-storage-coupling.mjs",
 		"lint:localized-errors": "node ../../../../scripts/check-localized-error-literals.mjs",
-		"type:check": "tsc -p tsconfig.json --noEmit"
+		"type:check": "tsc -p tsconfig.json --noEmit",
+		"ci:proto-cook:format-and-lint": "pnpm format-and-lint:check",
+		"ci:proto-cook:type:check": "pnpm type:check",
+		"ci:proto-cook:test": "pnpm test"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "catalog:",

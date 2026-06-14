@@ -178,9 +178,9 @@ APP_PROTO_COOK_FILES_WORKER_STALE_AFTER_MS=300000
 
 See `docs/setup/files-worker-deployment.md` for worker process, ffmpeg, queue, retry, and cleanup guidance.
 
-## Local Docker Postgres and Redis
+## Local Docker Services
 
-This repo now includes root [docker-compose.yml](/home/viavi/Desktop/workspaces/github/proto-cook/docker-compose.yml) services that match the default local database setup and the optional Redis cache setup documented in `.env.example` and used in `.env.local`.
+Local Docker service lifecycle is owned by `@de100/apps-proto-cook-infra`. The Compose file lives at `packages/apps/proto-cook/infra/docker-compose.yml`; there is no root Compose compatibility file for Proto Cook-specific services.
 
 Typical local sequence:
 
@@ -194,15 +194,18 @@ curl -I http://127.0.0.1:3000/
 If you switch to `APP_PROTO_COOK_CACHE_DRIVER=redis`, start Redis too:
 
 ```sh
-docker compose up -d proto-cook-redis
+pnpm -F @de100/apps-proto-cook-infra redis:up
 ```
 
 Useful commands:
 
 ```sh
+pnpm -F @de100/apps-proto-cook-infra services:up
+pnpm -F @de100/apps-proto-cook-infra services:status
 pnpm -F @de100/apps-proto-cook-db db:logs
 pnpm -F @de100/apps-proto-cook-db db:down
 pnpm -F @de100/apps-proto-cook-db db:reset
+pnpm -F @de100/apps-proto-cook-infra services:down
 ```
 
 `db:reset` removes the Docker volume and recreates the database container from scratch.
