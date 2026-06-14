@@ -34,6 +34,8 @@ const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+const SIDEBAR_MOBILE_TITLE = "Sidebar";
+const SIDEBAR_MOBILE_DESCRIPTION = "Displays the mobile sidebar.";
 
 type SidebarContextProps = {
 	state: Accessor<"expanded" | "collapsed">;
@@ -43,6 +45,9 @@ type SidebarContextProps = {
 	setOpenMobile: (open: boolean) => void;
 	isMobile: Accessor<boolean>;
 	toggleSidebar: () => void;
+	widthMobile: string;
+	width: string;
+	widthIcon: string;
 };
 
 const SidebarContext = createContext<SidebarContextProps | null>(null);
@@ -57,23 +62,48 @@ function useSidebar() {
 }
 
 type SidebarProviderProps = ComponentProps<"div"> & {
+	cookieMaxAge?: number;
+	cookieName?: string;
 	defaultOpen?: boolean;
+	keyboardShortcut?: string | false;
+	mobileBreakpoint?: number;
+	widthMobile?: string;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
+	width?: string;
+	widthIcon?: string;
 };
 
 const SidebarProvider = (props: SidebarProviderProps) => {
-	const mergedProps = mergeProps({ defaultOpen: true }, props);
+	const mergedProps = mergeProps(
+		{
+			cookieMaxAge: SIDEBAR_COOKIE_MAX_AGE,
+			cookieName: SIDEBAR_COOKIE_NAME,
+			defaultOpen: true,
+			keyboardShortcut: SIDEBAR_KEYBOARD_SHORTCUT,
+			width: SIDEBAR_WIDTH,
+			widthIcon: SIDEBAR_WIDTH_ICON,
+			widthMobile: SIDEBAR_WIDTH_MOBILE,
+		},
+		props,
+	);
 	const [local, others] = splitProps(mergedProps, [
+		"cookieMaxAge",
+		"cookieName",
 		"defaultOpen",
+		"keyboardShortcut",
+		"mobileBreakpoint",
+		"widthMobile",
 		"open",
 		"onOpenChange",
+		"width",
+		"widthIcon",
 		"class",
 		"style",
 		"children",
 	]);
 
-	const isMobile = useIsMobile();
+	const isMobile = useIsMobile({ breakpoint: local.mobileBreakpoint });
 	const [openMobile, setOpenMobile] = createSignal(false);
 
 	// This is the internal state of the sidebar.
@@ -86,9 +116,10 @@ const SidebarProvider = (props: SidebarProviderProps) => {
 		}
 		_setOpen(value);
 
-		// This sets the cookie to keep the sidebar state.
-		// biome-ignore lint/suspicious/noDocumentCookie: <waiting for better solution>
-		document.cookie = `${SIDEBAR_COOKIE_NAME}=${open()}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+		if (local.cookieName) {
+			// biome-ignore lint/suspicious/noDocumentCookie: browser sidebar state persistence writes a first-party cookie.
+			document.cookie = `${local.cookieName}=${open()}; path=/; max-age=${local.cookieMaxAge}`;
+		}
 	};
 
 	// Helper to toggle the sidebar.
@@ -98,7 +129,11 @@ const SidebarProvider = (props: SidebarProviderProps) => {
 	// Adds a keyboard shortcut to toggle the sidebar.
 	createEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
+			if (
+				local.keyboardShortcut &&
+				event.key === local.keyboardShortcut &&
+				(event.metaKey || event.ctrlKey)
+			) {
 				event.preventDefault();
 				toggleSidebar();
 			}
@@ -120,6 +155,9 @@ const SidebarProvider = (props: SidebarProviderProps) => {
 		openMobile,
 		setOpenMobile,
 		toggleSidebar,
+		widthMobile: local.widthMobile,
+		width: local.width,
+		widthIcon: local.widthIcon,
 	};
 
 	return (
@@ -131,8 +169,8 @@ const SidebarProvider = (props: SidebarProviderProps) => {
 				)}
 				data-slot="sidebar-wrapper"
 				style={{
-					"--sidebar-width": SIDEBAR_WIDTH,
-					"--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+					"--sidebar-width": local.width,
+					"--sidebar-width-icon": local.widthIcon,
 					...(local.style as JSX.CSSProperties),
 				}}
 				{...others}
@@ -147,6 +185,8 @@ type SidebarProps = ComponentProps<"div"> & {
 	side?: "left" | "right";
 	variant?: "sidebar" | "floating" | "inset";
 	collapsible?: "offcanvas" | "icon" | "none";
+	mobileDescription?: string;
+	mobileTitle?: string;
 };
 
 const Sidebar: Component<SidebarProps> = (props) => {
@@ -155,6 +195,8 @@ const Sidebar: Component<SidebarProps> = (props) => {
 			side: "left",
 			variant: "sidebar",
 			collapsible: "offcanvas",
+			mobileDescription: SIDEBAR_MOBILE_DESCRIPTION,
+			mobileTitle: SIDEBAR_MOBILE_TITLE,
 		},
 		props,
 	);
@@ -162,11 +204,13 @@ const Sidebar: Component<SidebarProps> = (props) => {
 		"side",
 		"variant",
 		"collapsible",
+		"mobileDescription",
+		"mobileTitle",
 		"class",
 		"children",
 	]);
 
-	const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+	const { isMobile, state, openMobile, setOpenMobile, widthMobile } = useSidebar();
 
 	return (
 		<Switch>
@@ -191,12 +235,12 @@ const Sidebar: Component<SidebarProps> = (props) => {
 						data-slot="sidebar"
 						side={local.side}
 						style={{
-							"--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+							"--sidebar-width": widthMobile,
 						}}
 					>
 						<SheetHeader class="sr-only">
-							<SheetTitle>Sidebar</SheetTitle>
-							<SheetDescription>Displays the mobile sidebar.</SheetDescription>
+							<SheetTitle>{local.mobileTitle}</SheetTitle>
+							<SheetDescription>{local.mobileDescription}</SheetDescription>
 						</SheetHeader>
 						<div class="flex size-full flex-col">{local.children}</div>
 					</SheetContent>

@@ -1,6 +1,6 @@
 # @de100/ui-shared
 
-Shared UI foundation package for Proto Cook apps.
+Shared UI foundation package for workspace apps.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Shared UI foundation package for Proto Cook apps.
 
 ## Public API
 
-From [package.json](/home/viavi/Desktop/workspaces/github/proto-cook/packages/ui/shared/package.json):
+From `package.json`:
 
 - `@de100/ui-shared`
 - `@de100/ui-shared/styles/base.css`

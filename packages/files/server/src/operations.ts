@@ -209,16 +209,22 @@ export type FilesTelemetryAdapter = {
 	recordPlaybackEvent(event: FilesPlaybackEvent): Promise<void> | void;
 };
 
+export type FilesEntitlementSubject = {
+	id: string;
+	metadata?: Record<string, unknown> | null;
+	preview?: boolean;
+	resourceIds?: Record<string, string>;
+	type: string;
+};
+
 export type FilesEntitlementAdapter<TAppContext = unknown> = {
 	canReadFile(input: {
 		context: FilesRequestContext<TAppContext>;
 		file: FileRecord;
 	}): Promise<boolean> | boolean;
-	canReadCourseLesson?: (input: {
+	canReadSubject?: (input: {
 		context: FilesRequestContext<TAppContext>;
-		courseId: string;
-		lessonId: string;
-		preview: boolean;
+		subject: FilesEntitlementSubject;
 	}) => Promise<boolean> | boolean;
 };
 

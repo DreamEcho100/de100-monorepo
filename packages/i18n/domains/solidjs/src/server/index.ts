@@ -8,13 +8,21 @@ type ServerI18nLocaleDef = I18nLocaleDef extends I18nLocaleDefShape
 
 export function createServerI18nState(options: {
 	defaultLocale: I18nLocaleCode;
+	defaultResolvedTheme?: "dark" | "light";
+	defaultThemePreference?: "dark" | "light" | "system";
+	localeCookieName?: string;
 	locales: readonly ServerI18nLocaleDef[];
 	request?: Request;
+	themeCookieName?: string;
 }) {
 	const initialSnapshot = createRequestI18nSnapshot({
 		defaultLocale: options.defaultLocale,
+		defaultResolvedTheme: options.defaultResolvedTheme,
+		defaultThemePreference: options.defaultThemePreference,
+		localeCookieName: options.localeCookieName,
 		locales: options.locales,
 		request: options.request,
+		themeCookieName: options.themeCookieName,
 	});
 	const activeLocale =
 		options.locales.find((candidate) => candidate.code === initialSnapshot.locale) ??
@@ -29,8 +37,12 @@ export function createServerI18nState(options: {
 
 export function createSolidStartI18nHelpers(options: {
 	defaultLocale: I18nLocaleCode;
+	defaultResolvedTheme?: "dark" | "light";
+	defaultThemePreference?: "dark" | "light" | "system";
+	localeCookieName?: string;
 	locales: readonly ServerI18nLocaleDef[];
 	shouldLocalizePathname?: (pathnameWithoutLocale: string, segments: readonly string[]) => boolean;
+	themeCookieName?: string;
 }) {
 	const routing = createI18nRouting({
 		defaultLocale: options.defaultLocale,
@@ -53,8 +65,12 @@ export function createSolidStartI18nHelpers(options: {
 		createServerI18nState(request?: Request) {
 			return createServerI18nState({
 				defaultLocale: options.defaultLocale,
+				defaultResolvedTheme: options.defaultResolvedTheme,
+				defaultThemePreference: options.defaultThemePreference,
+				localeCookieName: options.localeCookieName,
 				locales: options.locales,
 				request,
+				themeCookieName: options.themeCookieName,
 			});
 		},
 	};

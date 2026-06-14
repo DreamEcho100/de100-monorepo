@@ -1,8 +1,60 @@
 # HTML Report Format
 
-The architectural review is rendered as a single self-contained HTML file in the OS temp directory. Tailwind and Mermaid both come from CDNs. Mermaid handles graph-shaped diagrams reliably; hand-built divs and inline SVG handle the more editorial visuals (mass diagrams, cross-sections). Mix the two — don't lean on Mermaid for everything, it'll start to look generic.
+The architecture review is rendered as a single self-contained HTML file in the OS temp directory.
 
-## Scaffold
+Tailwind and Mermaid both come from CDNs.
+
+Mermaid handles graph-shaped diagrams reliably.
+
+Hand-built divs and inline SVG handle editorial visuals:
+
+- mass diagrams,
+- cross-sections,
+- scope ladders,
+- call-graph collapse,
+- AI-agent trap cards.
+
+Mix the two. Do not lean on Mermaid for everything.
+
+---
+
+# Output location
+
+Write the report to the OS temp directory.
+
+Do not write the report into the repo.
+
+Resolve the temp directory like this:
+
+- Use `$TMPDIR` when available.
+- Fall back to `/tmp` on Linux/macOS.
+- Use `%TEMP%` on Windows.
+
+Filename format:
+
+```txt
+architecture-review-<timestamp>.html
+```
+
+Example:
+
+```txt
+/tmp/architecture-review-2026-06-14T09-32-10.html
+```
+
+Open it for the user:
+
+- Linux: `xdg-open <path>`
+- macOS: `open <path>`
+- Windows: `start <path>`
+
+Then tell the user the absolute path.
+
+---
+
+# Scaffold
+
+Use this scaffold unless there is a project-specific reason to adjust it.
 
 ```html
 <!doctype html>
@@ -13,19 +65,38 @@ The architectural review is rendered as a single self-contained HTML file in the
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module">
       import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "neutral",
+        securityLevel: "loose",
+      });
     </script>
     <style>
-      /* small custom layer for things Tailwind doesn't cover cleanly:
-         dashed seam lines, hand-drawn-feeling arrow heads, etc. */
-      .seam { stroke-dasharray: 4 4; }
-      .leak { stroke: #dc2626; }
-      .deep { background: linear-gradient(135deg, #0f172a, #1e293b); }
+      .seam {
+        stroke-dasharray: 4 4;
+      }
+
+      .leak {
+        stroke: #dc2626;
+      }
+
+      .deep {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+      }
+
+      .scope-ladder-step {
+        border-left: 4px solid #cbd5e1;
+      }
+
+      .scope-ladder-step.active {
+        border-left-color: #4f46e5;
+      }
     </style>
   </head>
   <body class="bg-stone-50 text-slate-900 font-sans">
     <main class="max-w-5xl mx-auto px-6 py-12 space-y-12">
       <header>...</header>
+      <section id="topology">...</section>
       <section id="candidates" class="space-y-10">...</section>
       <section id="top-recommendation">...</section>
     </main>
@@ -33,91 +104,483 @@ The architectural review is rendered as a single self-contained HTML file in the
 </html>
 ```
 
-## Header
+Only scripts allowed:
 
-Repo name, date, and a compact legend: solid box = module, dashed line = seam, red arrow = leakage, thick dark box = deep module. No introduction paragraph — straight into the candidates.
+- Tailwind CDN,
+- Mermaid ESM import.
 
-## Candidate card
+The report is otherwise static.
 
-The diagrams carry the weight. Prose is sparse, plain, and uses the glossary terms ([LANGUAGE.md](LANGUAGE.md)) without ceremony.
+---
 
-Each candidate is one `<article>`:
+# Visual style
 
-- **Title** — short, names the deepening (e.g. "Collapse the Order intake pipeline").
-- **Badge row** — recommendation strength (`Strong` = emerald, `Worth exploring` = amber, `Speculative` = slate), plus a tag for the dependency category (`in-process`, `local-substitutable`, `ports & adapters`, `mock`).
-- **Files** — monospaced list, `font-mono text-sm`.
-- **Before / After diagram** — the centrepiece. Two columns, side by side. See patterns below.
-- **Problem** — one sentence. What hurts.
-- **Solution** — one sentence. What changes.
-- **Wins** — bullets, ≤6 words each. e.g. "Tests hit one interface", "Pricing logic stops leaking", "Delete 4 shallow wrappers".
-- **ADR callout** (if applicable) — one line in an amber-tinted box.
+Lean editorial, not corporate dashboard.
 
-No paragraphs of explanation. If the diagram needs a paragraph to be understood, redraw the diagram.
+Use:
 
-## Diagram patterns
+- generous whitespace,
+- stone/slate background,
+- sparse color,
+- one accent color,
+- red for leakage,
+- amber for warnings,
+- emerald for strong recommendations,
+- indigo or slate for structural emphasis.
 
-Pick the pattern that fits the candidate. Mix them. Don't make every diagram look the same — variety is part of the point.
+Candidate diagrams should be around 320px tall when possible.
 
-### Mermaid graph (the workhorse for dependencies / call flow)
+Before/after diagrams should sit side by side without scrolling.
 
-Use a Mermaid `flowchart` or `graph` when the point is "X calls Y calls Z, and look at the mess." Wrap it in a Tailwind-styled card so it doesn't feel parachuted in. Style with classDef to colour leakage edges red and the deep module dark. Sequence diagrams work well for "before: 6 round-trips; after: 1."
+Use `text-xs uppercase tracking-wider` for schematic labels.
+
+No decorative diagrams. Every diagram must explain structure.
+
+---
+
+# Header
+
+Include:
+
+- repo name,
+- review timestamp,
+- detected stack,
+- whether `CONTEXT.md` was found,
+- whether `AGENTS.md` was found,
+- number of ADRs read,
+- number of packages inspected,
+- number of candidates found,
+- compact legend:
+  - solid box = module,
+  - dashed line = seam,
+  - red arrow = leakage,
+  - thick dark box = deep module.
+
+No long introduction paragraph.
+
+Go straight into topology and candidates.
+
+---
+
+# Package topology overview
+
+The report must include a package topology overview before candidate cards.
+
+Show:
+
+- apps,
+- app-specific packages,
+- workspace-global packages,
+- package families,
+- integrations,
+- public interfaces,
+- suspicious dependency directions,
+- missing README/package-doc signals,
+- possible too-local or too-global modules.
+
+Use Mermaid when graph-shaped.
+
+Use custom visuals when explaining scope ladders.
+
+Include a short diagnosis.
+
+Example diagnosis:
+
+> The repo has a useful split between app-specific packages and workspace-global packages, but several package families use similar ideas with inconsistent topology. The main risk is not duplication; it is context switching and AI-navigation drift.
+
+---
+
+# Candidate card
+
+Each candidate is one `<article>`.
+
+The diagrams carry the weight.
+
+Prose is sparse, plain, and uses the glossary terms from `LANGUAGE.md`.
+
+Each card includes:
+
+- **Title**
+- **Badge row**
+  - recommendation strength,
+  - candidate type,
+  - dependency category.
+
+- **Files/packages**
+- **Before / After diagram**
+- **Problem**
+- **Solution direction**
+- **Wins**
+- **Score table**
+- **ADR callout**, if applicable.
+- **Risks**
+- **Grilling questions**
+
+---
+
+# Candidate title
+
+Short and names the deepening or topology change.
+
+Good:
+
+```txt
+Deepen the Recipe intake module
+Clarify the files package topology
+Move dashboard-only table helpers inward
+```
+
+Bad:
+
+```txt
+Refactor utils.ts
+Create service layer
+```
+
+---
+
+# Badge row
+
+Recommendation strength:
+
+- `Strong` — emerald.
+- `Worth exploring` — amber.
+- `Speculative` — slate.
+
+Candidate type:
+
+- Deepen module
+- Move inward
+- Promote outward
+- Clarify package topology
+- Clarify public exports
+- Add package README
+- Strengthen seam
+- Remove ceremonial seam
+- Fix test surface
+- Fix AI-navigation trap
+
+Dependency category:
+
+- in-process
+- local-substitutable
+- remote but owned
+- true external
+- mixed
+- N/A
+
+---
+
+# Files / Packages
+
+Use a monospaced list.
+
+Group when useful:
+
+- callers,
+- implementation modules,
+- app-specific packages,
+- workspace-global packages,
+- tests,
+- ADRs,
+- package READMEs,
+- public exports.
+
+---
+
+# Before / After Diagram
+
+Every candidate needs a before/after visual.
+
+Show:
+
+- what callers currently need to know,
+- where implementation knowledge is currently spread,
+- what becomes deeper after the refactor,
+- which seam becomes more meaningful,
+- whether adapters are real or hypothetical,
+- whether code moves inward or outward,
+- which package scope changes.
+
+If the diagram needs a long paragraph to be understood, redraw the diagram.
+
+---
+
+# Problem
+
+One sentence.
+
+Use architecture vocabulary.
+
+Good:
+
+> Recipe intake is shallow — callers still know validation ordering, cache invalidation rules, and persistence error modes.
+
+Bad:
+
+> Recipe intake could be cleaner.
+
+---
+
+# Solution direction
+
+One sentence.
+
+Describe the direction without proposing final interfaces.
+
+Good:
+
+> Concentrate recipe intake validation, normalization, and persistence coordination behind one deeper module.
+
+Bad:
+
+> Create `RecipeIntakeService.processRecipe(input)`.
+
+---
+
+# Wins
+
+Bullets.
+
+Six words or fewer when possible.
+
+Use glossary terms.
+
+Good:
+
+```txt
+- locality: rules concentrate
+- leverage: one interface
+- tests hit behaviour
+- fewer scattered imports
+- Zod stays in validators
+```
+
+Bad:
+
+```txt
+- easier to maintain
+- cleaner code
+```
+
+---
+
+# Score table
+
+Use this table shape:
+
+```txt
+Depth gain:          Low | Medium | High
+Locality gain:       Low | Medium | High
+Test value:          Low | Medium | High
+Refactor risk:       Low | Medium | High
+Context switching:   Reduced | Neutral | Increased
+Scope correctness:   Too local | Correct | Too global | Unclear
+AI navigability:     Low | Medium | High
+Effort:              Small | Medium | Large
+Confidence:          Low | Medium | High
+Dependency category: In-process | Local-substitutable | Remote but owned | True external | Mixed | N/A
+```
+
+Every score must include a short reason.
+
+Do not provide scores without explanation.
+
+---
+
+# ADR callout
+
+If the candidate contradicts an ADR, include an amber callout.
+
+Shape:
+
+```txt
+Contradicts ADR-0007 — worth reopening because <specific friction>.
+```
+
+Only include ADR conflicts when friction is real enough to justify reopening the decision.
+
+Do not list every theoretical refactor an ADR forbids.
+
+---
+
+# Diagram patterns
+
+Pick the pattern that fits the candidate.
+
+Mix them.
+
+Do not make every diagram look the same.
+
+## Mermaid graph
+
+Use for dependencies, calls, package topology, and sequences.
 
 ```html
 <div class="rounded-lg border border-slate-200 bg-white p-4">
   <pre class="mermaid">
     flowchart LR
-      A[OrderHandler] --> B[OrderValidator]
-      B --> C[OrderRepo]
-      C -.leak.-> D[PricingClient]
+      A[RecipeForm] --> B[RecipeValidator]
+      A --> C[RecipeMutation]
+      C --> D[RecipeProcedure]
+      D -.leaks.-> E[RecipeRepo]
       classDef leak stroke:#dc2626,stroke-width:2px;
-      class C,D leak
+      class D,E leak
   </pre>
 </div>
 ```
 
-### Hand-built boxes-and-arrows (when Mermaid's layout fights you)
+## Hand-built boxes-and-arrows
 
-Modules as `<div>`s with borders and labels. Arrows as inline SVG `<line>` or `<path>` elements positioned absolutely over a relative container. Reach for this when you want the "after" diagram to feel like one thick-bordered deep module with greyed-out internals — Mermaid won't render that with the right weight.
+Use when Mermaid layout fights the explanation.
 
-### Cross-section (good for layered shallowness)
+Good for showing:
 
-Stack horizontal bands (`h-12 border-l-4`) to show layers a call passes through. Before: 6 thin layers each doing nothing. After: 1 thick band labelled with the consolidated responsibility.
+- one thick deep module,
+- greyed-out internals,
+- package scope movement,
+- hidden implementation.
 
-### Mass diagram (good for "interface as wide as implementation")
+## Cross-section
 
-Two rectangles per module — one for interface surface area, one for implementation. Before: interface rectangle is nearly as tall as the implementation rectangle (shallow). After: interface rectangle is short, implementation rectangle is tall (deep).
+Good for layered shallowness.
 
-### Call-graph collapse
+Before:
 
-Before: a tree of function calls rendered as nested boxes. After: the same tree collapsed into one box, with the now-internal calls shown faded inside it.
+```txt
+thin module
+thin module
+thin module
+thin module
+```
 
-## Style guidance
+After:
 
-- Lean editorial, not corporate-dashboard. Generous whitespace. Serif optional for headings (`font-serif` works well with stone/slate).
-- Colour sparingly: one accent (emerald or indigo) plus red for leakage and amber for warnings.
-- Keep diagrams ~320px tall so before/after sits comfortably side by side without scrolling.
-- Use `text-xs uppercase tracking-wider` for module labels inside diagrams — they should read as schematic, not as UI.
-- The only scripts are the Tailwind CDN and the Mermaid ESM import. The report is otherwise static — no app code, no interactivity beyond Mermaid's own rendering.
+```txt
+one deep module
+```
 
-## Top recommendation section
+## Mass diagram
 
-One larger card. Candidate name, one sentence on why, anchor link to its card. That's it.
+Good for “interface as wide as implementation.”
 
-## Tone
+Before:
 
-Plain English, concise — but the architectural nouns and verbs come straight from [LANGUAGE.md](LANGUAGE.md). Concision is not an excuse to drift.
+```txt
+large interface
+large implementation
+```
 
-**Use exactly:** module, interface, implementation, depth, deep, shallow, seam, adapter, leverage, locality.
+After:
 
-**Never substitute:** component, service, unit (for module) · API, signature (for interface) · boundary (for seam) · layer, wrapper (for module, when you mean module).
+```txt
+small interface
+large implementation
+```
 
-**Phrasings that fit the style:**
+## Call-graph collapse
 
-- "Order intake module is shallow — interface nearly matches the implementation."
-- "Pricing leaks across the seam."
-- "Deepen: one interface, one place to test."
-- "Two adapters justify the seam: HTTP in prod, in-memory in tests."
+Good when a scattered call tree becomes internal implementation.
 
-**Wins bullets** name the gain in glossary terms: *"locality: bugs concentrate in one module"*, *"leverage: one interface, N call sites"*, *"interface shrinks; implementation absorbs the wrappers"*. Don't write *"easier to maintain"* or *"cleaner code"* — those terms aren't in the glossary and don't earn their place.
+Before:
 
-No hedging, no throat-clearing, no "it's worth noting that…". If a sentence could be a bullet, make it a bullet. If a bullet could be cut, cut it. If a term isn't in [LANGUAGE.md](LANGUAGE.md), reach for one that is before inventing a new one.
+```txt
+caller → helper → mapper → validator → adapter
+```
+
+After:
+
+```txt
+caller → deep module
+          faded internal implementation
+```
+
+## Scope ladder
+
+Good for move inward / promote outward candidates.
+
+```txt
+feature-local
+→ app-local
+→ app-specific package
+→ workspace-global package
+→ public package interface
+```
+
+Highlight current scope and proposed scope.
+
+## AI-agent trap card
+
+Good for confusing structure.
+
+Show:
+
+- misleading name,
+- likely wrong edit path,
+- correct path,
+- README/AGENTS.md fix.
+
+---
+
+# Top recommendation section
+
+One larger card.
+
+Include:
+
+- candidate name,
+- anchor link to candidate card,
+- one sentence explaining why.
+
+Use:
+
+- highest leverage,
+- best locality improvement,
+- most painful current test surface,
+- lowest ADR conflict,
+- best scope-correctness improvement,
+- best domain-name clarity,
+- best AI-navigation payoff,
+- best solo-founder speed improvement,
+- best team-scale maintainability improvement.
+
+---
+
+# Suggested next action
+
+After top recommendation, include:
+
+```txt
+Recommended next action:
+<one practical next step>
+```
+
+Then ask:
+
+```txt
+Which candidate would you like to explore?
+```
+
+Do not propose final interfaces yet.
+
+Do not start editing code.
+
+---
+
+# Tone
+
+Plain English.
+
+Concise.
+
+Use architectural nouns from `LANGUAGE.md`.
+
+No hedging.
+
+No throat-clearing.
+
+If a sentence can be a bullet, make it a bullet.
+
+If a bullet can be cut, cut it.
+
+If a term is not in `LANGUAGE.md`, prefer one that is before inventing a new one.

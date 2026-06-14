@@ -42,7 +42,7 @@ describe("files schemas", () => {
 				fileName: "notes.txt",
 				fileSize: 100,
 				protocol: "xhr",
-				routeSlug: "courseAsset",
+				routeSlug: "documentAsset",
 			}),
 		).toMatchObject({
 			visibility: "private",

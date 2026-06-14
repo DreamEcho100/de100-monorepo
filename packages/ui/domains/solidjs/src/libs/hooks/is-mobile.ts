@@ -1,15 +1,21 @@
 import type { Accessor } from "solid-js";
 import { createSignal, onCleanup, onMount } from "solid-js";
 
-const MOBILE_BREAKPOINT = 768;
+export const DEFAULT_MOBILE_BREAKPOINT = 768;
 
-const getIsMobile = () => typeof window !== "undefined" && window.innerWidth < MOBILE_BREAKPOINT;
+export type UseIsMobileOptions = {
+	breakpoint?: number;
+};
 
-const useIsMobile = (): Accessor<boolean> => {
-	const [isMobile, setIsMobile] = createSignal(getIsMobile());
+const getIsMobile = (breakpoint = DEFAULT_MOBILE_BREAKPOINT) =>
+	typeof window !== "undefined" && window.innerWidth < breakpoint;
+
+const useIsMobile = (options: UseIsMobileOptions = {}): Accessor<boolean> => {
+	const breakpoint = options.breakpoint ?? DEFAULT_MOBILE_BREAKPOINT;
+	const [isMobile, setIsMobile] = createSignal(getIsMobile(breakpoint));
 
 	onMount(() => {
-		const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+		const mediaQuery = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
 		const handleChange = () => {
 			setIsMobile(mediaQuery.matches);
 		};

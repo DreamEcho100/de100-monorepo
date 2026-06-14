@@ -1,8 +1,8 @@
 # Current Plan: Proto Cook Modernization
 
-Last updated: 2026-06-12
+Last updated: 2026-06-14
 
-Current active phase: Phase 10A - Lab i18n, lifecycle docs, and manual hardening
+Current active phase: Phase 12 complete - awaiting manual feedback or next scope
 
 Archived previous tracker:
 
@@ -46,6 +46,7 @@ Proto Cook is the prototype host app for reusable product decisions. It is not a
 16. Cohesive Solid state should use `createStore`; independent primitive state can remain signals.
 17. `docs/archive/**` may preserve historical terminology. Active docs/source may not.
 18. Root `package.json` scripts are workspace orchestration only. Package/domain/service-specific commands must live in the owning package and be reached through Turbo or explicit `pnpm -F` commands.
+19. Reusable packages may export safe defaults, but app/domain policy must be injectable through options, adapters, predicates, or props. Hardcoded app assumptions do not belong in general packages.
 
 ## Phase Board
 
@@ -62,9 +63,10 @@ Status legend: Not Started, In Progress, Done, Blocked, Paused.
 | 7     | Solid state refactor and test audit       | Done        |
 | 8     | Final gates, stale scans, and handoff      | Done        |
 | 9     | Root script ownership cleanup             | Done        |
-| 10A   | Lab i18n, lifecycle docs, and manual hardening | In Progress |
-| 10B   | i18n package parity and type consistency | Not Started |
-| 11    | Final QA, visible browser evaluation, and handoff | Not Started |
+| 10A   | Lab i18n, lifecycle docs, and manual hardening | Done |
+| 10B   | i18n package parity and type consistency | Done |
+| 11    | Final QA, visible browser evaluation, and handoff | Done |
+| 12    | Reusable package assumption audit       | Done |
 
 ## Phase 1 - Planning and Domain Docs
 
@@ -416,7 +418,7 @@ Address the remaining active-app hardening feedback: all visible UI text should 
 | 3 | Finish per-lab tutorial docs | Done | `docs/proto-cook/files/labs/*` |
 | 4 | Link lab tutorials from files manual index and overview | Done | `docs/proto-cook/files/00-index.md`, `06-labs-manual-testing.md` |
 | 5 | Document dev-server and Docker service lifecycle | Done | `docs/proto-cook/files/07-troubleshooting-and-expected-failures.md` |
-| 6 | Run Phase 10A focused checks | Pending | Validation log |
+| 6 | Run Phase 10A focused checks | Done | Validation log |
 
 ### Exit Gates
 
@@ -459,7 +461,7 @@ Keep the current `defineTranslation` API compatible with the passed-on Maze patt
 | 4 | Add localized link and route helper exports | Done | `packages/i18n/domains/solidjs` |
 | 5 | Migrate app helpers mechanically where covered by tests | Done | `apps/proto-cook-web/i18n` wraps package routing helper |
 | 6 | Update TypeScript skill guidance | Done | `.agents/skills/typescript-best-practices/SKILL.md` |
-| 7 | Run Phase 10B focused checks | In Progress | Core and Solid domain focused checks passed; app checks pending. |
+| 7 | Run Phase 10B focused checks | Done | Validation log |
 
 ### Exit Gates
 
@@ -487,13 +489,80 @@ Run final package/app gates, stale scans, visible browser lab evaluation, and re
 7. Run visible/manual browser evaluation from `docs/proto-cook/files/labs`.
 8. Record final DX/UX notes and residual risks.
 
+### Status
+
+- Done: package script-shape validation passed.
+- Done: global format/lint, typecheck, tests, and Proto Cook web build passed.
+- Done: stale active app/media scan only reports intentional CI scanner patterns and historical tracker wording.
+- Done: headless Playwright browser evaluation passed for lab gating, product files gating, Hybrid/HTTP lab controls, generated fixtures, course-video lab, and lesson player shell.
+- Done: headed Playwright browser evaluation passed with the same coverage for visible local browser execution.
+- Done: final DX/UX evidence was appended to `docs/files-platform-dx-evaluation.md`.
+
 ## Follow-Up Backlog
 
-1. Run the manual files labs from `docs/proto-cook/files/06-labs-manual-testing.md` in a visible browser and record product/DX feedback.
+1. Run the full manual files lab tutorials from `docs/proto-cook/files/06-labs-manual-testing.md` as a human walkthrough and record subjective product/DX feedback.
 2. Decide whether to remove legacy stopped Docker containers with `docker compose up --remove-orphans` during a separate local cleanup.
 3. If production runtime warnings matter for the deployment target, raise the Nitro/esbuild target above ES2019 or isolate the bigint-producing dependency.
 4. Push the split workflows and verify `proto-cook-ci.yml` and `general-packages-ci.yml` remotely with GitHub services.
-5. Complete Phase 10A/10B before opening new Files Platform feature work.
+5. Continue manual feedback after Phase 12, using the files lab tutorials as the checklist.
+6. Package topology candidate: `packages/*/domains/solidjs` currently names framework integrations as `domains`; consider a future `integrations/solidjs` package-family rename only if the churn is justified by onboarding friction.
+7. Package docs candidate: add package READMEs for major package families beyond the current UI README coverage.
+
+## Phase 12 - Reusable Package Assumption Audit
+
+### Objective
+
+Audit workspace-global packages for app-owned assumptions, fix concrete leaks with injectable seams, and document remaining package-topology follow-up without opening a broad rewrite.
+
+### Scope
+
+1. Scan reusable package families:
+   - `packages/i18n`
+   - `packages/ui`
+   - `packages/files`
+2. Flag only assumptions that are app/domain policy or deployment/runtime policy:
+   - app routes and route exclusions
+   - app env names
+   - storage provider defaults that should be configured by the app
+   - service URLs/ports
+   - cookie names and persistence policy
+   - visible app copy
+   - auth/role/product assumptions
+3. Keep legitimate reusable defaults when they are safe and overrideable.
+4. Fix concrete leaks by adding options, adapters, predicates, or props.
+5. Record unresolved architecture candidates as follow-up, not hidden TODOs.
+
+### Step Tracker
+
+| Step | Task | Status | Evidence |
+| ---- | ---- | ------ | -------- |
+| 1 | Run reusable-package assumption scans | Done | Validation log |
+| 2 | Fix concrete app-owned assumption leaks | Done | Source diffs |
+| 3 | Record package-topology follow-up candidates | Done | Follow-up backlog |
+| 4 | Run focused package checks | Done | Validation log |
+| 5 | Run global format/lint, typecheck, and tests | Done | Validation log |
+
+### Exit Gates
+
+1. Focused scans produce no unreviewed app-owned assumptions in workspace-global packages.
+2. `pnpm -F @de100/i18n-core type:check`
+3. `pnpm -F @de100/i18n-core test`
+4. `pnpm -F @de100/i18n-domains-solidjs type:check`
+5. `pnpm -F @de100/i18n-domains-solidjs test`
+6. `pnpm -F @de100/ui-domains-solidjs type:check`
+7. `pnpm format-and-lint:check`
+8. `pnpm type:check`
+9. `pnpm test`
+
+### Status
+
+- Done: package scans found concrete leaks in files/UI packages and broader topology candidates.
+- Done: `@de100/files-shared` export `filesBalancedCourseHlsPreset` was hard-renamed to generic `filesBalancedHlsPreset`.
+- Done: remaining course wording was removed from `packages/files` tests, making the package-family course-term scan clean.
+- Done: `@de100/files-server` entitlement adapter no longer exposes `canReadCourseLesson`; it now exposes generic `canReadSubject` through `FilesEntitlementSubject`.
+- Done: Proto Cook API now owns the `course-lesson` entitlement subject shape when integrating course playback with the files package.
+- Done: reusable UI package READMEs no longer describe themselves as Proto Cook-only packages.
+- Done: stale absolute docs links to the old `proto-cook` workspace path were replaced with stable repo-relative path text.
 
 ## Validation Log
 
@@ -534,3 +603,41 @@ Run final package/app gates, stale scans, visible browser lab evaluation, and re
 - 2026-06-12: `pnpm -F @de100/i18n-domains-solidjs type:check` passed after reactive `t`, lazy translation loading, loading state, localized link, and SolidStart helper updates.
 - 2026-06-12: `pnpm -F @de100/i18n-domains-solidjs test` passed with 2 server helper tests.
 - 2026-06-12: Updated local `typescript-best-practices` skill with package-grade API seams, module augmentation, `as const satisfies`, template-literal inference, and type-test guidance.
+- 2026-06-14: Audited package-level static assumptions after user review. `@de100/i18n-core` now keeps exported cookie/theme defaults but allows custom cookie names, max age, cookie attributes, and theme defaults through client/server options.
+- 2026-06-14: `@de100/i18n-domains-solidjs` now forwards configurable i18n preference cookies/theme defaults through the provider and SolidStart helper seams.
+- 2026-06-14: `@de100/ui-domains-solidjs` sidebar/mobile behavior defaults are injectable: sidebar cookie name/max age, keyboard shortcut, mobile breakpoint, widths, and mobile sr-only copy. Uploader dropzone warning fixed by using `fieldset`.
+- 2026-06-14: `pnpm -F @de100/i18n-core type:check` passed.
+- 2026-06-14: `pnpm -F @de100/i18n-core test` passed with 12 tests.
+- 2026-06-14: `pnpm -F @de100/i18n-domains-solidjs type:check` passed.
+- 2026-06-14: `pnpm -F @de100/ui-domains-solidjs type:check` passed.
+- 2026-06-14: `pnpm -F @de100/i18n-domains-solidjs test` passed with 2 tests.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-web lint:lab-ui-copy` passed.
+- 2026-06-14: `pnpm lint:workspace-package-scripts` passed.
+- 2026-06-14: `pnpm format-and-lint:check` passed.
+- 2026-06-14: `pnpm type:check` passed.
+- 2026-06-14: `pnpm test` passed.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-web build` passed with existing non-blocking Nitro/esbuild bigint target warnings.
+- 2026-06-14: Active stale terminology/no-`formatI18nTemplate` scan is clean except intentional CI scanner regexes and historical tracker text.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-web test:browser` passed with 4 Playwright tests covering unauthenticated files/product gating, authenticated Hybrid/HTTP lab rendering and fixture generation, course-video lab rendering, and lesson player shell rendering.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-web test:browser:headed` passed with the same 4 tests. This satisfies the automated visible-browser gate available to Codex; full human tutorial walkthrough remains a feedback backlog item.
+- 2026-06-14: `pnpm format-and-lint:check` passed after final tracker and DX report updates.
+- 2026-06-14: Phase 12 started to audit reusable packages for app-owned assumptions after Phase 11 closed.
+- 2026-06-14: Targeted reusable-package scans found and removed concrete leaks: course-named files HLS preset, course-specific files-server entitlement adapter, Proto Cook-only reusable UI README wording, and stale absolute docs links to an old local workspace path.
+- 2026-06-14: `rg -n "Course|course" packages/files` produced no active matches after neutralizing files package tests and public names.
+- 2026-06-14: `pnpm -F @de100/files-shared type:check` passed.
+- 2026-06-14: `pnpm -F @de100/files-shared test` passed with 10 files and 34 tests.
+- 2026-06-14: `pnpm -F @de100/files-server type:check` passed.
+- 2026-06-14: `pnpm -F @de100/files-server test` passed with 17 files and 54 tests.
+- 2026-06-14: `pnpm -F @de100/files-processing-video type:check` passed.
+- 2026-06-14: `pnpm -F @de100/files-processing-video test` passed with 1 file and 9 tests.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-api type:check` passed.
+- 2026-06-14: `pnpm -F @de100/apps-proto-cook-api test` passed with 7 files and 27 tests.
+- 2026-06-14: `pnpm -F @de100/i18n-core type:check` passed.
+- 2026-06-14: `pnpm -F @de100/i18n-core test` passed with 3 files and 12 tests.
+- 2026-06-14: `pnpm -F @de100/i18n-domains-solidjs type:check` passed.
+- 2026-06-14: `pnpm -F @de100/i18n-domains-solidjs test` passed with 1 file and 2 tests.
+- 2026-06-14: `pnpm -F @de100/ui-shared type:check` passed.
+- 2026-06-14: `pnpm -F @de100/ui-domains-solidjs type:check` passed after correcting the uploader `fieldset` ref type.
+- 2026-06-14: `pnpm format-and-lint:check` passed for Phase 12.
+- 2026-06-14: `pnpm type:check` passed with 43 Turbo tasks.
+- 2026-06-14: `pnpm test` passed with 19 Turbo test tasks.

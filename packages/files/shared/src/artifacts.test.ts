@@ -2,21 +2,21 @@ import { describe, expect, it } from "vitest";
 
 import {
 	filesArtifactRecordSchema,
-	filesBalancedCourseHlsPreset,
+	filesBalancedHlsPreset,
 	filesCreateArtifactGroupInputSchema,
 	filesHlsPresetSchema,
 	filesSignedHlsPlaybackSessionSchema,
 } from "./artifacts";
 
 describe("files artifact contracts", () => {
-	it("accepts a balanced course HLS preset with source-aware rendition skipping", () => {
-		expect(filesBalancedCourseHlsPreset.renditions.map((rendition) => rendition.label)).toEqual([
+	it("accepts a balanced HLS preset with source-aware rendition skipping", () => {
+		expect(filesBalancedHlsPreset.renditions.map((rendition) => rendition.label)).toEqual([
 			"480p",
 			"720p",
 			"1080p",
 		]);
-		expect(filesBalancedCourseHlsPreset.segmentFormat).toBe("mpeg-ts");
-		expect(filesBalancedCourseHlsPreset.skipRenditionsAboveSource).toBe(true);
+		expect(filesBalancedHlsPreset.segmentFormat).toBe("mpeg-ts");
+		expect(filesBalancedHlsPreset.skipRenditionsAboveSource).toBe(true);
 	});
 
 	it("rejects empty HLS rendition ladders", () => {

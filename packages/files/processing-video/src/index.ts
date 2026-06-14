@@ -12,7 +12,7 @@ import type {
 } from "@de100/files-shared";
 import {
 	createFilesHlsAes128KeyUri,
-	filesBalancedCourseHlsPreset,
+	filesBalancedHlsPreset,
 	normalizeFilesAes128Hex,
 } from "@de100/files-shared";
 
@@ -145,7 +145,7 @@ export const filesVideoDefaultHlsProcessingPreset: FilesVideoHlsProcessingPreset
 	inputFormats: ["mp4", "mov", "webm", "mkv"],
 	originalRetention: "keep",
 	playbackProtection: "signed-session",
-	preset: filesBalancedCourseHlsPreset,
+	preset: filesBalancedHlsPreset,
 };
 
 export function detectFilesVideoInputFormat(input: {

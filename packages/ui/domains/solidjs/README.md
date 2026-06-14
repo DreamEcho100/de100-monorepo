@@ -1,6 +1,6 @@
 # @de100/ui-domains-solidjs
 
-Shared SolidJS UI domain package for Proto Cook apps.
+Shared SolidJS UI domain package for workspace apps.
 
 ## Purpose
 

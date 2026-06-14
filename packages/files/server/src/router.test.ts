@@ -6,13 +6,13 @@ describe("files router builder", () => {
 	it("creates typed route definitions and extracts route config", async () => {
 		const f = createFilesRouteBuilder;
 		const router = createFilesRouter({
-			courseAsset: f({ image: { maxFileSize: "4MB" } })
+			imageAsset: f({ image: { maxFileSize: "4MB" } })
 				.middleware(() => ({ ownerId: "user_1" }))
 				.onUploadComplete(({ metadata }) => ({ ownerId: metadata.ownerId })),
 		});
 
 		expect(extractFilesRouterConfig(router)).toHaveLength(1);
-		const route = router.courseAsset;
+		const route = router.imageAsset;
 		expect(route).toBeDefined();
 		await expect(
 			Promise.resolve(

@@ -156,7 +156,7 @@ export function I18nProvider(
 
 	onMount(() => {
 		if (typeof window.matchMedia !== "function") {
-			setSystemTheme(getSystemTheme());
+			setSystemTheme(getSystemTheme(props.defaultResolvedTheme));
 			return;
 		}
 
@@ -183,8 +183,16 @@ export function I18nProvider(
 		};
 
 		applyDocumentSnapshot(nextSnapshot);
-		persistCookie(LOCALE_COOKIE_NAME, nextSnapshot.locale);
-		persistCookie(THEME_COOKIE_NAME, nextSnapshot.themePreference);
+		persistCookie(
+			props.preferenceCookies?.localeName ?? LOCALE_COOKIE_NAME,
+			nextSnapshot.locale,
+			props.preferenceCookies,
+		);
+		persistCookie(
+			props.preferenceCookies?.themeName ?? THEME_COOKIE_NAME,
+			nextSnapshot.themePreference,
+			props.preferenceCookies,
+		);
 	});
 
 	onCleanup(() => {

@@ -73,7 +73,7 @@ describe("files transfer policy", () => {
 		});
 	});
 
-	it("uses multipart for resumable course-video style S3-compatible routes", () => {
+	it("uses multipart for resumable large-video S3-compatible routes", () => {
 		for (const storageBackend of ["minio-s3", "r2-s3"] as const) {
 			expect(
 				selectFilesUploadMode({

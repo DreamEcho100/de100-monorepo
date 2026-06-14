@@ -141,7 +141,7 @@ const Uploader = (props: UploaderProps) => {
 	let fileInputRef: HTMLInputElement | undefined;
 	let cameraInputRef: HTMLInputElement | undefined;
 	let dashboardRef: HTMLDivElement | undefined;
-	let dropzoneRef: HTMLDivElement | undefined;
+	let dropzoneRef: HTMLFieldSetElement | undefined;
 
 	const addIncomingFiles = (files: File[]) => {
 		if (!files.length || local.disabled) {
@@ -233,14 +233,13 @@ const Uploader = (props: UploaderProps) => {
 
 			<Show
 				fallback={
-					<div
+					<fieldset
 						aria-label={uploader.a11y().dropzoneLabel}
 						class="flex min-h-36 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed p-6 text-center"
 						data-slot="uploader-dropzone"
 						onDragOver={onDragOver}
 						onDrop={onDrop}
 						ref={dropzoneRef}
-						role="group"
 					>
 						<p class="text-muted-foreground text-sm">{uploader.i18n().dropzoneHint}</p>
 						<div class="flex flex-wrap items-center justify-center gap-2">
@@ -262,7 +261,7 @@ const Uploader = (props: UploaderProps) => {
 								</Button>
 							</Show>
 						</div>
-					</div>
+					</fieldset>
 				}
 				when={local.mode === "dashboard"}
 			>

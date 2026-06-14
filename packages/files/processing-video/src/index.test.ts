@@ -20,12 +20,12 @@ import {
 } from "./index";
 
 describe("video HLS processing planning", () => {
-	it("detects accepted course video inputs from content type or extension", () => {
+	it("detects accepted video inputs from content type or extension", () => {
 		expect(
 			detectFilesVideoInputFormat({ contentType: "video/quicktime", fileName: "clip.bin" }),
 		).toBe("mov");
-		expect(detectFilesVideoInputFormat({ fileName: "lesson.MKV" })).toBe("mkv");
-		expect(detectFilesVideoInputFormat({ fileName: "lesson.txt" })).toBeUndefined();
+		expect(detectFilesVideoInputFormat({ fileName: "recording.MKV" })).toBe("mkv");
+		expect(detectFilesVideoInputFormat({ fileName: "recording.txt" })).toBeUndefined();
 	});
 
 	it("selects source-aware HLS renditions without upscaling", () => {
@@ -254,17 +254,17 @@ describe("video HLS processing planning", () => {
 		const localPlan = createFilesVideoLocalPreprocessPlan({
 			binaryPath: "/usr/bin/ffmpeg",
 			inputPath: "/videos/source.mp4",
-			outputPrefix: "/encoded/course-1/lesson-1",
+			outputPrefix: "/encoded/video-1/session-1",
 			sourceMetadata: { height: 480, width: 854 },
 		});
 
-		expect(localPlan.plan.targetPrefix).toBe("/encoded/course-1/lesson-1");
-		expect(localPlan.stagingPlan.targetPrefix).toBe("/encoded/course-1/lesson-1/.staging");
+		expect(localPlan.plan.targetPrefix).toBe("/encoded/video-1/session-1");
+		expect(localPlan.stagingPlan.targetPrefix).toBe("/encoded/video-1/session-1/.staging");
 		expect(localPlan.commands.every((command) => command.binaryPath === "/usr/bin/ffmpeg")).toBe(
 			true,
 		);
 		expect(localPlan.commands.map((command) => command.args.at(-1))).toContain(
-			"/encoded/course-1/lesson-1/.staging/480p/index.m3u8",
+			"/encoded/video-1/session-1/.staging/480p/index.m3u8",
 		);
 	});
 

@@ -102,7 +102,7 @@ export const filesHlsPresetSchema = z.object({
 	skipRenditionsAboveSource: z.boolean().default(true),
 });
 
-export const filesBalancedCourseHlsPreset = filesHlsPresetSchema.parse({
+export const filesBalancedHlsPreset = filesHlsPresetSchema.parse({
 	renditions: [
 		{ bandwidth: 800_000, height: 480, label: "480p", videoBitrate: 700_000, width: 854 },
 		{ bandwidth: 2_800_000, height: 720, label: "720p", videoBitrate: 2_500_000, width: 1280 },

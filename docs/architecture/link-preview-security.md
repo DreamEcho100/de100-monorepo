@@ -6,7 +6,7 @@ The link-preview system supports predictive prefetch and metadata previews while
 
 Implementation lives in:
 
-- [packages/ui/domains/solidjs/src/libs/link-preview/security-policy.ts](/home/viavi/Desktop/workspaces/github/proto-cook/packages/ui/domains/solidjs/src/libs/link-preview/security-policy.ts)
+- `packages/ui/domains/solidjs/src/libs/link-preview/security-policy.ts`
 
 ## Policy Model
 
@@ -54,4 +54,4 @@ When no custom input is provided:
 
 Policy coverage is tested in:
 
-- [packages/ui/domains/solidjs/src/link-preview/security-policy.test.ts](/home/viavi/Desktop/workspaces/github/proto-cook/packages/ui/domains/solidjs/src/link-preview/security-policy.test.ts)
+- `packages/ui/domains/solidjs/src/link-preview/security-policy.test.ts`

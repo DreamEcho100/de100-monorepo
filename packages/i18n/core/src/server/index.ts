@@ -9,8 +9,12 @@ import {
 
 type RequestSnapshotOptions<TLocaleCode extends I18nLocaleCode> = {
 	defaultLocale: TLocaleCode;
+	defaultResolvedTheme?: I18nSnapshot<TLocaleCode>["resolvedTheme"];
+	defaultThemePreference?: I18nSnapshot<TLocaleCode>["themePreference"];
+	localeCookieName?: string;
 	locales: readonly I18nLocaleDefShape<TLocaleCode>[];
 	request?: Request;
+	themeCookieName?: string;
 };
 
 function parseCookieHeader(cookieHeader: string | null | undefined) {
@@ -90,7 +94,7 @@ export function createRequestI18nSnapshot<TLocaleCode extends I18nLocaleCode>(
 ): I18nSnapshot<TLocaleCode> {
 	const allowedLocaleCodes = options.locales.map((locale) => locale.code);
 	const cookies = parseCookieHeader(options.request?.headers.get("cookie"));
-	const localeCookie = cookies.get(LOCALE_COOKIE_NAME);
+	const localeCookie = cookies.get(options.localeCookieName ?? LOCALE_COOKIE_NAME);
 	const cookieLocale = allowedLocaleCodes.find((localeCode) => localeCode === localeCookie);
 	const locale =
 		cookieLocale ??
@@ -101,13 +105,18 @@ export function createRequestI18nSnapshot<TLocaleCode extends I18nLocaleCode>(
 		);
 	const localeDefinition =
 		options.locales.find((candidate) => candidate.code === locale) ?? options.locales[0];
-	const themeCookie = cookies.get(THEME_COOKIE_NAME);
-	const themePreference = isThemePreference(themeCookie) ? themeCookie : DEFAULT_THEME_PREFERENCE;
+	const themeCookie = cookies.get(options.themeCookieName ?? THEME_COOKIE_NAME);
+	const themePreference = isThemePreference(themeCookie)
+		? themeCookie
+		: (options.defaultThemePreference ?? DEFAULT_THEME_PREFERENCE);
 
 	return {
 		dir: localeDefinition?.dir ?? "ltr",
 		locale,
-		resolvedTheme: themePreference === "dark" ? "dark" : DEFAULT_RESOLVED_THEME,
+		resolvedTheme:
+			themePreference === "dark"
+				? "dark"
+				: (options.defaultResolvedTheme ?? DEFAULT_RESOLVED_THEME),
 		themePreference,
 	};
 }

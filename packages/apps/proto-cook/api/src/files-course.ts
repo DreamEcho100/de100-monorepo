@@ -7,7 +7,7 @@ import {
 	courseVideoAssets,
 	fileArtifactGroups,
 } from "@de100/apps-proto-cook-db/schema/files";
-import { canReadCourseLessonWithEntitlements } from "@de100/files-server/entitlements";
+import { canReadFilesSubjectWithEntitlements } from "@de100/files-server/entitlements";
 import { createSignedHlsPlaybackSession } from "@de100/files-server/hls-playback";
 import type { FilesAuthContext, FilesRequestContext } from "@de100/files-server/operations";
 import type {
@@ -544,15 +544,22 @@ export async function canReadProtoCookCourseLesson(
 		return decision;
 	}
 
-	const entitled = await canReadCourseLessonWithEntitlements({
+	const entitled = await canReadFilesSubjectWithEntitlements({
 		adapter: {
-			canReadCourseLesson: () => true,
 			canReadFile: () => false,
+			canReadSubject: () => true,
 		},
 		context: requestContext,
-		courseId: accessContext.course.id,
-		lessonId: accessContext.lesson.id,
-		preview: accessContext.lesson.visibility === "preview",
+		subject: {
+			id: accessContext.lesson.id,
+			preview: accessContext.lesson.visibility === "preview",
+			resourceIds: {
+				chapterId: accessContext.chapter.id,
+				courseId: accessContext.course.id,
+				lessonId: accessContext.lesson.id,
+			},
+			type: "course-lesson",
+		},
 	});
 
 	return entitled ? decision : { allowed: false, reason: "not-enrolled" };

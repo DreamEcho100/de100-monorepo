@@ -1,6 +1,10 @@
 import type { FileRecord } from "@de100/files-shared";
 
-import type { FilesEntitlementAdapter, FilesRequestContext } from "./operations";
+import type {
+	FilesEntitlementAdapter,
+	FilesEntitlementSubject,
+	FilesRequestContext,
+} from "./operations";
 
 export type CanReadFileInput<TAppContext = unknown> = {
 	adapter?: FilesEntitlementAdapter<TAppContext>;
@@ -8,12 +12,10 @@ export type CanReadFileInput<TAppContext = unknown> = {
 	file: FileRecord;
 };
 
-export type CanReadCourseLessonInput<TAppContext = unknown> = {
+export type CanReadFilesSubjectInput<TAppContext = unknown> = {
 	adapter?: FilesEntitlementAdapter<TAppContext>;
 	context: FilesRequestContext<TAppContext>;
-	courseId: string;
-	lessonId: string;
-	preview: boolean;
+	subject: FilesEntitlementSubject;
 };
 
 export async function canReadFileWithEntitlements<TAppContext = unknown>(
@@ -26,19 +28,17 @@ export async function canReadFileWithEntitlements<TAppContext = unknown>(
 	return (await input.adapter?.canReadFile(input)) ?? false;
 }
 
-export async function canReadCourseLessonWithEntitlements<TAppContext = unknown>(
-	input: CanReadCourseLessonInput<TAppContext>,
+export async function canReadFilesSubjectWithEntitlements<TAppContext = unknown>(
+	input: CanReadFilesSubjectInput<TAppContext>,
 ) {
-	if (input.preview) {
+	if (input.subject.preview) {
 		return true;
 	}
 
 	return (
-		(await input.adapter?.canReadCourseLesson?.({
+		(await input.adapter?.canReadSubject?.({
 			context: input.context,
-			courseId: input.courseId,
-			lessonId: input.lessonId,
-			preview: input.preview,
+			subject: input.subject,
 		})) ?? false
 	);
 }

@@ -34,6 +34,7 @@ export type I18nProviderProps<
 	TMessages extends I18nTranslations = I18nTranslations,
 > = {
 	createLocalizedPath?: (locale: TLocaleCode, pathname: string) => string;
+	defaultResolvedTheme?: ResolvedTheme;
 	fallbackLocale?: TLocaleCode | readonly TLocaleCode[];
 	initialSnapshot: I18nSnapshot;
 	loadTranslations?: (
@@ -44,4 +45,12 @@ export type I18nProviderProps<
 		| undefined;
 	locales: readonly I18nLocaleDefShape<TLocaleCode, TMessages>[];
 	onError?: Parameters<typeof generateI18nConfig>[0]["onError"];
+	preferenceCookies?: {
+		localeName?: string;
+		maxAge?: number;
+		path?: string;
+		sameSite?: "Lax" | "Strict" | "None";
+		secure?: boolean;
+		themeName?: string;
+	};
 };

@@ -2,8 +2,8 @@ import type { FileRecord } from "@de100/files-shared";
 import { describe, expect, it } from "vitest";
 
 import {
-	canReadCourseLessonWithEntitlements,
 	canReadFileByDefault,
+	canReadFilesSubjectWithEntitlements,
 	canReadFileWithEntitlements,
 } from "./entitlements";
 
@@ -32,22 +32,26 @@ describe("files entitlement helpers", () => {
 		).resolves.toBe(true);
 	});
 
-	it("allows preview lessons and delegates private lessons", async () => {
+	it("allows preview subjects and delegates private subjects", async () => {
 		await expect(
-			canReadCourseLessonWithEntitlements({
+			canReadFilesSubjectWithEntitlements({
 				context,
-				courseId: "course_1",
-				lessonId: "lesson_1",
-				preview: true,
+				subject: {
+					id: "subject_1",
+					preview: true,
+					type: "video-lesson",
+				},
 			}),
 		).resolves.toBe(true);
 		await expect(
-			canReadCourseLessonWithEntitlements({
-				adapter: { canReadFile: () => false, canReadCourseLesson: () => true },
+			canReadFilesSubjectWithEntitlements({
+				adapter: { canReadFile: () => false, canReadSubject: () => true },
 				context,
-				courseId: "course_1",
-				lessonId: "lesson_1",
-				preview: false,
+				subject: {
+					id: "subject_1",
+					preview: false,
+					type: "video-lesson",
+				},
 			}),
 		).resolves.toBe(true);
 	});

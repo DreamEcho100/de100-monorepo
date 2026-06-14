@@ -11,6 +11,7 @@ Read in order:
 5. `05-minio-r2-and-provider-smoke.md` - local MinIO parity, R2 production shape, and smoke checks.
 6. `06-labs-manual-testing.md` - manual lab routes, scenarios, inputs, and expected behavior.
 7. `07-troubleshooting-and-expected-failures.md` - known failure modes and diagnosis steps.
+8. `../../files-platform-dx-evaluation.md` - accumulated API, player, provider, and browser-evaluation evidence.
 
 Per-lab tutorials live under `labs/`:
 
