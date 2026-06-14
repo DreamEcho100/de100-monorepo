@@ -13,6 +13,7 @@ Current entry points:
 - `proto-cook/files/00-index.md`: ordered Files Platform architecture, flow, manual testing, and troubleshooting manual
 - `onboarding.md`: repo layout, active packages, and first commands
 - `setup/environment.md`: environment variables and local setup expectations
+- `setup/ci-workflows.md`: CI workflow ownership, service containers, and package-owned Turbo task conventions
 - `setup/ui-domains-migration.md`: migration guide for UI package rename, boundary realignment, and app prefetch architecture updates
 - `setup/phase10-release-checklist.md`: ordered automation/manual QA checklist for release-gate execution
 - `setup/custom-xhr-chunk-upload-backend.md`: deferred next-cycle contract spec for app-owned large-file chunk uploads

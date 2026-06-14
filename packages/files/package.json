@@ -11,6 +11,10 @@
 		"format:fix": "biome format --css-parse-tailwind-directives=true --write .",
 		"lint:check": "biome lint --css-parse-tailwind-directives=true .",
 		"lint:fix": "biome lint --css-parse-tailwind-directives=true --write .",
-		"type:check": "node -e \"process.exit(0)\""
+		"type:check": "node -e \"process.exit(0)\"",
+		"ci:proto-cook:format-and-lint": "pnpm format-and-lint:check",
+		"ci:proto-cook:type:check": "pnpm type:check",
+		"ci:general:format-and-lint": "pnpm format-and-lint:check",
+		"ci:general:type:check": "pnpm type:check"
 	}
 }

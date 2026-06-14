@@ -20,7 +20,7 @@ pnpm dev
 If you switch `.env.local` to `APP_PROTO_COOK_CACHE_DRIVER=redis`, also start the local Redis service first:
 
 ```bash
-docker compose up -d proto-cook-redis
+pnpm -F @de100/apps-proto-cook-infra redis:up
 ```
 
 The app expects the default local origin from `.env.local`:
@@ -50,7 +50,7 @@ Page routes are canonical under `/en/...` and `/ar/...`. The locale middleware w
 ## Auth cache
 
 - `APP_PROTO_COOK_CACHE_DRIVER=memory` is the safe local default and keeps Better Auth secondary storage in-process.
-- `APP_PROTO_COOK_CACHE_DRIVER=redis` uses `REDIS_URL`, which matches the optional `proto-cook-redis` Docker service in the repo root compose file.
+- `APP_PROTO_COOK_CACHE_DRIVER=redis` uses `REDIS_URL`, which matches the optional `proto-cook-redis` Docker service owned by `@de100/apps-proto-cook-infra`.
 - `APP_PROTO_COOK_CACHE_DRIVER=upstash` uses `APP_PROTO_COOK_UPSTASH_REDIS_URL` and `APP_PROTO_COOK_UPSTASH_REDIS_TOKEN`.
 - Better Auth keeps sessions in the database and mirrors secondary-storage reads and writes through the configured cache backend.
 
@@ -106,7 +106,7 @@ pnpm -F @de100/apps-proto-cook-db db:down
 pnpm -F @de100/apps-proto-cook-db db:reset
 pnpm -F @de100/apps-proto-cook-db db:migrate
 pnpm -F @de100/apps-proto-cook-db db:generate
-docker compose up -d proto-cook-redis
+pnpm -F @de100/apps-proto-cook-infra redis:up
 pnpm -F @de100/apps-proto-cook-web db:seed
 pnpm dev
 curl -I http://127.0.0.1:3000/

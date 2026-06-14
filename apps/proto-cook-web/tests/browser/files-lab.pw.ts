@@ -1,12 +1,24 @@
 import { expect, test } from "@playwright/test";
 
+async function mockUnauthenticatedSession(page: import("@playwright/test").Page) {
+	await page.route("**/api/auth/**", async (route) => {
+		await route.fulfill({
+			contentType: "application/json",
+			json: null,
+			status: 200,
+		});
+	});
+}
+
 test("gates the files lab for unauthenticated users", async ({ page }) => {
+	await mockUnauthenticatedSession(page);
 	await page.goto("/en/files-lab");
 
 	await expect(page).toHaveURL(/\/en\/login/);
 });
 
 test("gates the product files page for unauthenticated users", async ({ page }) => {
+	await mockUnauthenticatedSession(page);
 	await page.goto("/en/files", { waitUntil: "commit" });
 
 	await expect(page).toHaveURL(/\/en\/login/);

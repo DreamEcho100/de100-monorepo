@@ -10,7 +10,9 @@
 		"format:fix": "biome format --config-path=\"./biome.json\" --css-parse-tailwind-directives=true --write .",
 		"lint:check": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true .",
 		"lint:fix": "biome lint --config-path=\"./biome.json\" --css-parse-tailwind-directives=true  --write .",
-		"type:check": "tsc -p tsconfig.json --noEmit"
+		"type:check": "tsc -p tsconfig.json --noEmit",
+		"ci:proto-cook:format-and-lint": "pnpm format-and-lint:check",
+		"ci:proto-cook:type:check": "pnpm type:check"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",

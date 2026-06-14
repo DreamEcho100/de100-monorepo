@@ -25,7 +25,7 @@ pnpm -F @de100/apps-proto-cook-db db:up
 If you want Better Auth secondary storage backed by local Redis instead of the default in-process cache, also start Redis and set `APP_PROTO_COOK_CACHE_DRIVER=redis` plus `REDIS_URL` in `.env.local`.
 
 ```bash
-docker compose up -d proto-cook-redis
+pnpm -F @de100/apps-proto-cook-infra redis:up
 ```
 
 4. Apply the current migrations.
